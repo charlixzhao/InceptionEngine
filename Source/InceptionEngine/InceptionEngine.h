@@ -44,6 +44,8 @@ namespace inceptionengine
 	private:
 		InceptionEngine();
 
+		~InceptionEngine();
+
 		InceptionEngine(InceptionEngine const&) = delete;
 
 		InceptionEngine& operator = (InceptionEngine&) = delete;

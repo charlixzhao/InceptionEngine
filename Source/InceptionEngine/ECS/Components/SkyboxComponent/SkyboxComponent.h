@@ -1,9 +1,10 @@
 
 #pragma once
 
-#include "ECS/Components/IRenderComponent/IRenderComponent.h"
+#include "RunTime/RHI/Renderer/IRenderObject.h"
 
-#include "RunTime/SkeletalMesh/Vertex.h"
+#include "RunTime/RHI/Renderer/Vertex.h"
+#include "RunTime/RHI/Renderer/ShaderPath.h"
 
 #include <array>
 #include <vector>
@@ -11,19 +12,22 @@
 
 namespace inceptionengine
 {
-	class SkyboxComponent : public IRenderComponent
+	class SkyboxComponent : public IRenderObject
 	{
 	public:
 		std::vector<Vertex> GetVertices();
 
 		std::vector<unsigned int> GetIndices();
 
+		virtual std::vector<RenderUnit>& GetRenderUnits(unsigned int i) override;
+
+		virtual RenderObejctID GetRenderObejctID() const override;
+
 	private:
 		friend class SkyboxSystem;
 
-		virtual std::vector<RenderUnit>& GetRenderUnits(unsigned int i) override;
+		RenderObejctID mRenderObejctID = Renderer::InvalidRenderObjectID;
 
-	private:
 		ShaderPath const mShaderPath =
 		{
 			"D:\\InceptionEngine\\EngineResource\\Shader\\spv\\skyboxVertex.spv",

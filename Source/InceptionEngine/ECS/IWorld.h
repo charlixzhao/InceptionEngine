@@ -35,6 +35,8 @@ namespace inceptionengine
 
 		virtual void SetSkybox(std::array<std::string, 6> const& texturePaths) = 0;
 
+
+
 	private:
 		friend class InceptionEngine;
 

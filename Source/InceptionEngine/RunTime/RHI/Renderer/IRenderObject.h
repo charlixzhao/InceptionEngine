@@ -1,16 +1,20 @@
 #pragma once
 
-
+#include "Renderer.h"
 #include <vector>
 
 namespace inceptionengine
 {
-	struct RenderUnit;
-
 	class IRenderObject
 	{
 	public:
-		//RenderObejctID mRenderObejctID = Renderer::InvalidRenderObjectID;
+		IRenderObject() = default;
+
+		virtual ~IRenderObject() = default;
+
+		virtual RenderObejctID GetRenderObejctID() const = 0;
+
+		RenderObejctID mRenderObejctID = Renderer::InvalidRenderObjectID;
 
 		virtual std::vector<RenderUnit>& GetRenderUnits(unsigned int i) = 0;
 

@@ -8,6 +8,8 @@ so this class will be exposed to the dll
 
 #include "EngineGlobals/EngineApiPrefix.h"
 
+#include <functional>
+
 namespace inceptionengine
 {
 	class Entity;
@@ -15,7 +17,7 @@ namespace inceptionengine
 	class IE_API NativeScript
 	{
 	public:
-		NativeScript(Entity const& entity);
+		NativeScript(std::reference_wrapper<Entity const> entity);
 
 		virtual ~NativeScript() = default;
 
@@ -24,7 +26,7 @@ namespace inceptionengine
 		void Destroy();
 
 	protected:
-		Entity const& mEntity;
+		std::reference_wrapper<Entity const> mEntity;
 
 	private:
 		virtual void OnBegin();

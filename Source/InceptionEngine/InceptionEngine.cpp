@@ -31,7 +31,7 @@ namespace inceptionengine
 		mRenderer->Initialize(*mWindowHandler);
 	}
 
-
+	InceptionEngine::~InceptionEngine() = default;
 
 	IWorld* InceptionEngine::CreateWorld()
 	{

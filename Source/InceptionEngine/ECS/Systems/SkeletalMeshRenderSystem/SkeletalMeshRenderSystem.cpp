@@ -2,6 +2,7 @@
 
 #include "ECS/Entity/EntityComponentPool.hpp"
 #include "ECS/Components/SkeletalMeshComponent/SkeletalMeshComponent.h"
+#include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 #include "RunTime/RHI/Renderer/Renderer.h"
 
 namespace inceptionengine
@@ -19,7 +20,7 @@ namespace inceptionengine
 		auto& view = pool->GetComponentView();
 		for (auto& component : view)
 		{
-			if (component.mLoadedToDevice == false && component.mSkeletalMeshInstance.mSkeletalMesh != nullptr)
+			if (component.mLoadedToDevice == false && component.mSkeletalMeshInstance->mSkeletalMesh != nullptr)
 			{
 				LoadSkeletalMeshToDevice(component);
 
@@ -41,7 +42,7 @@ namespace inceptionengine
 		auto& view = pool->GetComponentView();
 		for (auto& component : view)
 		{
-			if (component.mLoadedToDevice == true && component.mSkeletalMeshInstance.mSkeletalMesh != nullptr)
+			if (component.mLoadedToDevice == true && component.mSkeletalMeshInstance->mSkeletalMesh != nullptr)
 			{
 				UnloadSkeletalMeshFromDevice(component);
 
@@ -52,49 +53,49 @@ namespace inceptionengine
 
 	void SkeletalMeshRenderSystem::LoadSkeletalMeshToDevice(SkeletalMeshComponent& component)
 	{
-		mRenderer.CreateUniformBuffer(component.mUniformBuffer);
-		mRenderer.InitializeUniformBuffer(component.mUniformBuffer,
-										  GetArrayOfIdentity<Transform>(component.mSkeletalMeshInstance.mSkeletalMesh->mSkeleton.GetBoneNumber() + AnimPoseOffsetInUBuffer));
+		mRenderer.CreateUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer);
+		mRenderer.InitializeUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer,
+										  GetArrayOfIdentity<Transform>(component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.GetBoneNumber() + AnimPoseOffsetInUBuffer));
 
-		auto numOfSubMesh = component.mVertexBuffers.size();
+		auto numOfSubMesh = component.mSkeletalMeshInstance->mVertexBuffers.size();
 		for (size_t i = 0; i < numOfSubMesh; i++)
 		{
-			mRenderer.CreateVertexBuffer(component.mVertexBuffers[i], component.mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes[i].vertices);
+			mRenderer.CreateVertexBuffer(component.mSkeletalMeshInstance->mVertexBuffers[i], component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].vertices);
 
-			mRenderer.CreateIndexBuffer(component.mIndexBuffers[i], component.mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes[i].indices);
+			mRenderer.CreateIndexBuffer(component.mSkeletalMeshInstance->mIndexBuffers[i], component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].indices);
 
-			mRenderer.CreateTexture(component.mTextures[i], component.mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes[i].texturePath);
+			mRenderer.CreateTexture(component.mSkeletalMeshInstance->mTextures[i], component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].texturePath);
 
-			mRenderer.CreateUniformBufferDescription(component.mUniformBufferDescriptions[i],
-													 component.mUniformBuffer, 
-													 component.mTextures[i]);
+			mRenderer.CreateUniformBufferDescription(component.mSkeletalMeshInstance->mUniformBufferDescriptions[i],
+													 component.mSkeletalMeshInstance->mUniformBuffer,
+													 component.mSkeletalMeshInstance->mTextures[i]);
 
-			mRenderer.CreatePipeline(component.mPipelines[i], 
-									 component.mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes[i].shaderPath, 
-									 component.mUniformBufferDescriptions[i]);
+			mRenderer.CreatePipeline(component.mSkeletalMeshInstance->mPipelines[i],
+									 component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].shaderPath, 
+									 component.mSkeletalMeshInstance->mUniformBufferDescriptions[i]);
 		}
 
 		CreateRenderUnit(component);
 
-		mRenderer.SubmitToDevice(&component);
+		mRenderer.SubmitToDevice(component.mSkeletalMeshInstance.get());
 	}
 
 	void SkeletalMeshRenderSystem::UnloadSkeletalMeshFromDevice(SkeletalMeshComponent& component)
 	{
-		mRenderer.DestroyUniformBuffer(component.mUniformBuffer);
+		mRenderer.DestroyUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer);
 
-		auto numOfSubMesh = component.mVertexBuffers.size();
+		auto numOfSubMesh = component.mSkeletalMeshInstance->mVertexBuffers.size();
 		for (size_t i = 0; i < numOfSubMesh; i++)
 		{
-			mRenderer.DestroyVertexBuffer(component.mVertexBuffers[i]);
+			mRenderer.DestroyVertexBuffer(component.mSkeletalMeshInstance->mVertexBuffers[i]);
 
-			mRenderer.DestroyIndexBuffer(component.mIndexBuffers[i]);
+			mRenderer.DestroyIndexBuffer(component.mSkeletalMeshInstance->mIndexBuffers[i]);
 
-			mRenderer.DestroyTexture(component.mTextures[i]);
+			mRenderer.DestroyTexture(component.mSkeletalMeshInstance->mTextures[i]);
 
-			mRenderer.DestroyUniformBufferDescription(component.mUniformBufferDescriptions[i]);
+			mRenderer.DestroyUniformBufferDescription(component.mSkeletalMeshInstance->mUniformBufferDescriptions[i]);
 
-			mRenderer.DestroyPipeline(component.mPipelines[i]);
+			mRenderer.DestroyPipeline(component.mSkeletalMeshInstance->mPipelines[i]);
 		}
 	}
 
@@ -103,16 +104,16 @@ namespace inceptionengine
 
 		for (size_t bufferIndex = 0; bufferIndex < NumOfRenderBuffers; bufferIndex++)
 		{
-			for (size_t subpart = 0; subpart < component.mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes.size(); subpart++)
+			for (size_t subpart = 0; subpart < component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.size(); subpart++)
 			{
 				RenderUnit unit;
-				unit.vertexBuffer = &component.mVertexBuffers[subpart].vertexBuffer;
-				unit.indexBuffer = component.mIndexBuffers[subpart].indexBuffer;
-				unit.numOfIndices = component.mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes[subpart].indices.size();
-				unit.pipeline = component.mPipelines[subpart].pipeline;
-				unit.pipelineLayout = component.mPipelines[subpart].pipelineLayout;
-				unit.descriptorSet = &component.mUniformBufferDescriptions[subpart].descriptorSet[bufferIndex];
-				component.mRenderUnits[bufferIndex].push_back(std::move(unit));
+				unit.vertexBuffer = &component.mSkeletalMeshInstance->mVertexBuffers[subpart].vertexBuffer;
+				unit.indexBuffer = component.mSkeletalMeshInstance->mIndexBuffers[subpart].indexBuffer;
+				unit.numOfIndices = component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[subpart].indices.size();
+				unit.pipeline = component.mSkeletalMeshInstance->mPipelines[subpart].pipeline;
+				unit.pipelineLayout = component.mSkeletalMeshInstance->mPipelines[subpart].pipelineLayout;
+				unit.descriptorSet = &component.mSkeletalMeshInstance->mUniformBufferDescriptions[subpart].descriptorSet[bufferIndex];
+				component.mSkeletalMeshInstance->mRenderUnits[bufferIndex].push_back(std::move(unit));
 			}
 		}
 	}

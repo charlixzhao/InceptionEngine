@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Math/Math.h"
-
+#include <functional>
 
 namespace inceptionengine
 {
@@ -30,7 +30,7 @@ namespace inceptionengine
 		Vec3f GetForwardVec() const;
 
 	private:
-		CameraSystem& mSystem;
+		std::reference_wrapper<CameraSystem> mSystem;
 
 		Vec4f mPosition = { 0.0f,0.0f,0.0f,1.0f };
 		

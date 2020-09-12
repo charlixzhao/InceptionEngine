@@ -2,7 +2,7 @@
 
 namespace inceptionengine
 {
-	NativeScript::NativeScript(Entity const& entity)
+	NativeScript::NativeScript(std::reference_wrapper<Entity const> entity)
 		:mEntity(entity)
 	{
 	}

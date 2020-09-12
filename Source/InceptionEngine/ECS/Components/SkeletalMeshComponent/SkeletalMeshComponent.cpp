@@ -1,15 +1,22 @@
 
 #include "SkeletalMeshComponent.h"
 #include "Serialization/Serializer.h"
+#include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 
 #include <cassert>
 
 namespace inceptionengine
 {
+
 	SkeletalMeshComponent::SkeletalMeshComponent(SkeletalMeshRenderSystem& system)
 		:mSystem(system)
 	{
+		mSkeletalMeshInstance = std::make_unique<SkeletalMeshInstance>();
 	}
+
+	SkeletalMeshComponent::~SkeletalMeshComponent() = default;
+
+	SkeletalMeshComponent::SkeletalMeshComponent(SkeletalMeshComponent&&) noexcept = default;
 
 	void SkeletalMeshComponent::SetMesh(std::string const& meshFilePath)
 	{
@@ -21,16 +28,6 @@ namespace inceptionengine
 		size_t numSubMeshes = mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes.size();
 		InitializeRendererObjects(numSubMeshes);
 		*/
-	}
-	
-
-	void SkeletalMeshComponent::SetMesh(std::shared_ptr<SkeletalMesh> skeletalMesh)
-	{
-		mSkeletalMeshInstance.mSkeletalMesh = skeletalMesh;
-
-		size_t numSubMeshes = mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes.size();
-
-		InitializeRenderObjects(numSubMeshes);
 	}
 
 	void SkeletalMeshComponent::SetPlane()
@@ -67,26 +64,24 @@ namespace inceptionengine
 			"D:\\InceptionEngine\\EngineResource\\Shader\\spv\\fragment.spv" 
 		};
 
+		//SetMesh(plane);
 
-		SetMesh(plane);
+		mSkeletalMeshInstance->mSkeletalMesh = plane;
+
+		size_t numSubMeshes = mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.size();
+
+		InitializeRenderObjects(numSubMeshes);
+
+		
 	}
 
 	void SkeletalMeshComponent::InitializeRenderObjects(size_t numOfSubMeshes)
 	{
-		mVertexBuffers.resize(numOfSubMeshes);
-		mIndexBuffers.resize(numOfSubMeshes);
-		mTextures.resize(numOfSubMeshes);
-		mPipelines.resize(numOfSubMeshes);
-		mUniformBufferDescriptions.resize(numOfSubMeshes);
+		mSkeletalMeshInstance->InitializeRenderObjects(numOfSubMeshes);
 	}
 
 	void SkeletalMeshComponent::SetMeshPose(AnimPose const& pose)
 	{
-	}
-
-	std::vector<RenderUnit>& SkeletalMeshComponent::GetRenderUnits(unsigned int i)
-	{
-		return mRenderUnits[i];
 	}
 }
 

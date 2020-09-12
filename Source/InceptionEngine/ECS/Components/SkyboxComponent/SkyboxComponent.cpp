@@ -8,6 +8,10 @@ namespace inceptionengine
 	{
 		return mRenderUnits[i];
 	}
+	RenderObejctID SkyboxComponent::GetRenderObejctID() const
+	{
+		return mRenderObejctID;
+	}
 	std::vector<Vertex> SkyboxComponent::GetVertices()
 	{
 		std::array<Vec4f, 8> const vertexPositions =

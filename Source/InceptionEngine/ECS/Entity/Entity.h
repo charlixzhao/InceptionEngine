@@ -66,41 +66,41 @@ namespace inceptionengine
 
 		EntityID mID = InvalidID;
 
-		World* mWorldPtr = nullptr;
+		World* mWorld = nullptr;
 	};
 
 
 	/*
-	Add component specialization
+	AddComponent declaration
 	*/
-	template IE_API TransformComponent& Entity::AddComponent(int const&, int const&) const;
-	template IE_API SkeletalMeshComponent& Entity::AddComponent() const;
-	template IE_API NativeScriptComponent& Entity::AddComponent() const;
-	template IE_API CameraComponent& Entity::AddComponent() const;
+	extern template IE_API TransformComponent& Entity::AddComponent(int const&, int const&) const;
+	extern template IE_API SkeletalMeshComponent& Entity::AddComponent() const;
+	extern template IE_API NativeScriptComponent& Entity::AddComponent() const;
+	extern template IE_API CameraComponent& Entity::AddComponent() const;
 
 	/*
-	Get Component specialization
+	GetComponent declaration
 	*/
-	template IE_API TransformComponent& Entity::GetComponent() const;
-	template IE_API SkeletalMeshComponent& Entity::GetComponent() const;
-	template IE_API NativeScriptComponent& Entity::GetComponent() const;
-	template IE_API CameraComponent& Entity::GetComponent() const;
+	extern template IE_API TransformComponent& Entity::GetComponent() const;
+	extern template IE_API SkeletalMeshComponent& Entity::GetComponent() const;
+	extern template IE_API NativeScriptComponent& Entity::GetComponent() const;
+	extern template IE_API CameraComponent& Entity::GetComponent() const;
 
 	/*
-	Has Component specialization
+	HasComponent declaration
 	*/
-	template IE_API bool Entity::HasComponent<TransformComponent>() const;
-	template IE_API bool Entity::HasComponent<SkeletalMeshComponent>() const;
-	template IE_API bool Entity::HasComponent<NativeScriptComponent>() const;
-	template IE_API bool Entity::HasComponent<CameraComponent>() const;
+	extern template IE_API bool Entity::HasComponent<TransformComponent>() const;
+	extern template IE_API bool Entity::HasComponent<SkeletalMeshComponent>() const;
+	extern template IE_API bool Entity::HasComponent<NativeScriptComponent>() const;
+	extern template IE_API bool Entity::HasComponent<CameraComponent>() const;
 
 	/*
-	Delete component specialization
+	DeleteComponent declaration
 	*/
-	template IE_API void Entity::DeleteComponent<TransformComponent>() const;
-	template IE_API void Entity::DeleteComponent<SkeletalMeshComponent>() const;
-	template IE_API void Entity::DeleteComponent<NativeScriptComponent>() const;
-	template IE_API void Entity::DeleteComponent<CameraComponent>() const;
+	extern template IE_API void Entity::DeleteComponent<TransformComponent>() const;
+	extern template IE_API void Entity::DeleteComponent<SkeletalMeshComponent>() const;
+	extern template IE_API void Entity::DeleteComponent<NativeScriptComponent>() const;
+	extern template IE_API void Entity::DeleteComponent<CameraComponent>() const;
 
 }
 

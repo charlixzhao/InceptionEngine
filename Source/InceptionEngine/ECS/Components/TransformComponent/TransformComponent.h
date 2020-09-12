@@ -4,6 +4,7 @@
 #include "EngineGlobals/EngineApiPrefix.h"
 
 #include <iostream>
+#include <functional>
 
 namespace inceptionengine
 {
@@ -18,7 +19,7 @@ namespace inceptionengine
 
 	private:
 		friend class TransformSystem;
-		TransformSystem& mSystem;
+		std::reference_wrapper<TransformSystem> mSystem;
 
 		int mX = 0;
 		int mY = 0;

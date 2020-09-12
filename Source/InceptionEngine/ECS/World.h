@@ -33,6 +33,7 @@ include other untilities
 
 namespace inceptionengine
 {
+	class SkyboxComponent;
 
 	class World : public IWorld
 	{
@@ -56,6 +57,10 @@ namespace inceptionengine
 		void SetSkybox(std::array<std::string, 6> const& texturePaths);
 
 	private:
+		//class WorldImpl;
+
+		//std::unique_ptr<WorldImpl> mWorldImpl;
+
 		friend class InceptionEngine;
 		void WorldStart();
 

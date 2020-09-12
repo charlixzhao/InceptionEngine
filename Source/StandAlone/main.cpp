@@ -8,7 +8,7 @@ using namespace inceptionengine;
 class HornetScript : public NativeScript
 {
 public:
-	HornetScript(Entity const& entity)
+	HornetScript(std::reference_wrapper<Entity const> entity)
 		:NativeScript(entity)
 	{
 
@@ -29,7 +29,7 @@ int main()
 
 	auto& engine = InceptionEngine::GetInstance();
 
-
+	
 	IWorld* world = engine.CreateWorld();
 	
 	std::array<std::string, 6> skyboxTexturePath =
@@ -43,6 +43,7 @@ int main()
 	};
 	
 	world->SetSkybox(skyboxTexturePath);
+	
 
 	EntityID entityOneID = world->CreateEntity();
 	

@@ -5,6 +5,8 @@
 
 #include <memory>
 #include <type_traits>
+#include <functional>
+
 namespace inceptionengine
 {
 	class Entity;
@@ -26,11 +28,12 @@ namespace inceptionengine
 	private:
 		friend class NativeScriptSystem;
 
-		NativeScriptSystem& mSystem;
+		std::reference_wrapper<NativeScriptSystem> mSystem;
 
-		Entity const& mEntity;
+		std::reference_wrapper<Entity const> mEntity;
 
 		std::unique_ptr<NativeScript> mScript = nullptr;
 
 	};
 }
+

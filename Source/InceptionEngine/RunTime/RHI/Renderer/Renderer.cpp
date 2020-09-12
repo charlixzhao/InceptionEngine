@@ -8,7 +8,7 @@ External libraries
 #include "External/stb/stb_image.h"
 #include "External/glfw/include/GLFW/glfw3.h"
 
-#include "ECS/Components/IRenderComponent/IRenderComponent.h"
+#include "IRenderObject.h"
 #include "RunTime/RHI/WindowHandler/WindowHandler.h"
 
 #include <set>
@@ -182,7 +182,7 @@ namespace inceptionengine
 
 	}
 
-	std::int64_t Renderer::SubmitToDevice(IRenderComponent* renderComponent)
+	RenderObejctID Renderer::SubmitToDevice(IRenderObject* renderComponent)
 	{
 		size_t renderObjectID = m_actors.size();
 		m_actorLock.lock();

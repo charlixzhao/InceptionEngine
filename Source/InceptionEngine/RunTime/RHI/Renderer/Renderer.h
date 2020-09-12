@@ -6,7 +6,8 @@
 
 #include "Math/Math.h"
 #include "EngineGlobals/RenderGlobals.h"
-#include "RunTime/SkeletalMesh/Vertex.h"
+#include "Vertex.h"
+#include "ShaderPath.h"
 
 #include <string>
 #include <vector>
@@ -25,7 +26,7 @@ forward declaration for vulkan
 namespace inceptionengine
 {
 
-	class IRenderComponent;
+	class IRenderObject;
 
 	class WindowHandler;
 
@@ -40,12 +41,6 @@ namespace inceptionengine
 		Vec4f m_locationAndIntensity = Vec4f(0.0f);
 	};
 
-
-	struct ShaderPath
-	{
-		std::string vertexShaderPath;
-		std::string fragmentShaderPath;
-	};
 
 	struct MVP
 	{
@@ -146,7 +141,7 @@ namespace inceptionengine
 		VkDescriptorSet* descriptorSet = nullptr;
 	};
 
-	using RenderObejctID = std::vector<IRenderComponent>::size_type;
+	using RenderObejctID = std::vector<IRenderObject>::size_type;
 
 	class Renderer
 	{
@@ -230,7 +225,7 @@ namespace inceptionengine
 
 		void UpdateUniformBuffer(UniformBuffer& uBuffer, const std::vector<Matrix4x4f>& transformations, Light* light);
 
-		std::int64_t SubmitToDevice(IRenderComponent* renderComponent);
+		RenderObejctID SubmitToDevice(IRenderObject* renderComponent);
 
 		size_t GetNumActors();
 
@@ -403,7 +398,7 @@ namespace inceptionengine
 
 		std::recursive_mutex m_actorLock;
 
-		std::vector<IRenderComponent*> m_actors;
+		std::vector<IRenderObject*> m_actors;
 	};
 
 
