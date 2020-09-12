@@ -29,8 +29,7 @@ int main()
 
 	auto& engine = InceptionEngine::GetInstance();
 
-	
-	IWorld* world = engine.CreateWorld();
+	World* world = engine.CreateWorld();
 	
 	std::array<std::string, 6> skyboxTexturePath =
 	{

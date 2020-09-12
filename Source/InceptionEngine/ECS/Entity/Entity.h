@@ -3,6 +3,7 @@
 #include "EngineGlobals/EngineApiPrefix.h"
 #include "EngineGlobals/EngineConcepts.h"
 #include "EntityID.h"
+#include "EntityFriend.h"
 
 #include <vector>
 
@@ -12,20 +13,6 @@ namespace inceptionengine
 
 	class Entity;
 
-	//using EntityID = std::vector<Entity>::size_type;
-
-	/*
-	This class is used to transfer friendship to the vector in World so that we don't
-	need to define customed vector allocator. This friendship transfer makes sure that
-	only World can instantiate Entity so that user will not be able to create Entity 
-	by their own. All any creation must go through World::CreateEntity().
-	*/
-	class EntityFriend
-	{
-	private:
-		friend class World;
-	};
-
 	class IE_API Entity
 	{
 	public:
@@ -33,21 +20,23 @@ namespace inceptionengine
 
 		Entity() = delete;
 
-		explicit Entity(EntityID entityID, World * pWorld, EntityFriend entityFriend);
+		explicit Entity(EntityID entityID, World * pWorld, EntityFriend const& entityFriend);
 
 		Entity(Entity const&) = delete;
 
 		Entity& operator = (Entity const&) = delete;
 
-		Entity(Entity&&) = default;
+		Entity(Entity&& other);
 
-		Entity& operator = (Entity&&) = default;
+		Entity& operator = (Entity&& other);
 		
 		bool operator == (Entity const& other);
 
 		EntityID GetID() const;
 
 		bool IsValid() const;
+
+		World* GetWorld() const;
 
 		template<CComponent Component, typename ... Arg>
 		Component& AddComponent(Arg && ...args) const;

@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <functional>
 
 namespace inceptionengine
 {
@@ -28,6 +29,6 @@ namespace inceptionengine
 
 	private:
 		SkyboxComponent& mSkybox;
-		Renderer& mRenderer;
+		std::reference_wrapper<Renderer> mRenderer;
 	};
 }

@@ -2,6 +2,8 @@
 
 #include "ECS/Systems/SystemBase.h"
 
+#include <functional>
+
 namespace inceptionengine
 {
 	class Renderer;
@@ -26,7 +28,7 @@ namespace inceptionengine
 		void CreateRenderUnit(SkeletalMeshComponent& component);
 
 	private:
-		Renderer& mRenderer;
+		std::reference_wrapper<Renderer> mRenderer;
 
 	};
 }

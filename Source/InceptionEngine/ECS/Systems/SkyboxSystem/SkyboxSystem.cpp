@@ -33,29 +33,29 @@ namespace inceptionengine
 	}
 	void SkyboxSystem::LoadSkyboxToDevice()
 	{
-		mRenderer.CreateVertexBuffer(mSkybox.mVertexBuffer, mSkybox.GetVertices());
-		mRenderer.CreateIndexBuffer(mSkybox.mIndexBuffer, mSkybox.GetIndices());
-		mRenderer.CreateCubeMap(mSkybox.mCubMap, mSkybox.mTexturePathes);
-		mRenderer.CreateUniformBuffer(mSkybox.mUniformBuffer);
-		mRenderer.CreateSkyboxDataDescription(mSkybox.mUniformBufferDescription, mSkybox.mUniformBuffer, mSkybox.mCubMap);
-		mRenderer.CreatePipeline(mSkybox.mPipeline, mSkybox.mShaderPath, mSkybox.mUniformBufferDescription);
+		mRenderer.get().CreateVertexBuffer(mSkybox.mVertexBuffer, mSkybox.GetVertices());
+		mRenderer.get().CreateIndexBuffer(mSkybox.mIndexBuffer, mSkybox.GetIndices());
+		mRenderer.get().CreateCubeMap(mSkybox.mCubMap, mSkybox.mTexturePathes);
+		mRenderer.get().CreateUniformBuffer(mSkybox.mUniformBuffer);
+		mRenderer.get().CreateSkyboxDataDescription(mSkybox.mUniformBufferDescription, mSkybox.mUniformBuffer, mSkybox.mCubMap);
+		mRenderer.get().CreatePipeline(mSkybox.mPipeline, mSkybox.mShaderPath, mSkybox.mUniformBufferDescription);
 		CreateRenderUnit();
 
 		if (mSkybox.mRenderObejctID == Renderer::InvalidRenderObjectID)
 		{
-			mSkybox.mRenderObejctID = mRenderer.SubmitToDevice(&mSkybox);
+			mSkybox.mRenderObejctID = mRenderer.get().SubmitToDevice(&mSkybox);
 		}
 		
 	}
 
 	void SkyboxSystem::UnloadSkyboxFromDevice()
 	{
-		mRenderer.DestroyVertexBuffer(mSkybox.mVertexBuffer);
-		mRenderer.DestroyIndexBuffer(mSkybox.mIndexBuffer);
-		mRenderer.DestroyCubeMap(mSkybox.mCubMap);
-		mRenderer.DestroyUniformBuffer(mSkybox.mUniformBuffer);
-		mRenderer.DestroyUniformBufferDescription(mSkybox.mUniformBufferDescription);
-		mRenderer.DestroyPipeline(mSkybox.mPipeline);
+		mRenderer.get().DestroyVertexBuffer(mSkybox.mVertexBuffer);
+		mRenderer.get().DestroyIndexBuffer(mSkybox.mIndexBuffer);
+		mRenderer.get().DestroyCubeMap(mSkybox.mCubMap);
+		mRenderer.get().DestroyUniformBuffer(mSkybox.mUniformBuffer);
+		mRenderer.get().DestroyUniformBufferDescription(mSkybox.mUniformBufferDescription);
+		mRenderer.get().DestroyPipeline(mSkybox.mPipeline);
 		//mRenderer.delete actor
 	}
 

@@ -1,31 +1,13 @@
 
 #pragma once
 
+#include "EngineGlobals/EngineApiPrefix.h"
 
-#include "IWorld.h"
-
-/*
-include entity and component storage
-*/
-#include "Entity/Entity.h"
-#include "Entity/EntityComponentPool.hpp"
+#include "Entity/EntityID.h"
+#include "Entity/EntityFriend.h"
 #include "ECS/ComponentSystemTypeTraits.h"
 
-/*
-include component of the world
-*/
-#include "ECS/Components/SkyboxComponent/SkyboxComponent.h"
-
-/*
-include all systems
-*/
-#include "ECS/Systems/Systems.h"
-
-/*
-include other untilities
-*/
-#include "Timer.hpp"
-
+#include <memory>
 #include <vector>
 #include <queue>
 #include <array>
@@ -33,18 +15,24 @@ include other untilities
 
 namespace inceptionengine
 {
-	class SkyboxComponent;
+	class Entity;
+	class Renderer;
+	class ComponentsPool;
 
-	class World : public IWorld
+	class IE_API World
 	{
 	public:
 		World(Renderer& renderer);
 
-		~World() = default;
+		~World();
 
 		World(World const&) = delete;
 
 		World& operator = (World const&) = delete;
+
+		World(World&&) = delete;
+
+		World& operator = (World&&) = delete;
 
 		EntityID CreateEntity();
 
@@ -57,11 +45,21 @@ namespace inceptionengine
 		void SetSkybox(std::array<std::string, 6> const& texturePaths);
 
 	private:
-		//class WorldImpl;
+		/*
+		PIMPL idiom
+		*/
+		class WorldImpl;
 
-		//std::unique_ptr<WorldImpl> mWorldImpl;
+		std::unique_ptr<WorldImpl> mWorldImpl;
 
+		EntityFriend const mEntityFriend = {};
+
+	private:
+		/*
+		For engine to run the world
+		*/
 		friend class InceptionEngine;
+
 		void WorldStart();
 
 		void Simulate(float deltaTime);
@@ -70,68 +68,14 @@ namespace inceptionengine
 
 	private:
 		/*
-		All entities in the world
+		For entity to get system and components pool
 		*/
 		friend class Entity;
 
-		std::vector<Entity> mEntities;
+		ComponentsPool& GetComponentsPools();
 
-		std::queue<EntityID> mDeletedEntities;
-
-		template<typename CComponent>
-		typename SystemType<CComponent>::Type& GetSystem()
-		{
-			if constexpr (std::is_same_v<CComponent, SkeletalMeshComponent>)
-			{
-				return mSkeletalMeshRenderSystem;
-			}
-			else if constexpr (std::is_same_v<CComponent, TransformComponent>)
-			{
-				return mTransformSystem;
-			}
-			else if constexpr (std::is_same_v<CComponent, NativeScriptComponent>)
-			{
-				return mNativeScriptSystem;
-			}
-			else if constexpr (std::is_same_v<CComponent, CameraComponent>)
-			{
-				return mCameraSystem;
-			}
-		}
-
-
-	private:
-		void SystemsStart();
-
-		void SystemsEnd();
-
-	private:
-		/*
-		Storage for all components of entities
-		*/
-		ComponentsPool mEntityComponentPool;
-
-	private:
-		/*
-		All components of the world. These are components unique in world. Other example includes sunlight, world fog, 
-		and others
-		*/
-		SkyboxComponent mSkybox;
-
-	private:
-		/*
-		Systems controlling components of entites
-		*/
-		SkeletalMeshRenderSystem mSkeletalMeshRenderSystem;
-		TransformSystem mTransformSystem;
-		NativeScriptSystem mNativeScriptSystem;
-		CameraSystem mCameraSystem;
-
-	private:
-		/*
-		Systems controlling components of world
-		*/
-		SkyboxSystem mSkyboxSystem;
+		template<typename Component>
+		typename SystemType<Component>::Type& GetSystem();
 
 	};
 

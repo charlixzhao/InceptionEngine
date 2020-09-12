@@ -33,13 +33,13 @@ namespace inceptionengine
 
 	InceptionEngine::~InceptionEngine() = default;
 
-	IWorld* InceptionEngine::CreateWorld()
+	World* InceptionEngine::CreateWorld()
 	{
 		mWorld = std::make_unique<World>(*mRenderer);
 		return mWorld.get();
 	}
 
-	IWorld* InceptionEngine::LoadWorld(std::string const& worldFilePath)
+	World* InceptionEngine::LoadWorld(std::string const& worldFilePath)
 	{
 		return nullptr;
 	}

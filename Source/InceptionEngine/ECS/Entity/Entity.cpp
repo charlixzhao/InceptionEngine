@@ -3,11 +3,32 @@
 
 #include "ECS/World.h"
 
+#include "ECS/Entity/EntityComponentPool.hpp"
+
+#include <cassert>
+
 namespace inceptionengine
 {
-	Entity::Entity(EntityID entityID, World* pWorld, EntityFriend entityFriend)
+	Entity::Entity(EntityID entityID, World* pWorld, EntityFriend const & entityFriend)
 		:mID(entityID), mWorld(pWorld)
 	{
+	}
+
+	Entity::Entity(Entity&& other)
+	{
+		mID = other.mID;
+		mWorld = other.mWorld;
+		other.mID = Entity::InvalidID;
+		other.mWorld = nullptr;
+	}
+
+	Entity& Entity::operator=(Entity&& other)
+	{
+		mID = other.mID;
+		mWorld = other.mWorld;
+		other.mID = Entity::InvalidID;
+		other.mWorld = nullptr;
+		return *this;
 	}
 
 	/*
@@ -29,10 +50,15 @@ namespace inceptionengine
 		return mID != InvalidID;
 	}
 
+	World* Entity::GetWorld() const
+	{
+		return mWorld;
+	}
+
 	template<CComponent Component>
 	Component& Entity::GetComponent() const
 	{
-		return mWorld->mEntityComponentPool.GetComponent<Component>(mID);
+		return mWorld->GetComponentsPools().GetComponent<Component>(mID);
 	}
 
 	template<CComponent Component, typename ...Arg>
@@ -40,24 +66,24 @@ namespace inceptionengine
 	{
 		if constexpr (std::is_same_v<Component, NativeScriptComponent>)
 		{
-			return mWorld->mEntityComponentPool.AddComponent<NativeScriptComponent>(mID, mWorld->GetSystem<NativeScriptComponent>(), *this);
+			return mWorld->GetComponentsPools().AddComponent<NativeScriptComponent>(mID, mWorld->GetSystem<NativeScriptComponent>(), *this);
 		}
 		else
 		{
-			return mWorld->mEntityComponentPool.AddComponent<Component>(mID, mWorld->GetSystem<Component>(), std::forward<Arg>(args)...);
+			return mWorld->GetComponentsPools().AddComponent<Component>(mID, mWorld->GetSystem<Component>(), std::forward<Arg>(args)...);
 		}
 	}
 
 	template<CComponent Component>
 	bool Entity::HasComponent() const
 	{
-		return mWorld->mEntityComponentPool.EntityHasComponent<Component>(mID);
+		return mWorld->GetComponentsPools().EntityHasComponent<Component>(mID);
 	}
 
 	template<CComponent Component>
 	void Entity::DeleteComponent() const
 	{
-		mWorld->mEntityComponentPool.DeleteComponent<Component>(mID);
+		mWorld->GetComponentsPools().DeleteComponent<Component>(mID);
 	}
 
 

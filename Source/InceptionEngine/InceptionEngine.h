@@ -9,7 +9,7 @@ Header for users
 
 #include "Math/Math.h"
 
-#include "ECS/IWorld.h"
+#include "ECS/World.h"
 
 #include "ECS/Entity/Entity.h"
 
@@ -23,8 +23,7 @@ Header for users
 
 namespace inceptionengine
 {
-	class IWorld;
-	class World;
+
 	class WindowHandler;
 	class Renderer;
 
@@ -35,9 +34,9 @@ namespace inceptionengine
 
 		void SetGameDiretory(std::string const& dir);
 
-		IWorld* CreateWorld();
+		World* CreateWorld();
 
-		IWorld* LoadWorld(std::string const& worldFilePath);
+		World* LoadWorld(std::string const& worldFilePath);
 
 		void PlayGame();
 
