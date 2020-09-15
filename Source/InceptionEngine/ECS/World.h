@@ -18,6 +18,7 @@ namespace inceptionengine
 	class Entity;
 	class Renderer;
 	class ComponentsPool;
+	class PeripheralInput;
 
 	class IE_API World
 	{
@@ -62,7 +63,7 @@ namespace inceptionengine
 
 		void WorldStart();
 
-		void Simulate(float deltaTime);
+		void Simulate(float deltaTime, PeripheralInput&& keyInputs);
 
 		void WorldEnd();
 

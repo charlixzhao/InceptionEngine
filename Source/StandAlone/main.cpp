@@ -1,5 +1,7 @@
 
 #include <iostream>
+
+
 #include "InceptionEngine.h"
 
 
@@ -11,14 +13,41 @@ public:
 	HornetScript(std::reference_wrapper<Entity const> entity)
 		:NativeScript(entity)
 	{
-
+		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&HornetScript::OnMouse_Left, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_H, std::bind(&HornetScript::OnKey_H, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_B, std::bind(&HornetScript::OnKey_B, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&HornetScript::OnMouse_Scroll, this, std::placeholders::_1));
 	}
 
 private:
 	virtual void OnBegin() override
 	{
-		std::cout << "Hello Script\n";
+		std::cout << "Hellooo Script\n";
 	}
+
+	void OnMouse_Left(bool press)
+	{
+		char* output = press ? "press_mouse_left\n" : "release_mouse_left\n";
+		std::cout << output;
+	}
+
+	void OnKey_H(bool press)
+	{
+		char* output = press ? "press_key_h\n" : "release_key_h\n";
+		std::cout << output;
+	}
+	void OnKey_B(bool press)
+	{
+		char* output = press ? "press_key_b\n" : "release_key_b\n";
+		std::cout << output;
+	}
+
+	void OnMouse_Scroll(bool press)
+	{
+		char* output = press ? "scroll_mouse_up\n" : "scroll_mouse_down\n";
+		std::cout << output;
+	}
+
 };
 
 

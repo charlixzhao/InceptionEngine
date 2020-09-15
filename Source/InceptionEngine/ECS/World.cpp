@@ -36,7 +36,7 @@ namespace inceptionengine
 
         void WorldStart();
 
-        void Simulate(float deltaTime);
+        void Simulate(float deltaTime, PeripheralInput&& keyInputs);
 
         void WorldEnd();
 
@@ -183,8 +183,9 @@ namespace inceptionengine
         SystemsStart();
     }
 
-    void World::WorldImpl::Simulate(float deltaTime)
+    void World::WorldImpl::Simulate(float deltaTime, PeripheralInput&& keyInputs)
     {
+        mNativeScriptSystem.Update(std::move(keyInputs.keyInputs));
         mSkeletalMeshRenderSystem.Update(deltaTime);
     }
 
@@ -282,9 +283,9 @@ namespace inceptionengine
         return mWorldImpl->GetComponentsPool();
     }
 
-    void World::Simulate(float deltaTime)
+    void World::Simulate(float deltaTime, PeripheralInput&& keyInputs)
     {       
-        mWorldImpl->Simulate(deltaTime);
+        mWorldImpl->Simulate(deltaTime, std::move(keyInputs));
     }
 
     template<typename Component>

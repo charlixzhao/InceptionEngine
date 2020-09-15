@@ -26,6 +26,7 @@ set(SRC_BUILD_FILES
 "ECS/Components/CameraComponent/CameraComponent.cpp"
 "ECS/Components/NativeScriptComponent/NativeScript.h"
 "ECS/Components/NativeScriptComponent/NativeScript.cpp"
+"ECS/Components/NativeScriptComponent/KeyInputTypes.h"
 "ECS/Components/NativeScriptComponent/NativeScriptComponent.h"
 "ECS/Components/NativeScriptComponent/NativeScriptComponent.cpp"
 "ECS/Components/SkeletalMeshComponent/SkeletalMeshComponent.h"
@@ -47,6 +48,7 @@ set(SRC_BUILD_FILES
 "ECS/Systems/SkeletalMeshRenderSystem/SkeletalMeshRenderSystem.cpp"
 "ECS/Systems/SkyboxSystem/SkyboxSystem.h"
 "ECS/Systems/SkyboxSystem/SkyboxSystem.cpp"
+"Runtime/KeyInputCallbackRegistry.h"
 "Runtime/Animation/AnimPose.h"
 "Runtime/SkeletalMesh/SkeletalMesh.h"
 "Runtime/SkeletalMesh/SkeletalMesh.cpp"
@@ -61,6 +63,7 @@ set(SRC_BUILD_FILES
 "Runtime/RHI/Renderer/IRenderObject.h"
 "Runtime/RHI/WindowHandler/WindowHandler.h"
 "Runtime/RHI/WindowHandler/WindowHandler.cpp"
+"Runtime/RHI/WindowHandler/PeripheralInput.h"
 )
 
 

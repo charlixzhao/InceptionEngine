@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <functional>
 
+
 namespace inceptionengine
 {
 	class Entity;

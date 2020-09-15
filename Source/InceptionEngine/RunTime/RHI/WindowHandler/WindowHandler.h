@@ -4,37 +4,41 @@
 A wrapper class of glfw functionality
 */
 
+#include "PeripheralInput.h"
+
 
 struct GLFWwindow;
 
 namespace inceptionengine
 {
 
-	class WindowHandler
+	struct MousePosition
 	{
 	public:
-		struct MousePosition
-		{
-			/*
-			We have to use double rather than float here because
-			glfw api expects double* rather than float*
-			*/
-			double LastXPos = 0.0;
-			double LastYPos = 0.0;
-			double CurXPos = 0.0;
-			double CurYPos = 0.0;
-			double DeltaXPos = 0.0;
-			double DeltaYPos = 0.0;
+		/*
+		We have to use double rather than float here because
+		glfw api expects double* rather than float*
+		*/
+		double lastXPos = 0.0;
+		double lastYPos = 0.0;
+		double curXPos = 0.0;
+		double curYPos = 0.0;
 
-			/*
-			consider add a speed field and pass in a delta time parameter when
-			compute delta pos, and update speed.
-			*/
 
-			void ComputeDeltaPos();
+		/*
+		consider add a speed field and pass in a delta time parameter when
+		compute delta pos, and update speed.
+		*/
 
-			void SyncPosition();
-		};
+		MouseDeltaPos GetDeltaPos();
+
+		void SyncPosition();
+	};
+
+
+
+	class WindowHandler
+	{
 
 	public:
 		WindowHandler() = default;
@@ -56,10 +60,19 @@ namespace inceptionengine
 		unsigned int GetWindowHeight() const { return mWindowHeight; }
 
 		unsigned int GetWindowWidth() const { return mWindowWidth; }
-		
+
+		PeripheralInput GetAndClearPeripheralInput() { PeripheralInput copy = mPeripheralInput; mPeripheralInput.Clear(); return copy; }
+
+	private:
 		static void KeyboardInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 		static void MouseInputCallback(GLFWwindow* window, int button, int action, int mods);
+
+		static void MouseSrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
+		KeyInput SwitchGLFWKeyboardInput(int key, int action);
+
+		KeyInput SwitchGLFWMouseInput(int button, int action);
 
 	private:
 		GLFWwindow* mWindow = nullptr;
@@ -69,5 +82,7 @@ namespace inceptionengine
 		unsigned int mWindowWidth = 900;
 
 		MousePosition mMousePos;
+
+		PeripheralInput mPeripheralInput;
 	};
 }

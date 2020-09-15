@@ -3,7 +3,7 @@
 #include "RunTime/RHI/Renderer/Renderer.h"
 
 #include "RunTime/RHI/WindowHandler/WindowHandler.h"
-#include "ECS/World.h"
+
 #include <filesystem>
 
 namespace inceptionengine
@@ -55,9 +55,9 @@ namespace inceptionengine
 			//game loop
 			float deltaTime = mWorldTimer.Count<Timer::Second>();
 
-			mWindowHandler->PollEvents(); //InputEvents = mWindowHandler.PollEvents();
+			mWindowHandler->PollEvents();
 
-			mWorld->Simulate(deltaTime); //mWorld->Simulate(InputEvents deltaTime);
+			mWorld->Simulate(deltaTime, mWindowHandler->GetAndClearPeripheralInput());
 
 			mRenderer->DrawFrame();
 		}
