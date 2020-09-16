@@ -3,11 +3,6 @@
 #include "EngineGlobals/EngineApiPrefix.h"
 #include "NativeScript.h"
 
-#include <memory>
-#include <type_traits>
-#include <functional>
-
-
 namespace inceptionengine
 {
 	class Entity;

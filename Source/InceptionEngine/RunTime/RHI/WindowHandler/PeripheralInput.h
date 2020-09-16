@@ -2,7 +2,6 @@
 #pragma once
 
 #include "ECS/Components/NativeScriptComponent/KeyInputTypes.h"
-#include <queue>
 
 namespace inceptionengine
 {

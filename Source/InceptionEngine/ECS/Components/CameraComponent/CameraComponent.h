@@ -1,9 +1,6 @@
 
 #pragma once
 
-#include "Math/Math.h"
-#include <functional>
-
 namespace inceptionengine
 {
 	class CameraSystem;

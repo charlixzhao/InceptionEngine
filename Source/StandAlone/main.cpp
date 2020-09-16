@@ -1,8 +1,8 @@
 
-#include <iostream>
-
 
 #include "InceptionEngine.h"
+
+#include <iostream>
 
 
 using namespace inceptionengine;

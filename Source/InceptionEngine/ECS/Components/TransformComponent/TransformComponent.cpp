@@ -1,10 +1,7 @@
 
 #include "TransformComponent.h"
-#include "Math/Math.h"
-#include "Serialization/Serializer.h"
 
-#include <iostream>
-#include <string>
+#include "Serialization/Serializer.h"
 
 
 namespace inceptionengine

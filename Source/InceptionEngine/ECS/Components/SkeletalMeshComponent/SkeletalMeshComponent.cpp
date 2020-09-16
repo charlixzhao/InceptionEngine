@@ -3,8 +3,6 @@
 #include "Serialization/Serializer.h"
 #include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 
-#include <cassert>
-
 namespace inceptionengine
 {
 

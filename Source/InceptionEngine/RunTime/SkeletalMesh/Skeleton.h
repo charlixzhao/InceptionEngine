@@ -1,11 +1,5 @@
 #pragma once
 
-#include "Math/Math.h"
-
-#include <vector>
-#include <string>
-#include <unordered_map>
-
 namespace inceptionengine
 {
 	class Skeleton

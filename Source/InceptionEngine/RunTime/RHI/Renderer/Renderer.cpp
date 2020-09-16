@@ -11,10 +11,6 @@ External libraries
 #include "IRenderObject.h"
 #include "RunTime/RHI/WindowHandler/WindowHandler.h"
 
-#include <set>
-#include <cassert>
-#include <stdexcept>
-#include <iostream>
 #include <fstream>
 
 namespace inceptionengine

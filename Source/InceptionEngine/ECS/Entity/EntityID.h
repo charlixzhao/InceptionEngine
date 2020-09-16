@@ -1,9 +1,17 @@
 #pragma once
 
-#include <vector>
+#include <numeric>
+
 namespace inceptionengine
 {
-	class Entity;
+	using EntityID = unsigned long long;
 
-	using EntityID = std::vector<Entity>::size_type;
+	//struct EntityID
+	//{
+		//using Type = unsigned long long;
+		//static constexpr Type InvalidID = std::numeric_limits<Type>().max();
+		//EntityID(Type id) : ID(id) { ; }
+		//operator Type() const { return ID; }
+		//Type ID;
+	//};
 }

@@ -6,11 +6,6 @@
 
 #include "EngineGlobals/RenderGlobals.h"
 
-#include <memory>
-#include <string>
-#include <array>
-#include <vector>
-#include <functional>
 
 namespace inceptionengine
 {

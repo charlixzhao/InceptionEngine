@@ -1,13 +1,22 @@
 
 #pragma once
 
+/*
+stuff in pch that should be exposed to users
+*/
+
+#include "Math/Math.h"
+#include <functional>
+#include <string>
+#include <array>
+
 #include "EngineGlobals/EngineApiPrefix.h"
 
 /*
 Header for users
 */
 
-#include "Math/Math.h"
+
 
 #include "ECS/World.h"
 
@@ -16,10 +25,6 @@ Header for users
 #include "ECS/Components/Components.h"
 
 #include "Timer.hpp"
-
-
-#include <memory>
-#include <string>
 
 namespace inceptionengine
 {

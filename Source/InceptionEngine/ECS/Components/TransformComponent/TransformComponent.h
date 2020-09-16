@@ -3,9 +3,6 @@
 
 #include "EngineGlobals/EngineApiPrefix.h"
 
-#include <iostream>
-#include <functional>
-
 namespace inceptionengine
 {
 	class TransformSystem;

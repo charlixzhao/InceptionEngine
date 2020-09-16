@@ -2,8 +2,6 @@
 
 #include "External/glfw/include/GLFW/glfw3.h"
 
-#include <functional>
-#include <cstring>
 
 namespace inceptionengine
 {

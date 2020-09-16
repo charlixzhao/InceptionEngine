@@ -1,6 +1,6 @@
 
 #include "CameraComponent.h"
-#include <iostream>
+
 
 namespace inceptionengine
 {

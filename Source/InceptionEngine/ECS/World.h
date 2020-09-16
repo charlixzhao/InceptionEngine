@@ -7,11 +7,6 @@
 #include "Entity/EntityFriend.h"
 #include "ECS/ComponentSystemTypeTraits.h"
 
-#include <memory>
-#include <vector>
-#include <queue>
-#include <array>
-#include <string>
 
 namespace inceptionengine
 {

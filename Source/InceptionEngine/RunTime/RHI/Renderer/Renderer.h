@@ -3,17 +3,12 @@
 
 
 #include "External/vulkan/Include/vulkan/vulkan.h"
-
-#include "Math/Math.h"
 #include "EngineGlobals/RenderGlobals.h"
 #include "Vertex.h"
 #include "ShaderPath.h"
 
-#include <string>
-#include <vector>
+
 #include <optional>
-#include <unordered_map>
-#include <array>
 #include <mutex>
 
 

@@ -2,6 +2,7 @@
 
 
 set(SRC_BUILD_FILES
+"IE_PCH.h"
 "InceptionEngine.h"
 "InceptionEngine.cpp"
 "EngineGlobals/EngineApiPrefix.h"
@@ -83,6 +84,8 @@ ${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/glfw/lib/glfw3.lib
 ${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/vulkan/Lib/vulkan-1.lib)
 
 target_compile_options(InceptionEngine PUBLIC /wd26812 /wd26451)
+
+target_precompile_headers(InceptionEngine PRIVATE "IE_PCH.h")
 
 add_custom_command(TARGET InceptionEngine POST_BUILD 
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 

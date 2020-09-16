@@ -6,12 +6,7 @@
 
 #include "ECS/Entity/EntityID.h"
 
-#include <vector>
-#include <unordered_map>
 #include <typeindex>
-#include <memory>
-#include <cassert>
-#include <iostream>
 
 namespace inceptionengine
 {

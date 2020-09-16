@@ -1,8 +1,5 @@
 #pragma once
 
-#include <array>
-#include <string>
-#include <functional>
 
 namespace inceptionengine
 {

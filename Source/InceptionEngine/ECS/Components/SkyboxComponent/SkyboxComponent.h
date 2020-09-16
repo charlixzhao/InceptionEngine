@@ -6,10 +6,6 @@
 #include "RunTime/RHI/Renderer/Vertex.h"
 #include "RunTime/RHI/Renderer/ShaderPath.h"
 
-#include <array>
-#include <vector>
-#include <string>
-
 namespace inceptionengine
 {
 	class SkyboxComponent : public IRenderObject

@@ -10,9 +10,6 @@ so this class will be exposed to the dll
 
 #include "KeyInputTypes.h"
 
-#include <memory>
-#include <functional>
-
 namespace inceptionengine
 {
 	class Entity;

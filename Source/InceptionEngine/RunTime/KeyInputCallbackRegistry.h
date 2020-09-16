@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 #define DefineKeyInputCallback(X) std::function<void(bool)> OnPeripheralInput_##X = [](bool press) {; };
 
 namespace inceptionengine

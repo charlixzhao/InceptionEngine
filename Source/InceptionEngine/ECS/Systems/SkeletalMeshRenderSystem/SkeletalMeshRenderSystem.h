@@ -2,8 +2,6 @@
 
 #include "ECS/Systems/SystemBase.h"
 
-#include <functional>
-
 namespace inceptionengine
 {
 	class Renderer;

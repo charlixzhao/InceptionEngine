@@ -5,8 +5,6 @@
 
 #include "ECS/Entity/EntityComponentPool.hpp"
 
-#include <cassert>
-
 namespace inceptionengine
 {
 	Entity::Entity(EntityID entityID, World* pWorld, EntityFriend const & entityFriend)

@@ -3,7 +3,6 @@
 #include "Skeleton.h"
 #include "RunTime/RHI/Renderer/Vertex.h"
 #include "RunTime/RHI/Renderer/ShaderPath.h"
-#include <vector>
 
 namespace inceptionengine
 {

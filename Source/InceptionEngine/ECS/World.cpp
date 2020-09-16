@@ -17,8 +17,6 @@ include all systems
 */
 #include "ECS/Systems/Systems.h"
 
-#include <cassert>
-
 namespace inceptionengine
 {
     class World::WorldImpl

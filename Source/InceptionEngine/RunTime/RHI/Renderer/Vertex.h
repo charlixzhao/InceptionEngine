@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Math/Math.h"
-
 namespace inceptionengine
 {
 	struct Vertex

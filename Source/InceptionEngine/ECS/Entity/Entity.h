@@ -5,7 +5,6 @@
 #include "EntityID.h"
 #include "EntityFriend.h"
 
-#include <vector>
 
 namespace inceptionengine
 {

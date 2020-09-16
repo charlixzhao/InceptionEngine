@@ -1,9 +1,9 @@
 
+#include "IE_PCH.h"
+
 #include "NativeScript.h"
 
 #include "RunTime/KeyInputCallbackRegistry.h"
-
-#include <stdexcept>
 
 namespace inceptionengine
 {

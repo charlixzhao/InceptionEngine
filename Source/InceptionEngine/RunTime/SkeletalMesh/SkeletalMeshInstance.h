@@ -4,7 +4,6 @@
 #include "../Animation/AnimPose.h"
 #include "RunTime/RHI/Renderer/IRenderObject.h"
 
-#include <memory>
 
 namespace inceptionengine
 {
