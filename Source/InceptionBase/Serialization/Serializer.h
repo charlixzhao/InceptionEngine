@@ -23,6 +23,7 @@
 #include "External/cereal/types/variant.hpp"
 #include "External/cereal/types/vector.hpp"
 
+
 #include <string>
 #include <fstream>
 #include <memory>
@@ -34,6 +35,26 @@ namespace cereal
 	{
 		archive(v.x, v.y, v.z, v.w);
 	}
+
+	template<typename Archive>
+	void serialize(Archive& archive, inceptionengine::Vec3f& v)
+	{
+		archive(v.x, v.y, v.z);
+	}
+
+	template<typename Archive>
+	void serialize(Archive& archive, inceptionengine::Vec4ui& v)
+	{
+		archive(v.x, v.y, v.z, v.w);
+	}
+
+	template<typename Archive>
+	void serialize(Archive& archive, inceptionengine::Matrix4x4f& mat)
+	{
+		archive(mat.value);
+	}
+
+
 }
 namespace inceptionengine
 {

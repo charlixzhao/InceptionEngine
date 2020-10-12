@@ -11,6 +11,12 @@ namespace inceptionengine
 
 	struct SubMesh
 	{
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(vertices, indices, texturePath, shaderPath);
+		}
+
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 		std::string texturePath;
@@ -21,13 +27,13 @@ namespace inceptionengine
 	class SkeletalMesh
 	{
 	public:
-
-	private:
-		friend class SkeletalMeshComponent;
-		friend class SkeletalMeshRenderSystem;
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(mSubMeshes, mSkeleton);
+		}
 
 		std::vector<SubMesh> mSubMeshes;
 		Skeleton mSkeleton;
-		
 	};
 }

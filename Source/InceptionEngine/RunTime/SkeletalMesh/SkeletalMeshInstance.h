@@ -18,7 +18,7 @@ namespace inceptionengine
 
 		virtual std::vector<RenderUnit>& GetRenderUnits(unsigned int i) override;
 
-		void InitializeRenderObjects(size_t numOfSubMeshes);
+		void InitializeRenderObjects();
 
 	private:
 		friend class SkeletalMeshComponent;
@@ -26,7 +26,7 @@ namespace inceptionengine
 
 		std::shared_ptr<SkeletalMesh const> mSkeletalMesh = nullptr;
 
-		AnimPose mCurrentPose;
+		std::vector<Matrix4x4f> mCurrentPose;
 
 		RenderObejctID mRenderObejctID = Renderer::InvalidRenderObjectID;
 

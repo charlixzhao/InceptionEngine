@@ -4,17 +4,20 @@
 #include "ECS/Components/SkeletalMeshComponent/SkeletalMeshComponent.h"
 #include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 #include "RunTime/RHI/Renderer/Renderer.h"
+#include "ECS/Systems/AnimationSystem/AnimationSystem.h"
+
+
 
 namespace inceptionengine
 {
-	SkeletalMeshRenderSystem::SkeletalMeshRenderSystem(Renderer& renderer, ComponentsPool& pool)
-		:mRenderer(renderer), SystemBase(pool)
+	SkeletalMeshRenderSystem::SkeletalMeshRenderSystem(Renderer& renderer, ComponentsPool& pool, AnimationSystem& animationSystem)
+		:mRenderer(renderer), SystemBase(pool), mAnimationSystem(animationSystem)
 	{
 	}
 
 	void SkeletalMeshRenderSystem::Start()
 	{
-		ComponentPool<SkeletalMeshComponent>* pool = mComponentsPool.GetComponentPool<SkeletalMeshComponent>();
+		ComponentPool<SkeletalMeshComponent>* pool = mComponentsPool.get().GetComponentPool<SkeletalMeshComponent>();
 		if (pool == nullptr)
 			return;
 		auto& view = pool->GetComponentView();
@@ -29,14 +32,45 @@ namespace inceptionengine
 		}
 	}
 
+	bool SkeletalMeshRenderSystem::NeedToUpdateUBuffer(EntityID id)
+	{
+		return mAnimationSystem.get().EntityPoseChange(id);
+	}
+
 	void SkeletalMeshRenderSystem::Update(float deltaTime)
 	{
+		auto& map = mComponentsPool.get().GetComponentPool<SkeletalMeshComponent>()->GetEntityMap();
+		auto& view = mComponentsPool.get().GetComponentPool<SkeletalMeshComponent>()->GetComponentView();
+
+		for (auto const& pair : map)
+		{
+			EntityID id = pair.first;
+			if (NeedToUpdateUBuffer(id))
+			{
+				SkeletalMeshComponent& skeletalMeshComponent = view[pair.second];
+				int boneNumber = skeletalMeshComponent.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.GetBoneNumber();
+				auto uBufferMat = GetArrayOfIdentity<Transform>(boneNumber + AnimPoseOffsetInUBuffer);
+			
+				if (mAnimationSystem.get().EntityPoseChange(id))
+				{
+					
+					std::vector<Matrix4x4f> const& finalPose = mAnimationSystem.get().GetEntityPose(id);
+					for (int bone = 0; bone < finalPose.size(); bone++)
+					{
+						uBufferMat[bone + 2] = finalPose[bone] * skeletalMeshComponent.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.mBones[bone].bindPoseInv;
+					}
+					mAnimationSystem.get().FinishUpdatePose(id);
+				}
+
+				mRenderer.get().UpdateUniformBuffer(skeletalMeshComponent.mSkeletalMeshInstance->mUniformBuffer, uBufferMat, nullptr);
+			}
+		}
 
 	}
 
 	void SkeletalMeshRenderSystem::End()
 	{
-		ComponentPool<SkeletalMeshComponent>* pool = mComponentsPool.GetComponentPool<SkeletalMeshComponent>();
+		ComponentPool<SkeletalMeshComponent>* pool = mComponentsPool.get().GetComponentPool<SkeletalMeshComponent>();
 		if (pool == nullptr)
 			return;
 		auto& view = pool->GetComponentView();
@@ -51,11 +85,22 @@ namespace inceptionengine
 		}
 	}
 
+
 	void SkeletalMeshRenderSystem::LoadSkeletalMeshToDevice(SkeletalMeshComponent& component)
 	{
 		mRenderer.get().CreateUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer);
-		mRenderer.get().InitializeUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer,
-										  GetArrayOfIdentity<Transform>(component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.GetBoneNumber() + AnimPoseOffsetInUBuffer));
+
+		/*
+		for testing, init ubuffer from pose
+		*/
+		int boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.GetBoneNumber();
+		auto uBufferMat = GetArrayOfIdentity<Transform>(boneNumber + AnimPoseOffsetInUBuffer);
+		//for (int i = 0; i < boneNumber; i++)
+		//{
+			//uBufferMat[i + AnimPoseOffsetInUBuffer] = component.mSkeletalMeshInstance->mCurrentPose[i] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.mBones[i].bindPoseInv;
+		//}
+
+		mRenderer.get().InitializeUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer, uBufferMat);
 
 		auto numOfSubMesh = component.mSkeletalMeshInstance->mVertexBuffers.size();
 		for (size_t i = 0; i < numOfSubMesh; i++)

@@ -27,14 +27,15 @@ namespace inceptionengine
 
 		SkeletalMeshComponent(SkeletalMeshComponent&&) noexcept;
 
+		void ImportMesh(std::string const& fbxFilePath);
+
 		void SetMesh(std::string const& meshFilePath);
 
 		void SetMeshPose(AnimPose const& pose);
 
 		void SetPlane();
 
-	private:
-		void InitializeRenderObjects(size_t numOfSubMeshes);
+		void SetTriangle();
 
 	private:
 		friend class SkeletalMeshRenderSystem;

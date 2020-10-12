@@ -12,7 +12,7 @@ layout(location = 0) out vec4 outColor;
 
 void main() 
 {
-	float lightCoef = max(dot(unitNormal, unitToLight), 0.2f) * lightIntensity;
+	float lightCoef = max(dot(unitNormal, unitToLight), 0.35f) * lightIntensity;
 	outColor = vec4(lightCoef,lightCoef,lightCoef,1.0) * texture(texSampler, fragTexCoord);
 }
 

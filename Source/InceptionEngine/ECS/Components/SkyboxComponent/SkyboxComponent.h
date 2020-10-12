@@ -11,9 +11,9 @@ namespace inceptionengine
 	class SkyboxComponent : public IRenderObject
 	{
 	public:
-		std::vector<Vertex> GetVertices();
+		std::vector<Vertex> GetVertices() const;
 
-		std::vector<unsigned int> GetIndices();
+		std::vector<unsigned int> GetIndices() const;
 
 		virtual std::vector<RenderUnit>& GetRenderUnits(unsigned int i) override;
 
@@ -26,8 +26,8 @@ namespace inceptionengine
 
 		ShaderPath const mShaderPath =
 		{
-			"D:\\InceptionEngine\\EngineResource\\Shader\\spv\\skyboxVertex.spv",
-			"D:\\InceptionEngine\\EngineResource\\Shader\\spv\\skyboxFrag.spv"
+			"EngineResource\\shader\\spv\\skyboxVertex.spv",
+			"EngineResource\\shader\\spv\\skyboxFrag.spv"
 		};
 
 		std::array<std::string, 6> mTexturePathes;

@@ -39,6 +39,8 @@ set(SRC_BUILD_FILES
 "ECS/Systems/Systems.h"
 "ECS/Systems/SystemBase.h"
 "ECS/Systems/SystemBase.cpp"
+"ECS/Systems/AnimationSystem/AnimationSystem.h"
+"ECS/Systems/AnimationSystem/AnimationSystem.cpp"
 "ECS/Systems/CameraSystem/CameraSystem.h"
 "ECS/Systems/CameraSystem/CameraSystem.cpp"
 "ECS/Systems/NativeScriptSystem/NativeScriptSystem.h"
@@ -51,6 +53,10 @@ set(SRC_BUILD_FILES
 "ECS/Systems/SkyboxSystem/SkyboxSystem.cpp"
 "Runtime/KeyInputCallbackRegistry.h"
 "Runtime/Animation/AnimPose.h"
+"Runtime/Animation/Animation.h"
+"Runtime/Animation/Animation.cpp"
+"Runtime/Animation/AnimationController.h"
+"Runtime/Animation/AnimationController.cpp"
 "Runtime/SkeletalMesh/SkeletalMesh.h"
 "Runtime/SkeletalMesh/SkeletalMesh.cpp"
 "Runtime/SkeletalMesh/SkeletalMeshInstance.h"
@@ -65,6 +71,12 @@ set(SRC_BUILD_FILES
 "Runtime/RHI/WindowHandler/WindowHandler.h"
 "Runtime/RHI/WindowHandler/WindowHandler.cpp"
 "Runtime/RHI/WindowHandler/PeripheralInput.h"
+"Runtime/Resource/Resource.h"
+"Runtime/Resource/Resource.cpp"
+"Runtime/Resource/ResourceManager.h"
+"Runtime/Resource/ResourceManager.cpp"
+"DevelopTemp_fbximport/FbxImporter.h"
+"DevelopTemp_fbximport/FbxImporter.cpp"
 )
 
 
@@ -76,19 +88,21 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
 
 target_include_directories(InceptionEngine PUBLIC 
 ${PROJECT_SOURCE_DIR}/Source/InceptionEngine 
-${PROJECT_SOURCE_DIR}/Source/InceptionBase)
+${PROJECT_SOURCE_DIR}/Source/InceptionBase
+${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/fbxsdk/include)
 
 target_link_libraries(InceptionEngine 
 InceptionBase 
 ${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/glfw/lib/glfw3.lib 
-${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/vulkan/Lib/vulkan-1.lib)
+${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/vulkan/Lib/vulkan-1.lib
+${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/fbxsdk/lib/x64/debug/libfbxsdk.lib)
 
-target_compile_options(InceptionEngine PUBLIC /wd26812 /wd26451)
+target_compile_options(InceptionEngine PUBLIC /wd26812 /wd26451 /wd26495)
 
 target_precompile_headers(InceptionEngine PRIVATE "IE_PCH.h")
 
-add_custom_command(TARGET InceptionEngine POST_BUILD 
- COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-        "${PROJECT_BINARY_DIR}/Source/InceptionEngine/Debug/InceptionEngine.dll"
-        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+#add_custom_command(TARGET InceptionEngine POST_BUILD 
+# COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+#        "${PROJECT_BINARY_DIR}/Source/InceptionEngine/Debug/InceptionEngine.dll"
+#        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
 

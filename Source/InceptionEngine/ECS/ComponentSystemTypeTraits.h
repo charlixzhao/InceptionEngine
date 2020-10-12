@@ -10,6 +10,7 @@ namespace inceptionengine
 	class TransformSystem;
 	class NativeScriptSystem;
 	class CameraSystem;
+	class AnimationSystem;
 
 	template<CComponent>
 	struct SystemType;
@@ -36,6 +37,12 @@ namespace inceptionengine
 	struct SystemType<CameraComponent>
 	{
 		using Type = CameraSystem;
+	};
+
+	template<>
+	struct SystemType<AnimationComponent>
+	{
+		using Type = AnimationSystem;
 	};
 
 }

@@ -40,6 +40,8 @@ namespace inceptionengine
 
 		void SetSkybox(std::array<std::string, 6> const& texturePaths);
 
+		void SetGameCamera(CameraComponent const& camera);
+
 	private:
 		/*
 		PIMPL idiom

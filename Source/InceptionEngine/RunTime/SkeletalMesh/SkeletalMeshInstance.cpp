@@ -13,8 +13,9 @@ namespace inceptionengine
 	{
 		return mRenderUnits[i];
 	}
-	void SkeletalMeshInstance::InitializeRenderObjects(size_t numOfSubMeshes)
+	void SkeletalMeshInstance::InitializeRenderObjects()
 	{
+		size_t numOfSubMeshes = mSkeletalMesh->mSubMeshes.size();
 		mVertexBuffers.resize(numOfSubMeshes);
 		mIndexBuffers.resize(numOfSubMeshes);
 		mTextures.resize(numOfSubMeshes);

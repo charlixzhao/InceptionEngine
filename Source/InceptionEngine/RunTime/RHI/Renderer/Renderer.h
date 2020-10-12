@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include "External/vulkan/Include/vulkan/vulkan.h"
 #include "EngineGlobals/RenderGlobals.h"
 #include "Vertex.h"
@@ -10,12 +8,6 @@
 
 #include <optional>
 #include <mutex>
-
-
-/*
-forward declaration for vulkan
-*/
-
 
 
 namespace inceptionengine
@@ -75,11 +67,6 @@ namespace inceptionengine
 		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 	};
 
-
-
-
-
-
 	struct Texture
 	{
 		VkImage textureImage = VK_NULL_HANDLE;
@@ -123,8 +110,6 @@ namespace inceptionengine
 		VkDescriptorSetLayout layout = VK_NULL_HANDLE;
 		std::array<VkDescriptorSet, NumOfRenderBuffers> descriptorSet = {};
 	};
-
-
 
 	struct RenderUnit
 	{
@@ -202,6 +187,7 @@ namespace inceptionengine
 		void CreatePipeline(Pipeline& pipeline,
 							ShaderPath const& shaderpath,
 							UniformBufferDescription& dataDesc,
+							bool useDepthTest = true,
 							VkPrimitiveTopology topology = VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
 		void DestroyPipeline(Pipeline& pipeline);
@@ -226,6 +212,8 @@ namespace inceptionengine
 
 		void SetTerrain(Terrain* terrain);
 
+		void SetCameraMatirx(Matrix4x4f const& cameraMatrix);
+
 
 	private:
 		/*
@@ -245,7 +233,9 @@ namespace inceptionengine
 
 		void CreateSwapchain();
 
-		void CreateImageViews();
+		void CreateSwapchainImageViews();
+
+		void CreateDepthResources();
 
 		void CreateRenderPass();
 
@@ -327,8 +317,6 @@ namespace inceptionengine
 
 		std::string const PresentQueue = "presentQueue";
 
-		VkClearValue const ClearColor = { 0.5f, 0.0f, 0.0f, 1.0f };
-
 		std::vector<const char*> const DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 	private:
@@ -351,13 +339,19 @@ namespace inceptionengine
 
 		VkFormat m_imageFormat;
 
-		VkExtent2D m_swapchainExtent;
+		VkExtent2D mSwapchainExtent;
 
-		VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
+		VkSwapchainKHR mSwapchain = VK_NULL_HANDLE;
 
-		std::vector<VkImage> m_swapchainImages;
+		std::vector<VkImage> mSwapchainImages;
 
-		std::vector<VkImageView> m_imageViews;
+		std::vector<VkImageView> mSwapchainImageViews;
+
+		VkImage mDepthImage = VK_NULL_HANDLE;
+
+		VkImageView mDepthImageView = VK_NULL_HANDLE;
+
+		VkDeviceMemory mDepthImageMem = VK_NULL_HANDLE;
 
 		VkCommandPool m_commandPool = VK_NULL_HANDLE;
 

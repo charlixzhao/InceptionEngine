@@ -67,6 +67,11 @@ namespace inceptionengine
 			return mComponents;
 		}
 
+		std::unordered_map<EntityID, ComponentIndex>& GetEntityMap()
+		{
+			return mEntityToMap;
+		}
+
 	private:
 		std::unordered_map<EntityID, ComponentIndex> mEntityToMap;
 

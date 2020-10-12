@@ -39,7 +39,7 @@ void main()
 	gl_Position = mvp.proj * mvp.view * vertexPosition;
 	fragColor = color;
 	fragTexCoord = vec2(texCoord.x, texCoord.y);
-	unitNormal = normalize((tBuffer.t[1] * vec4(vertexNormal, 0.0)).xyz);	
+	unitNormal = normalize((tBuffer.t[1] * boneTrans * vec4(vertexNormal, 0.0)).xyz);	
 	unitToLight = normalize( (light.locationAndIntensity).xyz - vertexPosition.xyz );
 	lightIntensity = light.locationAndIntensity.w;
 }

@@ -14,7 +14,7 @@
 Inception Engine use a left-hand coordinate system. positive-x is to the right,
 positive-y is to the up, and positive-z goes into the screen.
 */
-#define GLM_FORCE_LEFT_HANDED
+#define GLM_FORCE_RIGHT_HANDED
 
 #include "External/glm/glm.hpp"
 #include "External/glm/gtc/matrix_transform.hpp"
@@ -24,6 +24,7 @@ positive-y is to the up, and positive-z goes into the screen.
 #include "External/glm/gtx/matrix_decompose.hpp"
 
 #include <vector>
+#include <random>
 
 namespace inceptionengine
 {
@@ -75,6 +76,11 @@ namespace inceptionengine
 	inline Matrix4x4f Perspective(float degrees, float aspect, float near, float far)
 	{
 		return glm::perspective(glm::radians(degrees), aspect, near, far);
+	}
+
+	inline Matrix4x4f Inverse(Matrix4x4f const& mat)
+	{
+		return glm::inverse(mat);
 	}
 
 	inline Vec3f NormalizeVec(Vec3f const& vec)
@@ -135,4 +141,14 @@ namespace inceptionengine
 
 
 	float Adder(float a, float b);
+
+	inline float RandFloat(float min, float max)
+	{
+		return min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
+	}
+
+	inline int RandInt(int min, int max)
+	{
+		return 0;
+	}
 }

@@ -12,18 +12,19 @@ namespace inceptionengine
 	{
 		return mRenderObejctID;
 	}
-	std::vector<Vertex> SkyboxComponent::GetVertices()
+	std::vector<Vertex> SkyboxComponent::GetVertices() const
 	{
+		float distanceToSky = 100000.0f;
 		std::array<Vec4f, 8> const vertexPositions =
 		{
-			Vec4f(-1.0f, -1.0f, -1.0f, 1.0f),
-			Vec4f(1.0f, -1.0f, -1.0f, 1.0f),
-			Vec4f(1.0f, -1.0f, 1.0f, 1.0f),
-			Vec4f(-1.0f, -1.0f, 1.0f, 1.0f),
-			Vec4f(-1.0f, 1.0f, -1.0f, 1.0f),
-			Vec4f(1.0f, 1.0f, -1.0f, 1.0f),
-			Vec4f(1.0f, 1.0f, 1.0f, 1.0f),
-			Vec4f(-1.0f, 1.0f, 1.0f, 1.0f)
+			Vec4f(-distanceToSky, -distanceToSky, -distanceToSky, 1.0f),
+			Vec4f(distanceToSky, -distanceToSky, -distanceToSky, 1.0f),
+			Vec4f(distanceToSky, -distanceToSky, distanceToSky, 1.0f),
+			Vec4f(-distanceToSky, -distanceToSky, distanceToSky, 1.0f),
+			Vec4f(-distanceToSky, distanceToSky, -distanceToSky, 1.0f),
+			Vec4f(distanceToSky, distanceToSky, -distanceToSky, 1.0f),
+			Vec4f(distanceToSky, distanceToSky, distanceToSky, 1.0f),
+			Vec4f(-distanceToSky, distanceToSky, distanceToSky, 1.0f)
 		};
 
 		std::vector<Vertex> vertices;
@@ -38,7 +39,7 @@ namespace inceptionengine
 
 		return vertices;
 	}
-	std::vector<unsigned int> SkyboxComponent::GetIndices()
+	std::vector<unsigned int> SkyboxComponent::GetIndices() const
 	{
 		return { 0,1,5, 5,4,0, 2,3,7,7,6,2, 4,5,6, 6,7,4,  0,3,2, 2,1,0, 1,2,6, 6,5,1, 0,4,7, 7,3,0 };
 	}

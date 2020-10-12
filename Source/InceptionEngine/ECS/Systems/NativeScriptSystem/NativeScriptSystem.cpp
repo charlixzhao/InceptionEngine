@@ -12,7 +12,7 @@ namespace inceptionengine
 	}
 	void NativeScriptSystem::Start()
 	{
-		ComponentPool<NativeScriptComponent>* pool = mComponentsPool.GetComponentPool<NativeScriptComponent>();
+		ComponentPool<NativeScriptComponent>* pool = mComponentsPool.get().GetComponentPool<NativeScriptComponent>();
 		if (pool == nullptr)
 		{
 			throw std::runtime_error("");
@@ -28,7 +28,7 @@ namespace inceptionengine
 
 	void NativeScriptSystem::Update(std::queue<KeyInput>&& keyInputs)
 	{
-		ComponentPool<NativeScriptComponent>* pool = mComponentsPool.GetComponentPool<NativeScriptComponent>();
+		ComponentPool<NativeScriptComponent>* pool = mComponentsPool.get().GetComponentPool<NativeScriptComponent>();
 
 		auto& view = pool->GetComponentView();
 

@@ -1,18 +1,20 @@
 
 #pragma once
 
+#include "EngineGlobals/EngineApiPrefix.h"
+
 namespace inceptionengine
 {
 	class CameraSystem;
 
-	class CameraComponent
+	class IE_API CameraComponent
 	{
 	public:
 		CameraComponent(CameraSystem& system);
 
 		CameraComponent(CameraSystem& system, Vec4f position, Vec4f forward);
 		
-		void SetPosAndForward(Vec4f position, Vec4f forward);
+		void SetPosAndForward(Vec3f position, Vec3f forward);
 
 		Matrix4x4f CameraMatrix() const;
 
@@ -29,8 +31,8 @@ namespace inceptionengine
 	private:
 		std::reference_wrapper<CameraSystem> mSystem;
 
-		Vec4f mPosition = { 0.0f,0.0f,0.0f,1.0f };
+		Vec4f mPosition = { 0.0f,0.0f,1.0f,1.0f };
 		
-		Vec4f mForwardPoint = { 0.0f,0.0f,-10.0f,1.0f };
+		Vec4f mForwardPoint = { 0.0f,0.0f,0.0f,1.0f };
 	};
 }

@@ -40,6 +40,8 @@ namespace inceptionengine
 
         void SetSkybox(std::array<std::string, 6> const& texturePaths);
 
+        void SetGameCamera(CameraComponent const& camera);
+
         ComponentsPool& GetComponentsPool();
 
         template<typename Component>
@@ -61,7 +63,12 @@ namespace inceptionengine
             {
                 return mCameraSystem;
             }
+            else if constexpr (std::is_same_v<Component, AnimationComponent>)
+            {
+                return mAnimationSystem;
+            }
         }
+
 
     private:
         void SystemsStart();
@@ -97,10 +104,12 @@ namespace inceptionengine
         /*
         Systems controlling components of entites
         */
-        SkeletalMeshRenderSystem mSkeletalMeshRenderSystem;
         TransformSystem mTransformSystem;
-        NativeScriptSystem mNativeScriptSystem;
         CameraSystem mCameraSystem;
+        SkeletalMeshRenderSystem mSkeletalMeshRenderSystem;
+        AnimationSystem mAnimationSystem;
+        NativeScriptSystem mNativeScriptSystem;
+
 
     private:
         /*
@@ -116,10 +125,11 @@ namespace inceptionengine
         /*
         Initialization of system of entities' component
         */
-        mSkeletalMeshRenderSystem(renderer, mEntityComponentPool),
-        mNativeScriptSystem(mEntityComponentPool),
         mTransformSystem(mEntityComponentPool),
-        mCameraSystem(mEntityComponentPool),
+        mCameraSystem(renderer, mEntityComponentPool),
+        mSkeletalMeshRenderSystem(renderer, mEntityComponentPool, mAnimationSystem),
+        mAnimationSystem(mEntityComponentPool),
+        mNativeScriptSystem(mEntityComponentPool),
 
         /*
         Initialization of systems of world's component
@@ -184,6 +194,11 @@ namespace inceptionengine
     void World::WorldImpl::Simulate(float deltaTime, PeripheralInput&& keyInputs)
     {
         mNativeScriptSystem.Update(std::move(keyInputs.keyInputs));
+
+        mCameraSystem.Update(deltaTime);
+
+        mAnimationSystem.Update(deltaTime);
+
         mSkeletalMeshRenderSystem.Update(deltaTime);
     }
 
@@ -195,6 +210,11 @@ namespace inceptionengine
     void World::WorldImpl::SetSkybox(std::array<std::string, 6> const& texturePaths)
     {
         mSkyboxSystem.SetSkybox(texturePaths);
+    }
+
+    void World::WorldImpl::SetGameCamera(CameraComponent const& camera)
+    {
+        mCameraSystem.SetGameCamera(camera);
     }
 
     ComponentsPool& World::WorldImpl::GetComponentsPool()
@@ -266,6 +286,11 @@ namespace inceptionengine
         mWorldImpl->SetSkybox(texturePaths);
     }
 
+    void World::SetGameCamera(CameraComponent const& camera)
+    {
+        mWorldImpl->SetGameCamera(camera);
+    }
+
     void World::WorldStart()
     {
         mWorldImpl->WorldStart();
@@ -296,5 +321,6 @@ namespace inceptionengine
     template SystemType<TransformComponent>::Type& World::GetSystem<TransformComponent>();
     template SystemType<NativeScriptComponent>::Type& World::GetSystem<NativeScriptComponent>();
     template SystemType<CameraComponent>::Type& World::GetSystem<CameraComponent>();
+    template SystemType<AnimationComponent>::Type& World::GetSystem<AnimationComponent>();
 }
 

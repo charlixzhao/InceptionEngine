@@ -11,6 +11,8 @@ External libraries
 #include "IRenderObject.h"
 #include "RunTime/RHI/WindowHandler/WindowHandler.h"
 
+#include "PathHelper.h"
+
 #include <fstream>
 
 namespace inceptionengine
@@ -93,10 +95,10 @@ namespace inceptionengine
 
 	std::vector<char> Renderer::LoadShaderBinary(const std::string& filePath)
 	{
-		std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+		std::ifstream file(PathHelper::GetAbsolutePath(filePath), std::ios::ate | std::ios::binary);
 		if (!file.is_open())
 		{
-			std::cerr << "Cannot open file " << filePath << std::endl;
+			std::cerr << "Cannot open file " << PathHelper::GetAbsolutePath(filePath) << std::endl;
 			throw std::runtime_error("");
 		}
 		size_t fileSize = (size_t)file.tellg();
@@ -115,7 +117,7 @@ namespace inceptionengine
 			return;
 		}
 
-		if (vkAcquireNextImageKHR(m_device, m_swapchain, UINT64_MAX, VK_NULL_HANDLE, m_acquireImageFence, &m_nextRenderImgIdx) != VK_SUCCESS)
+		if (vkAcquireNextImageKHR(m_device, mSwapchain, UINT64_MAX, VK_NULL_HANDLE, m_acquireImageFence, &m_nextRenderImgIdx) != VK_SUCCESS)
 		{
 			std::cerr << "Fail to get next available image from the swap chain" << std::endl;
 			throw std::runtime_error("");
@@ -144,7 +146,7 @@ namespace inceptionengine
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = &m_graphicsFinishSemaphores[m_nextRenderImgIdx];
 		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = &m_swapchain;
+		presentInfo.pSwapchains = &mSwapchain;
 		presentInfo.pImageIndices = &m_nextRenderImgIdx;
 		vkQueuePresentKHR(m_queues.at(PresentQueue), &presentInfo);
 
@@ -164,7 +166,9 @@ namespace inceptionengine
 
 		CreateSwapchain();
 
-		CreateImageViews();
+		CreateSwapchainImageViews();
+
+		CreateDepthResources();
 
 		CreateCommandPool();
 
@@ -192,7 +196,7 @@ namespace inceptionengine
 	void Renderer::CreateTexture(Texture& texture, std::string filePath)
 	{
 		int width, height, nChannel;
-		stbi_uc* pixels = stbi_load(filePath.c_str(), &width, &height, &nChannel, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load(PathHelper::GetAbsolutePath(filePath).c_str(), &width, &height, &nChannel, STBI_rgb_alpha);
 		if (pixels == nullptr)
 		{
 			std::cerr << "Fail to load texture!" << std::endl;
@@ -443,11 +447,11 @@ namespace inceptionengine
 		createInfo.minImageCount = NumOfRenderBuffers;
 		createInfo.imageFormat = m_imageFormat; //SHORTCUT!!
 		createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-		m_swapchainExtent = { m_windowWidth, m_windowHeight };
-		m_mvp.view = LookAt(Vec3f(0.0f, 0.0f, -5.0f), Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f));
-		m_mvp.proj = Perspective(45.0f, static_cast<float>(m_swapchainExtent.width) / static_cast<float>(m_swapchainExtent.height), 
+		mSwapchainExtent = { m_windowWidth, m_windowHeight };
+		m_mvp.view = LookAt(Vec3f(-280.0f, 80.0f, 0.0f), Vec3f(0.0f, 80.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f));
+		m_mvp.proj = Perspective(45.0f, static_cast<float>(mSwapchainExtent.width) / static_cast<float>(mSwapchainExtent.height), 
 								 0.1f, 1000000.0f);
-		createInfo.imageExtent = m_swapchainExtent;
+		createInfo.imageExtent = mSwapchainExtent;
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		if (m_queueFamilyIndices.graphicsFamilyIndex.value() == m_queueFamilyIndices.presentFamilyIndex.value())
@@ -471,36 +475,36 @@ namespace inceptionengine
 		createInfo.clipped = VK_TRUE;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-		if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
+		if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &mSwapchain) != VK_SUCCESS)
 		{
 			std::cerr << "fail to create swapchain! Error code is: " << std::endl;
 			throw std::runtime_error("");
 		}
 
 		uint32_t swapchainImageCount = 0;
-		vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchainImageCount, nullptr);
-		m_swapchainImages.resize(swapchainImageCount);
-		if (vkGetSwapchainImagesKHR(m_device, m_swapchain, &swapchainImageCount, m_swapchainImages.data()) != VK_SUCCESS)
+		vkGetSwapchainImagesKHR(m_device, mSwapchain, &swapchainImageCount, nullptr);
+		mSwapchainImages.resize(swapchainImageCount);
+		if (vkGetSwapchainImagesKHR(m_device, mSwapchain, &swapchainImageCount, mSwapchainImages.data()) != VK_SUCCESS)
 		{
 			std::cerr << "Fail to get swapchin images!" << std::endl;
 			throw std::runtime_error("");
 		}
 	}
 
-	void Renderer::CreateImageViews()
+	void Renderer::CreateSwapchainImageViews()
 	{
-		m_imageViews.resize(m_swapchainImages.size());
-		for (size_t i = 0; i < m_imageViews.size(); i++)
+		mSwapchainImageViews.resize(mSwapchainImages.size());
+		for (size_t i = 0; i < mSwapchainImageViews.size(); i++)
 		{
 			VkImageViewCreateInfo createInfo = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-			createInfo.image = m_swapchainImages[i];
+			createInfo.image = mSwapchainImages[i];
 			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			createInfo.format = m_imageFormat;
 			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			createInfo.subresourceRange.layerCount = 1;
 			createInfo.subresourceRange.levelCount = 1;
 
-			if (vkCreateImageView(m_device, &createInfo, nullptr, &m_imageViews[i]) != VK_SUCCESS)
+			if (vkCreateImageView(m_device, &createInfo, nullptr, &mSwapchainImageViews[i]) != VK_SUCCESS)
 			{
 				std::cerr << "Fail to create " << i << " image view!" << std::endl;
 				throw std::runtime_error("");
@@ -508,17 +512,40 @@ namespace inceptionengine
 		}
 	}
 
+	void Renderer::CreateDepthResources()
+	{
+		VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
+
+		CreateImage(mDepthImage, 
+					mDepthImageMem, 
+					m_windowWidth, 
+					m_windowHeight, 
+					1,
+					1,
+					1,
+					0,
+					VK_IMAGE_TYPE_2D,
+					depthFormat, 
+					VK_IMAGE_TILING_OPTIMAL, 
+					VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		mDepthImageView = CreateImageView(mDepthImage, 1, VK_IMAGE_ASPECT_DEPTH_BIT, depthFormat, VK_IMAGE_VIEW_TYPE_2D);
+	}
+
 	void Renderer::CreateFramebuffer()
 	{
-		m_framebuffers.resize(m_imageViews.size());
+		m_framebuffers.resize(mSwapchainImageViews.size());
 		for (uint32_t i = 0; i < m_framebuffers.size(); i++)
 		{
+			std::array<VkImageView, 2> attachments = { mSwapchainImageViews[i], mDepthImageView };
+
 			VkFramebufferCreateInfo createInfo = { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
-			createInfo.width = m_swapchainExtent.width;
-			createInfo.height = m_swapchainExtent.height;
+			createInfo.width = mSwapchainExtent.width;
+			createInfo.height = mSwapchainExtent.height;
 			createInfo.layers = 1;
-			createInfo.attachmentCount = 1;
-			createInfo.pAttachments = &m_imageViews[i];
+			createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());;
+			createInfo.pAttachments = attachments.data();;
 			assert(m_renderPass);
 			createInfo.renderPass = m_renderPass;
 			if (vkCreateFramebuffer(m_device, &createInfo, nullptr, &m_framebuffers[i]) != VK_SUCCESS)
@@ -545,10 +572,10 @@ namespace inceptionengine
 	void Renderer::CreateCommandBuffers()
 	{
 
-		m_commandBuffers.resize(m_swapchainImages.size());
+		m_commandBuffers.resize(mSwapchainImages.size());
 		VkCommandBufferAllocateInfo allocateInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
 		allocateInfo.commandPool = m_commandPool;
-		allocateInfo.commandBufferCount = (uint32_t)m_swapchainImages.size();
+		allocateInfo.commandBufferCount = (uint32_t)mSwapchainImages.size();
 		allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		if (vkAllocateCommandBuffers(m_device, &allocateInfo, m_commandBuffers.data()) != VK_SUCCESS)
 		{
@@ -565,18 +592,19 @@ namespace inceptionengine
 		VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		vkBeginCommandBuffer(m_commandBuffers[i], &beginInfo);
 
+		std::array<VkClearValue, 2> clearValues = {};
+		clearValues[0].color = { 0.5f, 0.5f, 0.5f, 1.0f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		VkRenderPassBeginInfo renderPassBeginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
 		renderPassBeginInfo.renderPass = m_renderPass;
 		renderPassBeginInfo.renderArea.offset = { 0,0 };
-		renderPassBeginInfo.renderArea.extent = m_swapchainExtent;
+		renderPassBeginInfo.renderArea.extent = mSwapchainExtent;
 		renderPassBeginInfo.framebuffer = m_framebuffers[i];
-		renderPassBeginInfo.clearValueCount = 1;
-		renderPassBeginInfo.pClearValues = &ClearColor;
+		renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassBeginInfo.pClearValues = clearValues.data();;
 
 		vkCmdBeginRenderPass(m_commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-
 
 		VkDeviceSize offset[] = { 0 };
 
@@ -640,7 +668,7 @@ namespace inceptionengine
 
 	
 
-	void Renderer::CreatePipeline(Pipeline& pipeline, ShaderPath const& shaderpath, UniformBufferDescription& dataDesc, VkPrimitiveTopology topology)
+	void Renderer::CreatePipeline(Pipeline& pipeline, ShaderPath const& shaderpath, UniformBufferDescription& dataDesc, bool useDepthTest, VkPrimitiveTopology topology)
 	{
 
 		VkShaderModule vertexShader = LoadShaderModule(shaderpath.vertexShaderPath);
@@ -682,7 +710,7 @@ namespace inceptionengine
 
 		VkRect2D scissor = {};
 		scissor.offset = { 0,0 };
-		scissor.extent = m_swapchainExtent;
+		scissor.extent = mSwapchainExtent;
 
 		VkPipelineViewportStateCreateInfo viewportStateCreateInfo = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
 		viewportStateCreateInfo.viewportCount = 1;
@@ -696,7 +724,7 @@ namespace inceptionengine
 		rasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
 		rasterizationStateCreateInfo.lineWidth = 1.0f;
 		//two-sided or single-sided of the material
-		rasterizationStateCreateInfo.cullMode = VK_CULL_MODE_NONE;
+		rasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 		rasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
 
@@ -713,6 +741,18 @@ namespace inceptionengine
 		colorBlendStateCreateInfo.attachmentCount = 1;
 		colorBlendStateCreateInfo.pAttachments = &colorBlendAttachmentState;
 		colorBlendStateCreateInfo.logicOpEnable = VK_FALSE;
+
+		VkPipelineDepthStencilStateCreateInfo depthStencil = {};
+		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthStencil.depthTestEnable = VK_TRUE;
+		depthStencil.depthWriteEnable = VK_TRUE;
+		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+		depthStencil.depthBoundsTestEnable = VK_FALSE;
+		depthStencil.minDepthBounds = 0.0f; // Optional
+		depthStencil.maxDepthBounds = 1.0f; // Optional
+		depthStencil.stencilTestEnable = VK_FALSE;
+		depthStencil.front = {}; // Optional
+		depthStencil.back = {}; // Optional
 
 
 		//pipeline layout
@@ -746,14 +786,13 @@ namespace inceptionengine
 		graphicsPipelineCreateInfo.layout = pipeline.pipelineLayout;
 		graphicsPipelineCreateInfo.renderPass = m_renderPass;
 		graphicsPipelineCreateInfo.subpass = 0; //index of the subpass that this graphics pipeline will use
+		if(useDepthTest) graphicsPipelineCreateInfo.pDepthStencilState = &depthStencil;
 
 		if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &(pipeline.pipeline)) != VK_SUCCESS)
 		{
 			std::cerr << "Fail to create graphics pipeline!" << std::endl;
 			throw std::runtime_error("");
 		}
-
-
 
 		vkDestroyShaderModule(m_device, vertexShader, nullptr);
 		vkDestroyShaderModule(m_device, fragmentShader, nullptr);
@@ -766,7 +805,7 @@ namespace inceptionengine
 		{
 			vkDestroyFramebuffer(m_device, m_framebuffers[i], nullptr);
 			vkFreeCommandBuffers(m_device, m_commandPool, 1, &m_commandBuffers[i]);
-			vkDestroyImageView(m_device, m_imageViews[i], nullptr);
+			vkDestroyImageView(m_device, mSwapchainImageViews[i], nullptr);
 			vkDestroySemaphore(m_device, m_graphicsFinishSemaphores[i], nullptr);
 			vkDestroyFence(m_device, m_imageFinishRenderFence[i], nullptr);
 		}
@@ -779,7 +818,7 @@ namespace inceptionengine
 		vkDestroyRenderPass(m_device, m_renderPass, nullptr);
 
 		//swapchian
-		vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+		vkDestroySwapchainKHR(m_device, mSwapchain, nullptr);
 
 	}
 
@@ -864,8 +903,6 @@ namespace inceptionengine
 
 	void Renderer::CreateVertexBuffer(VertexBuffer& vertexBuffer, std::vector<Vertex> const& vertices)
 	{
-		//VertexBuffer* vertexBuffer = new VertexBuffer(this);
-
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMem;
 		VkDeviceSize size = sizeof(Vertex) * vertices.size();
@@ -886,8 +923,6 @@ namespace inceptionengine
 		vkDestroyBuffer(m_device, stagingBuffer, nullptr);
 
 		vkFreeMemory(m_device, stagingBufferMem, nullptr);
-
-		//return vertexBuffer;
 
 	}
 
@@ -942,11 +977,11 @@ namespace inceptionengine
 
 		VkMemoryRequirements memReq;
 		vkGetImageMemoryRequirements(m_device, image, &memReq);
-		auto size = memReq.size;
+		VkDeviceSize size = memReq.size;
 
 		VkMemoryAllocateInfo allocInfo = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
 		allocInfo.allocationSize = size;
-		allocInfo.memoryTypeIndex = memoryProperties;
+		allocInfo.memoryTypeIndex = FindSuitableMemType(memReq.memoryTypeBits, memoryProperties);
 
 		if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMem) != VK_SUCCESS)
 		{
@@ -1175,7 +1210,7 @@ namespace inceptionengine
 	void Renderer::CreateCubeMap(CubeMap& cubeMap, std::array<std::string, 6> const& texturePaths)
 	{
 		int cubeMapWidth, cubeMapHeight, cubeMapNChannel;
-		stbi_uc* front = stbi_load(texturePaths[0].c_str(), &cubeMapWidth, &cubeMapHeight, &cubeMapNChannel, STBI_rgb_alpha);
+		stbi_uc* front = stbi_load(PathHelper::GetAbsolutePath(texturePaths[0]).c_str(), &cubeMapWidth, &cubeMapHeight, &cubeMapNChannel, STBI_rgb_alpha);
 
 		if (front == nullptr) throw std::runtime_error("");
 
@@ -1196,7 +1231,7 @@ namespace inceptionengine
 		for (int i = 0; i < 6; i++)
 		{
 			int width, height, nChannel;
-			stbi_uc* textureImage = stbi_load(texturePaths[i].c_str(), &width, &height, &nChannel, STBI_rgb_alpha);
+			stbi_uc* textureImage = stbi_load(PathHelper::GetAbsolutePath(texturePaths[i]).c_str(), &width, &height, &nChannel, STBI_rgb_alpha);
 			if (textureImage == nullptr || width != cubeMapWidth || height != cubeMapHeight) throw std::runtime_error("");
 
 			memcpy(static_cast<char*>(data) + i * imageSize, reinterpret_cast<const void*>(textureImage), static_cast<size_t>(imageSize));
@@ -1286,7 +1321,7 @@ namespace inceptionengine
 
 				Light light;
 				
-				light.m_locationAndIntensity = { 0.0f, 2000.0f, 0.0f, 1.5f };
+				light.m_locationAndIntensity = { -500.0f, 500.0f, 0.0f, 1.8f };
 				
 				vkMapMemory(m_device, uBuffer.lightMemory[i], 0, sizeof(Light), 0, &data);
 
@@ -1318,24 +1353,39 @@ namespace inceptionengine
 
 	void Renderer::CreateRenderPass()
 	{
-		VkAttachmentDescription attachmentDesc = {};
-		attachmentDesc.format = m_imageFormat;
-		attachmentDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		attachmentDesc.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		attachmentDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		attachmentDesc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachmentDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachmentDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachmentDesc.samples = VK_SAMPLE_COUNT_1_BIT;
+		VkAttachmentDescription colorAttachmentDesc = {};
+		colorAttachmentDesc.format = m_imageFormat;
+		colorAttachmentDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachmentDesc.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		colorAttachmentDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachmentDesc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachmentDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachmentDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachmentDesc.samples = VK_SAMPLE_COUNT_1_BIT;
 
 		VkAttachmentReference colorAttachmentRef = {};
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+		VkAttachmentDescription depthAttachmentDesc = {};
+		depthAttachmentDesc.format = VK_FORMAT_D32_SFLOAT;
+		depthAttachmentDesc.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachmentDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachmentDesc.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachmentDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachmentDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachmentDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachmentDesc.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentReference depthAttachmentRef = {};
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 		VkSubpassDescription subpassDesc = {};
 		subpassDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpassDesc.colorAttachmentCount = 1;
 		subpassDesc.pColorAttachments = &colorAttachmentRef;
+		subpassDesc.pDepthStencilAttachment = &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -1345,9 +1395,12 @@ namespace inceptionengine
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
+
+		std::array<VkAttachmentDescription, 2> attachments = { colorAttachmentDesc, depthAttachmentDesc };
+
 		VkRenderPassCreateInfo createInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
-		createInfo.attachmentCount = 1;
-		createInfo.pAttachments = &attachmentDesc;
+		createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());;
+		createInfo.pAttachments = attachments.data();
 		createInfo.subpassCount = 1;
 		createInfo.pSubpasses = &subpassDesc;
 		createInfo.dependencyCount = 1;
@@ -1430,14 +1483,20 @@ namespace inceptionengine
 
 
 
-		for (const auto& imageView : m_imageViews)
+		for (const auto& imageView : mSwapchainImageViews)
 		{
 			vkDestroyImageView(m_device, imageView, nullptr);
 		}
 
+		vkDestroyImage(m_device, mDepthImage, nullptr);
+
+		vkDestroyImageView(m_device, mDepthImageView, nullptr);
+
+		vkFreeMemory(m_device, mDepthImageMem, nullptr);
+
+
 		for (uint32_t i = 0; i < NumOfRenderBuffers; i++)
 		{
-
 			vkDestroySemaphore(m_device, m_graphicsFinishSemaphores[i], nullptr);
 			vkDestroyFence(m_device, m_imageFinishRenderFence[i], nullptr);
 		}
@@ -1446,7 +1505,7 @@ namespace inceptionengine
 
 		vkDestroyCommandPool(m_device, m_commandPool, nullptr);
 
-		vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+		vkDestroySwapchainKHR(m_device, mSwapchain, nullptr);
 
 		vkDestroyDevice(m_device, nullptr);
 
@@ -1592,6 +1651,12 @@ namespace inceptionengine
 		m_terrain = terrain;
 	}
 
+	void Renderer::SetCameraMatirx(Matrix4x4f const& cameraMatrix)
+	{
+		m_mvp.view = cameraMatrix;
+	}
+
+
 	uint32_t Renderer::FindSuitableMemType(uint32_t filter, VkMemoryPropertyFlags properties)
 	{
 		for (uint32_t i = 0; i < m_physicalDeviceMemProp.memoryTypeCount; i++)
@@ -1639,7 +1704,7 @@ namespace inceptionengine
 
 		arr[3].binding = 0;
 		arr[3].location = 3;
-		arr[3].offset = offsetof(Vertex, vertexNormal);
+		arr[3].offset = offsetof(Vertex, normal);
 		arr[3].format = VK_FORMAT_R32G32B32_SFLOAT;
 
 		arr[4].binding = 0;

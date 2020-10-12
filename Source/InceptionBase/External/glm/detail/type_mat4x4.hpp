@@ -18,9 +18,6 @@ namespace glm
 		typedef mat<4, 4, T, Q> transpose_type;
 		typedef T value_type;
 
-	private:
-		col_type value[4];
-
 	public:
 		// -- Accesses --
 
@@ -109,6 +106,10 @@ namespace glm
 		GLM_FUNC_DECL mat<4, 4, T, Q> & operator--();
 		GLM_FUNC_DECL mat<4, 4, T, Q> operator++(int);
 		GLM_FUNC_DECL mat<4, 4, T, Q> operator--(int);
+
+	public:
+		//actual data storage
+		col_type value[4];
 	};
 
 	// -- Unary operators --

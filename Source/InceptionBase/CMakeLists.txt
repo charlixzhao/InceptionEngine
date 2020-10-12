@@ -7,7 +7,9 @@ set(SRC_BUILD_FILES
 "Math/Math.cpp"
 "Serialization/Serializer.h"
 "Serialization/Serializer.cpp"
-"Timer.hpp")
+"Timer.hpp"
+"PathHelper.h"
+"PathHelper.cpp")
 
 add_library(InceptionBase STATIC ${SRC_BUILD_FILES})
 

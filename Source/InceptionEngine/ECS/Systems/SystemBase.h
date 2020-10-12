@@ -13,6 +13,6 @@ namespace inceptionengine
 		virtual ~SystemBase() = default;
 
 	protected:
-		ComponentsPool& mComponentsPool;
+		std::reference_wrapper<ComponentsPool> mComponentsPool;
 	};
 }

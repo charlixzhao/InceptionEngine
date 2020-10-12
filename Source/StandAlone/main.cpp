@@ -13,42 +13,46 @@ public:
 	HornetScript(std::reference_wrapper<Entity const> entity)
 		:NativeScript(entity)
 	{
-		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&HornetScript::OnMouse_Left, this, std::placeholders::_1));
-		BindKeyInputCallback(KeyInputTypes::Keyboard_H, std::bind(&HornetScript::OnKey_H, this, std::placeholders::_1));
-		BindKeyInputCallback(KeyInputTypes::Keyboard_B, std::bind(&HornetScript::OnKey_B, this, std::placeholders::_1));
-		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&HornetScript::OnMouse_Scroll, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_D, std::bind(&HornetScript::OnKey_D, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_A, std::bind(&HornetScript::OnKey_A, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_W, std::bind(&HornetScript::OnKey_W, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_S, std::bind(&HornetScript::OnKey_S, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_Space, std::bind(&HornetScript::OnKey_Space, this, std::placeholders::_1));
 	}
 
 private:
 	virtual void OnBegin() override
 	{
-		std::cout << "Hellooo Script\n";
+		std::cout << "Hello Script!\n";
 	}
 
-	void OnMouse_Left(bool press)
+	void OnKey_D(bool press)
 	{
-		char* output = press ? "press_mouse_left\n" : "release_mouse_left\n";
-		std::cout << output;
+		if(press) mEntity.get().GetComponent<CameraComponent>().RotateVertical(10.0f);
 	}
 
-	void OnKey_H(bool press)
+	void OnKey_A(bool press)
 	{
-		char* output = press ? "press_key_h\n" : "release_key_h\n";
-		std::cout << output;
-	}
-	void OnKey_B(bool press)
-	{
-		char* output = press ? "press_key_b\n" : "release_key_b\n";
-		std::cout << output;
+		if (press) mEntity.get().GetComponent<CameraComponent>().RotateVertical(-10.0f);
 	}
 
-	void OnMouse_Scroll(bool press)
+	void OnKey_W(bool press)
 	{
-		char* output = press ? "scroll_mouse_up\n" : "scroll_mouse_down\n";
-		std::cout << output;
+		if (press) mEntity.get().GetComponent<CameraComponent>().RotateHorizontal(-10.0f);
 	}
 
+	void OnKey_S(bool press)
+	{
+		if (press) mEntity.get().GetComponent<CameraComponent>().RotateHorizontal(10.0f);
+	}
+
+	void OnKey_Space(bool press)
+	{
+		if (press) mEntity.get().GetComponent<AnimationComponent>().PlayAnimation("StandAloneResource\\maria\\dance.anim");
+	}
 };
+
+
 
 
 int main()
@@ -62,14 +66,15 @@ int main()
 	
 	std::array<std::string, 6> skyboxTexturePath =
 	{
-		"D:\\Inception\\Content\\Textures\\Skybox\\front.png",
-		"D:\\Inception\\Content\\Textures\\Skybox\\back.png",
-		"D:\\Inception\\Content\\Textures\\Skybox\\top.png",
-		"D:\\Inception\\Content\\Textures\\Skybox\\bottom.png",
-		"D:\\Inception\\Content\\Textures\\Skybox\\right.png",
-		"D:\\Inception\\Content\\Textures\\Skybox\\left.png"
+		"StandAloneResource\\skybox\\front.png",
+		"StandAloneResource\\skybox\\back.png",
+		"StandAloneResource\\skybox\\top.png",
+		"StandAloneResource\\skybox\\bottom.png",
+		"StandAloneResource\\skybox\\right.png",
+		"StandAloneResource\\skybox\\left.png"
 	};
 	
+
 	world->SetSkybox(skyboxTexturePath);
 	
 
@@ -77,12 +82,20 @@ int main()
 	
 	Entity const& entityOne = world->GetEntity(entityOneID);
 
-
 	entityOne.AddComponent<TransformComponent, int const&, int const&>(1, 2).Hello();
 
-	entityOne.AddComponent<SkeletalMeshComponent>().SetPlane();
+	entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\maria.mesh");
+	//entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\maria_mesh.FBX");
+	//entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\house_dance_anim.fbx");
+
 
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
+
+	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(-280.0f, 80.0f, 0.0f), Vec3f(0.0f, 80.0f, 0.0f));
+
+	entityOne.AddComponent<AnimationComponent>();
+
+	world->SetGameCamera(entityOne.GetComponent<CameraComponent>());
 
 	engine.PlayGame();
 
