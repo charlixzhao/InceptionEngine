@@ -1,22 +1,23 @@
 #pragma once
 
 #include "Skeleton.h"
+
 #include "RunTime/RHI/Renderer/Vertex.h"
 #include "RunTime/RHI/Renderer/ShaderPath.h"
 
+
 namespace inceptionengine
 {
-
-	class ShaderPath;
 
 	struct SubMesh
 	{
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(vertices, indices, texturePath, shaderPath);
+			archive(mName, vertices, indices, texturePath, shaderPath);
 		}
 
+		std::string mName;
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 		std::string texturePath;
@@ -24,16 +25,17 @@ namespace inceptionengine
 	};
 
 
-	class SkeletalMesh
+	struct SkeletalMesh
 	{
-	public:
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(mSubMeshes, mSkeleton);
+			archive(mName, mPathToSkeleton, mSubMeshes, mSkeleton);
 		}
 
+		std::string mName;
+		std::string mPathToSkeleton;
 		std::vector<SubMesh> mSubMeshes;
-		Skeleton mSkeleton;
+		std::shared_ptr<Skeleton> mSkeleton = nullptr;
 	};
 }

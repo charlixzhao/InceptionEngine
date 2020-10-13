@@ -75,8 +75,6 @@ set(SRC_BUILD_FILES
 "Runtime/Resource/Resource.cpp"
 "Runtime/Resource/ResourceManager.h"
 "Runtime/Resource/ResourceManager.cpp"
-"DevelopTemp_fbximport/FbxImporter.h"
-"DevelopTemp_fbximport/FbxImporter.cpp"
 )
 
 
@@ -88,14 +86,13 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
 
 target_include_directories(InceptionEngine PUBLIC 
 ${PROJECT_SOURCE_DIR}/Source/InceptionEngine 
-${PROJECT_SOURCE_DIR}/Source/InceptionBase
-${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/fbxsdk/include)
+${PROJECT_SOURCE_DIR}/Source/InceptionBase 
+${PROJECT_SOURCE_DIR}/ThirdParty)
 
 target_link_libraries(InceptionEngine 
 InceptionBase 
-${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/glfw/lib/glfw3.lib 
-${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/vulkan/Lib/vulkan-1.lib
-${PROJECT_SOURCE_DIR}/Source/InceptionEngine/External/fbxsdk/lib/x64/debug/libfbxsdk.lib)
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibrary/glfw/lib/glfw3.lib 
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibrary/vulkan/Lib/vulkan-1.lib)
 
 target_compile_options(InceptionEngine PUBLIC /wd26812 /wd26451 /wd26495)
 

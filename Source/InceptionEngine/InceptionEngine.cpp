@@ -23,38 +23,13 @@ namespace inceptionengine
 	{
 	}
 	
-	std::string GetEnginePath(std::string const& path)
-	{
-		int location = -1;
-		for (int i = 0; i < path.length(); i++)
-		{
-			if (path[i] == '\\')
-			{
-				for (int j = i + 1; j < path.length(); j++)
-				{
-					if (path[j] == '\\')
-					{
-						std::string word = path.substr(i + 1, j - i - 1);
-						if (word == std::string("build_x64"))
-						{
-							location = i;
-						}
-						break;
-					}
-				}
-			}
-		}
-		assert(location != -1);
-		return path.substr(0, location + 1);
-	}
+
 
 	InceptionEngine::InceptionEngine()
 	{
 		srand(static_cast <unsigned> (time(0)));
 
-		std::string currentPath = std::filesystem::current_path().string();
-
-		PathHelper::SetEngineDirectory(GetEnginePath(currentPath));
+		PathHelper::SetEngineDirectory(PathHelper::GetEnginePath(std::filesystem::current_path().string()));
 		
 		mRenderer = std::make_unique<Renderer>();
 

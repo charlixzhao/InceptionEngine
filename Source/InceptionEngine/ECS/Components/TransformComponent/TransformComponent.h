@@ -12,8 +12,6 @@ namespace inceptionengine
 	public:
 		TransformComponent(TransformSystem& system, int x, int y);
 
-		void Hello();
-
 	private:
 		friend class TransformSystem;
 		std::reference_wrapper<TransformSystem> mSystem;

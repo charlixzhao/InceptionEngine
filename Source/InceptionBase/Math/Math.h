@@ -151,4 +151,14 @@ namespace inceptionengine
 	{
 		return 0;
 	}
+
+	inline float Distance2(Matrix4x4f const& mat1, Matrix4x4f const& mat2)
+	{
+		return glm::distance2(mat1[0], mat2[0]) + glm::distance2(mat1[1], mat2[1]) + glm::distance2(mat1[2], mat2[2]) + glm::distance2(mat1[3], mat2[3]);
+	}
+
+	inline float Distance(Matrix4x4f const& mat1, Matrix4x4f const& mat2)
+	{
+		return glm::sqrt(Distance2(mat1, mat2));
+	}
 }

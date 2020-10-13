@@ -2,7 +2,6 @@
 #include "SkeletalMeshComponent.h"
 #include "Serialization/Serializer.h"
 #include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
-#include "DevelopTemp_fbximport/FbxImporter.h"
 #include "RunTime/Resource/ResourceManager.h"
 
 namespace inceptionengine

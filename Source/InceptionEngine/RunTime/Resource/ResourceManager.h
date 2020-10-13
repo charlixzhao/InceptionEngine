@@ -2,8 +2,9 @@
 
 namespace inceptionengine
 {
-	class Animation;
-	class SkeletalMesh;
+	struct Animation;
+	struct SkeletalMesh;
+	struct Skeleton;
 
 	class ResourceManager
 	{
@@ -17,10 +18,13 @@ namespace inceptionengine
 		ResourceManager() = default;
 		std::unordered_map<std::string, std::shared_ptr<Animation>> mAnimationCache;
 		std::unordered_map<std::string, std::shared_ptr<SkeletalMesh>> mSkeletalMeshCache;
+		std::unordered_map<std::string, std::shared_ptr<Skeleton>> mSkeletonCache;
+
 	};
 
 	template std::shared_ptr<Animation> ResourceManager::GetResource<Animation>(std::string const&);
 	template std::shared_ptr<SkeletalMesh> ResourceManager::GetResource<SkeletalMesh>(std::string const&);
+	template std::shared_ptr<Skeleton> ResourceManager::GetResource<Skeleton>(std::string const&);
 
 
 }

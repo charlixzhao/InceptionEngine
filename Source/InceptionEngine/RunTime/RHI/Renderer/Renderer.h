@@ -1,6 +1,6 @@
 #pragma once
 
-#include "External/vulkan/Include/vulkan/vulkan.h"
+#include "ThirdPartyLibrary/vulkan/Include/vulkan/vulkan.h"
 #include "EngineGlobals/RenderGlobals.h"
 #include "Vertex.h"
 #include "ShaderPath.h"

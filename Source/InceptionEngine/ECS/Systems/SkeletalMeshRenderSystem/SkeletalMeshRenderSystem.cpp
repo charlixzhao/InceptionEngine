@@ -48,7 +48,7 @@ namespace inceptionengine
 			if (NeedToUpdateUBuffer(id))
 			{
 				SkeletalMeshComponent& skeletalMeshComponent = view[pair.second];
-				int boneNumber = skeletalMeshComponent.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.GetBoneNumber();
+				int boneNumber = skeletalMeshComponent.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
 				auto uBufferMat = GetArrayOfIdentity<Transform>(boneNumber + AnimPoseOffsetInUBuffer);
 			
 				if (mAnimationSystem.get().EntityPoseChange(id))
@@ -57,7 +57,7 @@ namespace inceptionengine
 					std::vector<Matrix4x4f> const& finalPose = mAnimationSystem.get().GetEntityPose(id);
 					for (int bone = 0; bone < finalPose.size(); bone++)
 					{
-						uBufferMat[bone + 2] = finalPose[bone] * skeletalMeshComponent.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.mBones[bone].bindPoseInv;
+						uBufferMat[bone + 2] = finalPose[bone] * skeletalMeshComponent.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
 					}
 					mAnimationSystem.get().FinishUpdatePose(id);
 				}
@@ -93,7 +93,7 @@ namespace inceptionengine
 		/*
 		for testing, init ubuffer from pose
 		*/
-		int boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.GetBoneNumber();
+		int boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
 		auto uBufferMat = GetArrayOfIdentity<Transform>(boneNumber + AnimPoseOffsetInUBuffer);
 		//for (int i = 0; i < boneNumber; i++)
 		//{

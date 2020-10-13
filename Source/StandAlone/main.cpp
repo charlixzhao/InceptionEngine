@@ -48,7 +48,7 @@ private:
 
 	void OnKey_Space(bool press)
 	{
-		if (press) mEntity.get().GetComponent<AnimationComponent>().PlayAnimation("StandAloneResource\\maria\\dance.anim");
+		if (press) mEntity.get().GetComponent<AnimationComponent>().PlayAnimation("StandAloneResource\\maria\\maria_dance.ie_anim");
 	}
 };
 
@@ -57,9 +57,6 @@ private:
 
 int main()
 {
-	Vec3f v(1.0f,1.0f,1.0f);
-	std::cout << v.x << v.y << v.z << std::endl;
-
 	auto& engine = InceptionEngine::GetInstance();
 
 	World* world = engine.CreateWorld();
@@ -82,12 +79,9 @@ int main()
 	
 	Entity const& entityOne = world->GetEntity(entityOneID);
 
-	entityOne.AddComponent<TransformComponent, int const&, int const&>(1, 2).Hello();
+	entityOne.AddComponent<TransformComponent, int const&, int const&>(1, 2);
 
-	entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\maria.mesh");
-	//entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\maria_mesh.FBX");
-	//entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\house_dance_anim.fbx");
-
+	entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\maria_mesh.ie_skmesh");
 
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
 

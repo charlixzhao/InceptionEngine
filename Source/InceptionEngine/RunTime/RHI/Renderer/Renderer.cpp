@@ -6,7 +6,7 @@ External libraries
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include "External/stb/stb_image.h"
-#include "External/glfw/include/GLFW/glfw3.h"
+#include "ThirdPartyLibrary/glfw/include/GLFW/glfw3.h"
 
 #include "IRenderObject.h"
 #include "RunTime/RHI/WindowHandler/WindowHandler.h"
@@ -337,7 +337,6 @@ namespace inceptionengine
 		std::vector<VkQueueFamilyProperties> properties(count);
 		vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &count, nullptr);
 		properties.resize(count);
-		std::cout << "This graphics card supports " << count << " queue families." << std::endl;
 		vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &count, properties.data());
 
 

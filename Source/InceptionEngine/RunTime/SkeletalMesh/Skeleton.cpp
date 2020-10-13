@@ -4,6 +4,7 @@
 
 namespace inceptionengine
 {
+
 	std::vector<Matrix4x4f> Skeleton::GetBindPose()
 	{
 		std::vector<Matrix4x4f> bindPose;
@@ -13,4 +14,7 @@ namespace inceptionengine
 		}
 		return bindPose;
 	}
+
+
+
 }

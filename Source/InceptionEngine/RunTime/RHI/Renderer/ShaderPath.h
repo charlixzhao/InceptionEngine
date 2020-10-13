@@ -11,8 +11,8 @@ namespace inceptionengine
 		{
 			archive(vertexShaderPath, fragmentShaderPath);
 		}
-
-		std::string vertexShaderPath;
-		std::string fragmentShaderPath;
+			
+		std::string vertexShaderPath = "EngineResource\\shader\\spv\\vertex.spv";
+		std::string fragmentShaderPath = "EngineResource\\shader\\spv\\fragment.spv";
 	};
 }

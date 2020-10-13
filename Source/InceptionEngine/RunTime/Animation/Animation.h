@@ -3,28 +3,26 @@
 
 namespace inceptionengine
 {
-	class Skeleton;
+	struct Skeleton;
 
-	class Animation
+	struct Animation
 	{
-	public:
-		template<typename Archive>
-		void serialize(Archive& archive)
-		{
-			archive(mDuration, mName, mBoneTransforms);
-		}
+		float mDuration = 0.0f;
+		std::string mName;
+		std::string mPathToSkeleton;
+		std::vector<std::vector<Matrix4x4f>> mBoneTransforms;
+		std::shared_ptr<Skeleton> mSkeleton;
 
 
 		std::vector<Matrix4x4f> Interpolate(float time) const;
 
 		float GetDuration() const { return mDuration; }
 
-	//private:
-		//Skeleton* mSkeleton = nullptr;
-
-		float mDuration = 0.0f;
-		std::string mName;
-		std::vector<std::vector<Matrix4x4f>> mBoneTransforms;
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(mDuration, mName, mPathToSkeleton, mBoneTransforms);
+		}
 
 	};
 }
