@@ -71,8 +71,6 @@ set(SRC_BUILD_FILES
 "Runtime/RHI/WindowHandler/WindowHandler.h"
 "Runtime/RHI/WindowHandler/WindowHandler.cpp"
 "Runtime/RHI/WindowHandler/PeripheralInput.h"
-"Runtime/Resource/Resource.h"
-"Runtime/Resource/Resource.cpp"
 "Runtime/Resource/ResourceManager.h"
 "Runtime/Resource/ResourceManager.cpp"
 )

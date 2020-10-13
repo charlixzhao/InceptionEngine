@@ -1,8 +1,6 @@
 
 
 set(SRC_BUILD_FILES
-"AssetImporter.h"
-"AssetImporter.cpp"
 "FbxImporter.h"
 "FbxImporter.cpp"
 "main.cpp"
