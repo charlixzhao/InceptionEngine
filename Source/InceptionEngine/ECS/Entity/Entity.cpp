@@ -66,6 +66,10 @@ namespace inceptionengine
 		{
 			return mWorld->GetComponentsPools().AddComponent<NativeScriptComponent>(mID, mWorld->GetSystem<NativeScriptComponent>(), *this);
 		}
+		else if constexpr (std::is_same_v<Component, AnimationComponent>)
+		{
+			return mWorld->GetComponentsPools().AddComponent<AnimationComponent>(mID, mWorld->GetSystem<AnimationComponent>(), GetComponent<SkeletalMeshComponent>().GetSkeleton());
+		}
 		else
 		{
 			return mWorld->GetComponentsPools().AddComponent<Component>(mID, mWorld->GetSystem<Component>(), std::forward<Arg>(args)...);

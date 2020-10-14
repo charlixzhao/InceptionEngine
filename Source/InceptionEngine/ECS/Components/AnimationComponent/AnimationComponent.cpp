@@ -7,10 +7,10 @@
 
 namespace inceptionengine
 {
-	AnimationComponent::AnimationComponent(AnimationSystem& system)
+	AnimationComponent::AnimationComponent(AnimationSystem& system, Skeleton const& skeleton)
 		:mAnimationSystem(system)
 	{
-		mAnimController = std::make_unique<AnimationController>();
+		mAnimController = std::make_unique<AnimationController>(skeleton);
 	}
 
 	AnimationComponent::~AnimationComponent() = default;

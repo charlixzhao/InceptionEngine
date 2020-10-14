@@ -6,11 +6,12 @@ namespace inceptionengine
 {
 
 	class Animation;
+	class Skeleton;
 
 	class AnimationController
 	{
 	public:
-		AnimationController();
+		AnimationController(Skeleton const& skeleton);
 
 		~AnimationController();
 
@@ -24,6 +25,8 @@ namespace inceptionengine
 
 	private:
 		float mCurrentTime = 0.0f;
+
+		std::reference_wrapper<Skeleton const> mSkeleton;
 
 		std::shared_ptr<Animation const> mCurrentAnimation = nullptr;
 

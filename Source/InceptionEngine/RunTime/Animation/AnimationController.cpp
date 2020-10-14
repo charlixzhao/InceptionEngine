@@ -9,7 +9,11 @@
 
 namespace inceptionengine
 {
-	AnimationController::AnimationController() = default;
+	AnimationController::AnimationController(Skeleton const& skeleton)
+		:mSkeleton(skeleton)
+	{
+		mFinalPose = mSkeleton.get().GetBindPose();
+	}
 	AnimationController::~AnimationController()
 	{
 
@@ -32,6 +36,7 @@ namespace inceptionengine
 	{
 		std::shared_ptr<Animation> pAnimation = gResourceMgr.GetResource<Animation>(filePath);
 		assert(pAnimation != nullptr);
+		assert(*pAnimation->mSkeleton == mSkeleton);
 		std::cout << "animation start!\n";
 		mCurrentAnimation = pAnimation;
 		mCurrentTime = 0.0f;
@@ -39,7 +44,7 @@ namespace inceptionengine
 	}
 	void AnimationController::StopAnimation()
 	{
-		//mFinalPose = mCurrentAnimation->mSkeleton->GetBindPose();
+		mFinalPose = mSkeleton.get().GetBindPose();
 		mCurrentAnimation = nullptr;
 		mCurrentTime = 0.0f;
 	}

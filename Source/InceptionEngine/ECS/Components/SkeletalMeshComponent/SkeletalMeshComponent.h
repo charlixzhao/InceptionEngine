@@ -12,6 +12,8 @@ namespace inceptionengine
 	class SkeletalMeshRenderSystem;
 
 	class SkeletalMeshInstance;
+
+	struct Skeleton;
 	
 	class IE_API SkeletalMeshComponent
 	{
@@ -36,6 +38,10 @@ namespace inceptionengine
 		void SetPlane();
 
 		void SetTriangle();
+
+	private:
+		friend class Entity;
+		Skeleton const& GetSkeleton();
 
 	private:
 		friend class SkeletalMeshRenderSystem;

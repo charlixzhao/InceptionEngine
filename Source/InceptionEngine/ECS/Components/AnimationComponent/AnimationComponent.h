@@ -7,11 +7,12 @@ namespace inceptionengine
 {
 	class AnimationSystem;
 	class AnimationController;
+	struct Skeleton;
 
 	class IE_API AnimationComponent
 	{
 	public:
-		AnimationComponent(AnimationSystem& system);
+		AnimationComponent(AnimationSystem& system, Skeleton const& skeleton);
 
 		~AnimationComponent();
 

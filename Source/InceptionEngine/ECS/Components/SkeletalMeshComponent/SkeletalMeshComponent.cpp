@@ -49,6 +49,11 @@ namespace inceptionengine
 		mSkeletalMeshInstance->InitializeRenderObjects();
 	}
 
+	Skeleton const& SkeletalMeshComponent::GetSkeleton()
+	{
+		return *mSkeletalMeshInstance->mSkeletalMesh->mSkeleton;
+	}
+
 	void SkeletalMeshComponent::ImportMesh(std::string const& fbxFilePath)
 	{
 		//fbximport::ImportScene importScene;
