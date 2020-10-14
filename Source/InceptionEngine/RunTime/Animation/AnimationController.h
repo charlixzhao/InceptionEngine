@@ -4,14 +4,13 @@
 
 namespace inceptionengine
 {
-
-	class Animation;
-	class Skeleton;
+	struct Animation;
+	struct Skeleton;
 
 	class AnimationController
 	{
 	public:
-		AnimationController(Skeleton const& skeleton);
+		AnimationController();
 
 		~AnimationController();
 
@@ -19,20 +18,18 @@ namespace inceptionengine
 
 		std::vector<Matrix4x4f> const& GetFinalPose() const { return mFinalPose; }
 
-		void PlayAnimation(std::string const& filePath);
+		void PlayAnimation(std::shared_ptr<Animation const> pAnimation);
 
 		void StopAnimation();
+
+		bool IsPlayingAnimation();
 
 	private:
 		float mCurrentTime = 0.0f;
 
-		std::reference_wrapper<Skeleton const> mSkeleton;
-
 		std::shared_ptr<Animation const> mCurrentAnimation = nullptr;
 
 		std::vector<Matrix4x4f> mFinalPose;
-
-		bool mStopAnimFlag = false;
 
 	};
 }

@@ -48,7 +48,18 @@ private:
 
 	void OnKey_Space(bool press)
 	{
-		if (press) mEntity.get().GetComponent<AnimationComponent>().PlayAnimation("StandAloneResource\\maria\\maria_dance.ie_anim");
+		if (press)
+		{
+			if (!mEntity.get().GetComponent<SkeletalMeshComponent>().IsPlayingAnimation())
+			{
+				mEntity.get().GetComponent<SkeletalMeshComponent>().PlayAnimation("StandAloneResource\\maria\\maria_dance.ie_anim");
+			}
+			else
+			{
+				mEntity.get().GetComponent<SkeletalMeshComponent>().StopAnimation();
+			}
+			
+		}
 	}
 };
 
@@ -75,19 +86,14 @@ int main()
 	world->SetSkybox(skyboxTexturePath);
 	
 
-	EntityID entityOneID = world->CreateEntity();
+	Entity const& entityOne = world->CreateEntity();
 	
-	Entity const& entityOne = world->GetEntity(entityOneID);
 
-	entityOne.AddComponent<TransformComponent, int const&, int const&>(1, 2);
-
-	entityOne.AddComponent<SkeletalMeshComponent>().ImportMesh("StandAloneResource\\maria\\maria_mesh.ie_skmesh");
+	entityOne.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\maria\\maria_mesh.ie_skmesh");
 
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
 
 	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(-280.0f, 80.0f, 0.0f), Vec3f(0.0f, 80.0f, 0.0f));
-
-	entityOne.AddComponent<AnimationComponent>();
 
 	world->SetGameCamera(entityOne.GetComponent<CameraComponent>());
 

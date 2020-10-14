@@ -22,9 +22,9 @@ namespace inceptionengine
     class World::WorldImpl
     {
     public:
-        WorldImpl(Renderer& renderer, World* pWorld, EntityFriend const& entityFriend);
+        WorldImpl(Renderer& renderer, World& world, EntityFriend const& entityFriend);
 
-        EntityID CreateEntity();
+        Entity const& CreateEntity();
 
         Entity const& GetEntity(EntityID entityID);
 
@@ -44,31 +44,6 @@ namespace inceptionengine
 
         ComponentsPool& GetComponentsPool();
 
-        template<typename Component>
-        typename SystemType<Component>::Type& GetSystem()
-        {
-            if constexpr (std::is_same_v<Component, SkeletalMeshComponent>)
-            {
-                return mSkeletalMeshRenderSystem;
-            }
-            else if constexpr (std::is_same_v<Component, TransformComponent>)
-            {
-                return mTransformSystem;
-            }
-            else if constexpr (std::is_same_v<Component, NativeScriptComponent>)
-            {
-                return mNativeScriptSystem;
-            }
-            else if constexpr (std::is_same_v<Component, CameraComponent>)
-            {
-                return mCameraSystem;
-            }
-            else if constexpr (std::is_same_v<Component, AnimationComponent>)
-            {
-                return mAnimationSystem;
-            }
-        }
-
 
     private:
         void SystemsStart();
@@ -79,7 +54,7 @@ namespace inceptionengine
         std::reference_wrapper<EntityFriend const> mEntityFriend;
 
     private:
-        World* mWorld = nullptr;
+        std::reference_wrapper<World> mWorld;
 
     private:
         friend class Entity;
@@ -118,8 +93,8 @@ namespace inceptionengine
         SkyboxSystem mSkyboxSystem;
     };
 
-    World::WorldImpl::WorldImpl(Renderer& renderer, World* pWorld, EntityFriend const& entityFriend) :
-        mWorld(pWorld),
+    World::WorldImpl::WorldImpl(Renderer& renderer, World& world, EntityFriend const& entityFriend) :
+        mWorld(world),
         mEntityFriend(entityFriend),
 
         /*
@@ -127,7 +102,7 @@ namespace inceptionengine
         */
         mTransformSystem(mEntityComponentPool),
         mCameraSystem(renderer, mEntityComponentPool),
-        mSkeletalMeshRenderSystem(renderer, mEntityComponentPool, mAnimationSystem),
+        mSkeletalMeshRenderSystem(renderer, mEntityComponentPool, mTransformSystem),
         mAnimationSystem(mEntityComponentPool),
         mNativeScriptSystem(mEntityComponentPool),
 
@@ -140,20 +115,21 @@ namespace inceptionengine
         mEntityComponentPool.RegisterComponents<ComponentTypeList>();
     }
 
-    EntityID World::WorldImpl::CreateEntity()
+    Entity const& World::WorldImpl::CreateEntity()
     {
         if (!mDeletedEntities.empty())
         {
             EntityID entityID = mDeletedEntities.front();
             mDeletedEntities.pop();
             mEntities[entityID] = std::move(Entity(entityID, mWorld, mEntityFriend));
-            return entityID;
+            mEntities[entityID].AddComponent<TransformComponent>();
+            return mEntities[entityID];
         }
         else
         {
             EntityID entityID = mEntities.size();
-            mEntities.emplace_back(entityID, mWorld, mEntityFriend);
-            return entityID;
+            mEntities.emplace_back(entityID, mWorld, mEntityFriend).AddComponent<TransformComponent>();
+            return mEntities.back();
         }
     }
 
@@ -256,12 +232,12 @@ namespace inceptionengine
 {
     World::World(Renderer& renderer)
     {
-        mWorldImpl = std::make_unique<WorldImpl>(renderer, this, mEntityFriend);
+        mWorldImpl = std::make_unique<WorldImpl>(renderer, *this, mEntityFriend);
     }
 
     World::~World() = default;
 
-    EntityID World::CreateEntity()
+    Entity const& World::CreateEntity()
     {
         return mWorldImpl->CreateEntity();
     }
@@ -311,16 +287,5 @@ namespace inceptionengine
         mWorldImpl->Simulate(deltaTime, std::move(keyInputs));
     }
 
-    template<typename Component>
-    typename SystemType<Component>::Type& inceptionengine::World::GetSystem()
-    {
-        return mWorldImpl->GetSystem<Component>();
-    }
-
-    template SystemType<SkeletalMeshComponent>::Type& World::GetSystem<SkeletalMeshComponent>();
-    template SystemType<TransformComponent>::Type& World::GetSystem<TransformComponent>();
-    template SystemType<NativeScriptComponent>::Type& World::GetSystem<NativeScriptComponent>();
-    template SystemType<CameraComponent>::Type& World::GetSystem<CameraComponent>();
-    template SystemType<AnimationComponent>::Type& World::GetSystem<AnimationComponent>();
 }
 

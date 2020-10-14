@@ -10,7 +10,6 @@ namespace inceptionengine
 	class TransformComponent;
 	class CameraComponent;
 	class SkeletalMeshComponent;
-	class AnimationComponent;
 	class NativeScriptComponent;
 
 
@@ -18,7 +17,6 @@ namespace inceptionengine
 		TransformComponent,
 		CameraComponent,
 		SkeletalMeshComponent,
-		AnimationComponent,
 		NativeScriptComponent>;
 
 	template<typename T, size_t I>

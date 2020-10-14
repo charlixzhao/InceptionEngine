@@ -3,8 +3,8 @@
 
 namespace inceptionengine
 {
-	NativeScriptComponent::NativeScriptComponent(NativeScriptSystem& system, Entity const& entity)
-		:mSystem(system), mEntity(entity)
+	NativeScriptComponent::NativeScriptComponent(Entity const& entity)
+		: mEntity(entity)
 	{
 	}
 

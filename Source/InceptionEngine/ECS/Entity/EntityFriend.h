@@ -9,9 +9,6 @@ namespace inceptionengine
 	only World can instantiate Entity so that user will not be able to create Entity
 	by their own. All any creation must go through World::CreateEntity().
 	*/
-
-	class World;
-
 	class EntityFriend
 	{
 	public:

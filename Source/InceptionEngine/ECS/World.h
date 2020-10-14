@@ -14,6 +14,7 @@ namespace inceptionengine
 	class Renderer;
 	class ComponentsPool;
 	class PeripheralInput;
+	class CameraComponent;
 
 	class IE_API World
 	{
@@ -30,7 +31,7 @@ namespace inceptionengine
 
 		World& operator = (World&&) = delete;
 
-		EntityID CreateEntity();
+		Entity const& CreateEntity();
 
 		Entity const& GetEntity(EntityID entityID);
 
@@ -71,9 +72,6 @@ namespace inceptionengine
 		friend class Entity;
 
 		ComponentsPool& GetComponentsPools();
-
-		template<typename Component>
-		typename SystemType<Component>::Type& GetSystem();
 
 	};
 

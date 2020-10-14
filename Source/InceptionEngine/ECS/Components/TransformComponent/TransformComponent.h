@@ -10,13 +10,13 @@ namespace inceptionengine
 	class IE_API TransformComponent
 	{
 	public:
-		TransformComponent(TransformSystem& system, int x, int y);
+		TransformComponent();
+
+		Matrix4x4f GetWorldTransform() const;
 
 	private:
 		friend class TransformSystem;
-		std::reference_wrapper<TransformSystem> mSystem;
 
-		int mX = 0;
-		int mY = 0;
+		Matrix4x4f mWorldTransform = Matrix4x4f(1.0f);
 	};
 }

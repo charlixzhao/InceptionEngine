@@ -4,13 +4,11 @@
 
 namespace inceptionengine
 {
-	CameraComponent::CameraComponent(CameraSystem& system)
-		:mSystem(system)
-	{
-	}
+	CameraComponent::CameraComponent() = default;
 
-	CameraComponent::CameraComponent(CameraSystem& system, Vec4f position, Vec4f forward)
-		:mSystem(system), mPosition(position), mForwardPoint(forward)
+
+	CameraComponent::CameraComponent(Vec4f position, Vec4f forward)
+		:mPosition(position), mForwardPoint(forward)
 	{
 		;
 	}

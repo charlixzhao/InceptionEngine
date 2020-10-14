@@ -17,8 +17,6 @@ set(SRC_BUILD_FILES
 "ECS/Entity/Entity.cpp"
 "ECS/Entity/EntityComponentPool.hpp"
 "ECS/Components/Components.h"
-"ECS/Components/AnimationComponent/AnimationComponent.h"
-"ECS/Components/AnimationComponent/AnimationComponent.cpp"
 "ECS/Components/AudioComponent/AudioComponent.h"
 "ECS/Components/AudioComponent/AudioComponent.cpp"
 "ECS/Components/ColliderComponent/ColliderComponent.h"
@@ -96,8 +94,8 @@ target_compile_options(InceptionEngine PUBLIC /wd26812 /wd26451 /wd26495)
 
 target_precompile_headers(InceptionEngine PRIVATE "IE_PCH.h")
 
-#add_custom_command(TARGET InceptionEngine POST_BUILD 
-# COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-#        "${PROJECT_BINARY_DIR}/Source/InceptionEngine/Debug/InceptionEngine.dll"
-#        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+add_custom_command(TARGET InceptionEngine POST_BUILD 
+ COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+        "${PROJECT_BINARY_DIR}/Source/InceptionEngine/Debug/InceptionEngine.dll"
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
 

@@ -7,11 +7,13 @@
 namespace inceptionengine
 {
 
-	TransformComponent::TransformComponent(TransformSystem& system, int x, int y)
-		:mSystem(system), mX(x), mY(y)
-	{
-	}
+	TransformComponent::TransformComponent() = default;
 
+
+	Matrix4x4f TransformComponent::GetWorldTransform() const
+	{
+		return mWorldTransform;
+	}
 
 }
 

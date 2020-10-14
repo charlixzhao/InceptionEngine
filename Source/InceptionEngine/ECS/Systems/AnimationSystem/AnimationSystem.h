@@ -15,12 +15,6 @@ namespace inceptionengine
 
 		void Update(float deltaTime);
 
-		bool EntityPoseChange(EntityID id) const;
-
-		std::vector<Matrix4x4f> const& GetEntityPose(EntityID id) const;
-
-		void FinishUpdatePose(EntityID id) const;
-
 	private:
 	};
 }

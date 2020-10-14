@@ -8,13 +8,13 @@ namespace inceptionengine
 	class Renderer;
 	class ComponentsPool;
 	class SkeletalMeshComponent;
-	class AnimationSystem;
+	class TransformSystem;
 
 
 	class SkeletalMeshRenderSystem final : public SystemBase
 	{
 	public:
-		explicit SkeletalMeshRenderSystem(Renderer& renderer, ComponentsPool& pool, AnimationSystem& animationSystem);
+		explicit SkeletalMeshRenderSystem(Renderer& renderer, ComponentsPool& pool, TransformSystem const& transformSystem);
 
 		void Start();
 
@@ -27,9 +27,10 @@ namespace inceptionengine
 		void UnloadSkeletalMeshFromDevice(SkeletalMeshComponent& component);
 		void CreateRenderUnit(SkeletalMeshComponent& component);
 
-		bool NeedToUpdateUBuffer(EntityID id);
 	private:
 		std::reference_wrapper<Renderer> mRenderer;
-		std::reference_wrapper<AnimationSystem> mAnimationSystem;
+
+		std::reference_wrapper<TransformSystem const> mTransformSystem;
+
 	};
 }

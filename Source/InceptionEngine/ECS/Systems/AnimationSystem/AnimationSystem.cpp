@@ -3,6 +3,7 @@
 #include "AnimationSystem.h"
 #include "ECS/Entity/EntityComponentPool.hpp"
 #include "RunTime/Animation/AnimationController.h"
+#include "ECS/Components/SkeletalMeshComponent/SkeletalMeshComponent.h"
 
 namespace inceptionengine
 {
@@ -14,26 +15,13 @@ namespace inceptionengine
 
 	void AnimationSystem::Update(float deltaTime)
 	{
-		auto& view = mComponentsPool.get().GetComponentPool<AnimationComponent>()->GetComponentView();
+		auto& view = mComponentsPool.get().GetComponentPool<SkeletalMeshComponent>()->GetComponentView();
 
 		for (auto& component : view)
 		{
-			component.mPoseChange = component.mAnimController->Update(deltaTime);
+			component.mAnimationController->Update(deltaTime);
 		}
 	}
-	bool AnimationSystem::EntityPoseChange(EntityID id) const
-	{
-		return mComponentsPool.get().EntityHasComponent<AnimationComponent>(id) &&
-			mComponentsPool.get().GetComponent<AnimationComponent>(id).mPoseChange;
-	}
-	std::vector<Matrix4x4f> const& AnimationSystem::GetEntityPose(EntityID id) const
-	{
-		assert(mComponentsPool.get().EntityHasComponent<AnimationComponent>(id));
-		return mComponentsPool.get().GetComponent<AnimationComponent>(id).mAnimController->GetFinalPose();
-	}
-	void AnimationSystem::FinishUpdatePose(EntityID id) const
-	{
-		assert(mComponentsPool.get().EntityHasComponent<AnimationComponent>(id));
-		mComponentsPool.get().GetComponent<AnimationComponent>(id).mPoseChange = false;
-	}
+
+
 }

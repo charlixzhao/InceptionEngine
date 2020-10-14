@@ -12,14 +12,14 @@ namespace inceptionengine
 	class SkeletalMeshRenderSystem;
 
 	class SkeletalMeshInstance;
-
-	struct Skeleton;
 	
+	class AnimationController;
+
 	class IE_API SkeletalMeshComponent
 	{
 	public:
 
-		explicit SkeletalMeshComponent(SkeletalMeshRenderSystem& system);
+		SkeletalMeshComponent();
 
 		~SkeletalMeshComponent();
 
@@ -29,9 +29,7 @@ namespace inceptionengine
 
 		SkeletalMeshComponent(SkeletalMeshComponent&&) noexcept;
 
-		void ImportMesh(std::string const& fbxFilePath);
-
-		void SetMesh(std::string const& meshFilePath);
+		void SetMesh(std::string const& filePath);
 
 		void SetMeshPose(AnimPose const& pose);
 
@@ -39,16 +37,19 @@ namespace inceptionengine
 
 		void SetTriangle();
 
-	private:
-		friend class Entity;
-		Skeleton const& GetSkeleton();
+		void PlayAnimation(std::string const& filePath);
+
+		void StopAnimation();
+
+		bool IsPlayingAnimation();
 
 	private:
 		friend class SkeletalMeshRenderSystem;
-
-		std::reference_wrapper<SkeletalMeshRenderSystem> mSystem;
+		friend class AnimationSystem;
 
 		std::unique_ptr<SkeletalMeshInstance> mSkeletalMeshInstance = nullptr;
+
+		std::unique_ptr<AnimationController> mAnimationController = nullptr;
 
 		bool mLoadedToDevice = false;
 

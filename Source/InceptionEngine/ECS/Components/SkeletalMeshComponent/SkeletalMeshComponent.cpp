@@ -3,14 +3,16 @@
 #include "Serialization/Serializer.h"
 #include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 #include "RunTime/Resource/ResourceManager.h"
+#include "RunTime/Animation/AnimationController.h"
+#include "RunTime/Animation/Animation.h"
 
 namespace inceptionengine
 {
 
-	SkeletalMeshComponent::SkeletalMeshComponent(SkeletalMeshRenderSystem& system)
-		:mSystem(system)
+	SkeletalMeshComponent::SkeletalMeshComponent()
 	{
 		mSkeletalMeshInstance = std::make_unique<SkeletalMeshInstance>();
+		mAnimationController = std::make_unique<AnimationController>();
 	}
 
 	SkeletalMeshComponent::~SkeletalMeshComponent() = default;
@@ -49,35 +51,34 @@ namespace inceptionengine
 		mSkeletalMeshInstance->InitializeRenderObjects();
 	}
 
-	Skeleton const& SkeletalMeshComponent::GetSkeleton()
+	void SkeletalMeshComponent::PlayAnimation(std::string const& filePath)
 	{
-		return *mSkeletalMeshInstance->mSkeletalMesh->mSkeleton;
+		auto pAnimation = gResourceMgr.GetResource<Animation>(filePath);
+		assert(pAnimation != nullptr);
+		assert(mSkeletalMeshInstance->mSkeletalMesh != nullptr && mSkeletalMeshInstance->mSkeletalMesh->mSkeleton == pAnimation->mSkeleton);
+		mAnimationController->PlayAnimation(pAnimation);
 	}
 
-	void SkeletalMeshComponent::ImportMesh(std::string const& fbxFilePath)
+	void SkeletalMeshComponent::StopAnimation()
 	{
-		//fbximport::ImportScene importScene;
-		//fbximport::Import(fbxFilePath, importScene);
+		mAnimationController->StopAnimation();
+	}
 
-		mSkeletalMeshInstance->mSkeletalMesh = gResourceMgr.GetResource<SkeletalMesh>(fbxFilePath);
+	bool SkeletalMeshComponent::IsPlayingAnimation()
+	{
+		return mAnimationController->IsPlayingAnimation();
+	}
 
+	void SkeletalMeshComponent::SetMesh(std::string const& filePath)
+	{
+		std::shared_ptr<SkeletalMesh> pMesh = gResourceMgr.GetResource<SkeletalMesh>(filePath);
+
+		assert(pMesh != nullptr);
+		mSkeletalMeshInstance->mSkeletalMesh = pMesh;
 
 		mSkeletalMeshInstance->InitializeRenderObjects();
-
-		//mSkeletalMeshInstance->mCurrentPose = importScene.pose;
 	}
 
-	void SkeletalMeshComponent::SetMesh(std::string const& meshFilePath)
-	{
-		assert(false && "this function is not ready to use yet");
-		
-		/*
-		mSkeletalMeshInstance.mSkeletalMesh = Serializer::Deserailize<SkeletalMesh>(meshFilePath);
-
-		size_t numSubMeshes = mSkeletalMeshInstance.mSkeletalMesh->mSubMeshes.size();
-		InitializeRendererObjects(numSubMeshes);
-		*/
-	}
 
 	void SkeletalMeshComponent::SetPlane()
 	{

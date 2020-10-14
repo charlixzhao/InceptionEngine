@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ECS/Systems/SystemBase.h"
+#include "ECS/Entity/EntityID.h"
 
 namespace inceptionengine
 {
@@ -9,7 +10,10 @@ namespace inceptionengine
 	{
 	public:
 		explicit TransformSystem(ComponentsPool& componentsPool);
+
+		Matrix4x4f GetEntityWorldTransform(EntityID id) const;
 	
 	private:
+
 	};
 }

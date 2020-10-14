@@ -19,7 +19,7 @@ namespace inceptionengine
 
 		Entity() = delete;
 
-		explicit Entity(EntityID entityID, World * pWorld, EntityFriend const& entityFriend);
+		explicit Entity(EntityID entityID, World& world, EntityFriend const& entityFriend);
 
 		Entity(Entity const&) = delete;
 
@@ -35,7 +35,7 @@ namespace inceptionengine
 
 		bool IsValid() const;
 
-		World* GetWorld() const;
+		World& GetWorld() const;
 
 		template<CComponent Component, typename ... Arg>
 		Component& AddComponent(Arg && ...args) const;
@@ -54,7 +54,7 @@ namespace inceptionengine
 
 		EntityID mID = InvalidID;
 
-		World* mWorld = nullptr;
+		std::reference_wrapper<World> mWorld;
 	};
 
 

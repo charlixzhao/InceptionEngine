@@ -7,12 +7,10 @@ namespace inceptionengine
 {
 	class Entity;
 
-	class NativeScriptSystem;
-
 	class IE_API NativeScriptComponent
 	{
 	public:
-		NativeScriptComponent(NativeScriptSystem& system, Entity const& entity);
+		NativeScriptComponent(Entity const& entity);
 
 		template<typename T>
 		void SetScript()
@@ -23,8 +21,6 @@ namespace inceptionengine
 
 	private:
 		friend class NativeScriptSystem;
-
-		std::reference_wrapper<NativeScriptSystem> mSystem;
 
 		std::reference_wrapper<Entity const> mEntity;
 
