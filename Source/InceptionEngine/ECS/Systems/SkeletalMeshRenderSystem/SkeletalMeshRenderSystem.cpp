@@ -50,13 +50,18 @@ namespace inceptionengine
 
 			if (component.mSkeletalMeshInstance != nullptr)
 			{
-				int boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
-				auto uBufferMat = GetArrayOfIdentity<Transform>(boneNumber + AnimPoseOffsetInUBuffer);
+				int boneNumber = 0;
+				if (component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton != nullptr)
+				{
+					boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
+				}
+				auto uBufferMat = GetIdentityTransfromVector(boneNumber + AnimPoseOffsetInUBuffer);
 
 				//set model transform
 				uBufferMat[1] = mTransformSystem.get().GetEntityWorldTransform(pair.first);
 
 				//set bone transform
+				/*
 				if (component.IsPlayingAnimation())
 				{
 					std::vector<Matrix4x4f> const& finalPose = component.mAnimationController->GetFinalPose();
@@ -64,6 +69,27 @@ namespace inceptionengine
 					{
 						uBufferMat[bone + 2] = finalPose[bone] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
 					}
+				}*/
+
+				std::vector<Matrix4x4f> const& localFinalPose = component.mAnimationController->GetFinalPose();
+				std::vector<Matrix4x4f> globalFinalPose;
+				globalFinalPose.resize(localFinalPose.size());
+				for (auto const& bone : component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones)
+				{
+					Matrix4x4f globalTransform = localFinalPose[bone.ID];
+					int parentID = bone.parentID;
+					while (parentID != -1)
+					{
+						globalTransform = localFinalPose[parentID] * globalTransform;
+						parentID = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[parentID].parentID;
+					}
+					globalFinalPose[bone.ID] = globalTransform;
+				}
+
+
+				for (int bone = 0; bone < globalFinalPose.size(); bone++)
+				{
+					uBufferMat[bone + 2] = globalFinalPose[bone] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
 				}
 
 				mRenderer.get().UpdateUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer, uBufferMat, nullptr);
@@ -97,8 +123,12 @@ namespace inceptionengine
 		/*
 		for testing, init ubuffer from pose
 		*/
-		int boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
-		auto uBufferMat = GetArrayOfIdentity<Transform>(boneNumber + AnimPoseOffsetInUBuffer);
+		int boneNumber = 0;
+		if (component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton != nullptr)
+		{
+			boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
+		}
+		auto uBufferMat = GetIdentityTransfromVector(boneNumber + AnimPoseOffsetInUBuffer);
 		//for (int i = 0; i < boneNumber; i++)
 		//{
 			//uBufferMat[i + AnimPoseOffsetInUBuffer] = component.mSkeletalMeshInstance->mCurrentPose[i] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.mBones[i].bindPoseInv;

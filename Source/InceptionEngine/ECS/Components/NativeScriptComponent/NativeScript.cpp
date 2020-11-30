@@ -3,12 +3,13 @@
 
 #include "NativeScript.h"
 
+#include "ECS/World.h"
 #include "RunTime/KeyInputCallbackRegistry.h"
 
 namespace inceptionengine
 {
-	NativeScript::NativeScript(std::reference_wrapper<Entity const> entity)
-		:mEntity(entity)
+	NativeScript::NativeScript(EntityID entityID, std::reference_wrapper<World> world)
+		:mEntityID(entityID), mWorld(world)
 	{
 		mKeyInputCallbackRegistry = std::make_unique<KeyInputCallbackRegistry>();
 	}
@@ -81,6 +82,11 @@ namespace inceptionengine
 				throw std::runtime_error("unknown key value\n");
 			}
 		}
+	}
+
+	Entity const& NativeScript::GetEntity()
+	{
+		return mWorld.get().GetEntity(mEntityID);
 	}
 
 

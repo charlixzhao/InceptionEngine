@@ -8,25 +8,27 @@ so this class will be exposed to the dll
 
 #include "EngineGlobals/EngineApiPrefix.h"
 
+#include "ECS/Entity/EntityID.h"
+
 #include "KeyInputTypes.h"
 
 namespace inceptionengine
 {
-	class Entity;
-
 	struct KeyInputCallbackRegistry;
+	class Entity;
+	class World;
 
 	class IE_API NativeScript
 	{
 	public:
-		NativeScript(std::reference_wrapper<Entity const> entity);
+		NativeScript(EntityID entityID, std::reference_wrapper<World> world);
 
 		virtual ~NativeScript();
 
 		void BindKeyInputCallback(KeyInputTypes keyType, std::function<void(bool)> callback);
 
 	protected:
-		std::reference_wrapper<Entity const> mEntity;
+		Entity const& GetEntity();
 
 	private:
 		/*
@@ -46,6 +48,10 @@ namespace inceptionengine
 		virtual void OnDestroy() { ; }
 
 		std::unique_ptr<KeyInputCallbackRegistry> mKeyInputCallbackRegistry;
+
+		EntityID mEntityID;
+
+		std::reference_wrapper<World> mWorld;
 
 	};
 

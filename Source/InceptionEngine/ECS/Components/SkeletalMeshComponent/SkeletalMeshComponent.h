@@ -39,6 +39,8 @@ namespace inceptionengine
 
 		void PlayAnimation(std::string const& filePath);
 
+		void HandReachTarget(Matrix4x4f const& EndEffector);
+
 		void StopAnimation();
 
 		bool IsPlayingAnimation();

@@ -1,11 +1,17 @@
 
 #include "NativeScriptComponent.h"
+#include "ECS/World.h"
 
 namespace inceptionengine
 {
-	NativeScriptComponent::NativeScriptComponent(Entity const& entity)
-		: mEntity(entity)
+	NativeScriptComponent::NativeScriptComponent(EntityID entityID, std::reference_wrapper<World> world)
+		:mEntityID(entityID), mWorld(world)
 	{
+	}
+
+	Entity const& NativeScriptComponent::GetEntity()
+	{
+		return mWorld.get().GetEntity(mEntityID);
 	}
 
 }

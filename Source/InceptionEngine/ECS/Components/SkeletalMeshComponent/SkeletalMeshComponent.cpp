@@ -59,6 +59,11 @@ namespace inceptionengine
 		mAnimationController->PlayAnimation(pAnimation);
 	}
 
+	void SkeletalMeshComponent::HandReachTarget(Matrix4x4f const& endEffector)
+	{
+		mAnimationController->HandReachTarget(mSkeletalMeshInstance->mHandArmIkChain, endEffector);
+	}
+
 	void SkeletalMeshComponent::StopAnimation()
 	{
 		mAnimationController->StopAnimation();
@@ -77,27 +82,41 @@ namespace inceptionengine
 		mSkeletalMeshInstance->mSkeletalMesh = pMesh;
 
 		mSkeletalMeshInstance->InitializeRenderObjects();
+
+		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightArm"));
+		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightForeArm"));
+		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHand"));
+		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHandMiddle1"));
+		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHandMiddle2"));
+		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHandMiddle3"));
+		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHandMiddle4"));
+	
+
+		mAnimationController->Initialize(mSkeletalMeshInstance->mSkeletalMesh->mSkeleton);
 	}
 
 
 	void SkeletalMeshComponent::SetPlane()
 	{
 		Vertex v1 = {};
+		Vertex v3 = {};
+		Vertex v2 = {};
+		Vertex v4 = {};
 		v1.position = glm::vec4(500.0f, 0.0f, 500.0f, 1.0f);
 		v1.texCoord = glm::vec3(0.0f, 0.0f, 0.0f);
 		v1.normal = glm::vec3(0.0f, 1.0f, 0.0f);
-		Vertex v2 = {};
-		v2.position = glm::vec4(-500.0f, 0.0f, 500.0f, 1.0f);
-		v2.texCoord = glm::vec3(0.0f, 1.0f, 0.0f);
-		v2.normal = glm::vec3(0.0f, 1.0f, 0.0f);
-		Vertex v3 = {};
+		
+		v4.position = glm::vec4(-500.0f, 0.0f, 500.0f, 1.0f);
+		v4.texCoord = glm::vec3(0.0f, 1.0f, 0.0f);
+		v4.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		
 		v3.position = glm::vec4(-500.0f, 0.0f, -500.0f, 1.0f);
 		v3.texCoord = glm::vec3(1.0f, 1.0f, 0.0f);
 		v3.normal = glm::vec3(0.0f, 1.0f, 0.0f);
-		Vertex v4 = {};
-		v4.position = glm::vec4(500.0f, 0.0f, -500.0f, 1.0f);
-		v4.texCoord = glm::vec3(1.0f, 0.0f, 0.0f);
-		v4.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		
+		v2.position = glm::vec4(500.0f, 0.0f, -500.0f, 1.0f);
+		v2.texCoord = glm::vec3(1.0f, 0.0f, 0.0f);
+		v2.normal = glm::vec3(0.0f, 1.0f, 0.0f);
 
 
 		std::vector<Vertex> planeVertices = { v1, v2, v3, v4 };
@@ -113,8 +132,9 @@ namespace inceptionengine
 			"EngineResource\\shader\\spv\\vertex.spv",
 			"EngineResource\\shader\\spv\\fragment.spv" 
 		};
-
+		plane->mSkeleton = std::make_shared<Skeleton>();
 		mSkeletalMeshInstance->mSkeletalMesh = plane;
+
 
 		mSkeletalMeshInstance->InitializeRenderObjects();
 	}

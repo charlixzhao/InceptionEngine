@@ -10,7 +10,8 @@ using namespace inceptionengine;
 
 int main()
 {
-	PathHelper::SetEngineDirectory(PathHelper::GetEnginePath(std::filesystem::current_path().string()));
+	std::string enginePath = PathHelper::GetEnginePath(std::filesystem::current_path().string());
+	PathHelper::SetEngineDirectory(enginePath);
 
 	std::string filePath;
 	std::string outputFolder;

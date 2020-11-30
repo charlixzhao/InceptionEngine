@@ -61,7 +61,7 @@ namespace inceptionengine
 	{
 		if constexpr (std::is_same_v<Component, NativeScriptComponent>)
 		{
-			return mWorld.get().GetComponentsPools().AddComponent<NativeScriptComponent>(mID, *this);
+			return mWorld.get().GetComponentsPools().AddComponent<NativeScriptComponent>(mID, mID, mWorld);
 		}
 		else
 		{

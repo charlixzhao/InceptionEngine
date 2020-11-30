@@ -692,7 +692,8 @@ namespace inceptionengine
 		vertInputStateCreateInfo.vertexAttributeDescriptionCount = (uint32_t)vertexAttriDesc.size();
 		vertInputStateCreateInfo.pVertexAttributeDescriptions = vertexAttriDesc.data();
 		vertInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-		vertInputStateCreateInfo.pVertexBindingDescriptions = &GetVertexBindingDesc();
+		VkVertexInputBindingDescription vertexBindingDesc = GetVertexBindingDesc();
+		vertInputStateCreateInfo.pVertexBindingDescriptions = &vertexBindingDesc;
 
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };

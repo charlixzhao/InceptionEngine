@@ -30,7 +30,12 @@ namespace inceptionengine
 
 		MouseDeltaPos mouseDeltaPos;
 
-		void Clear() { keyInputs.swap(std::queue<KeyInput>()); mouseDeltaPos.deltaXPos = mouseDeltaPos.deltaYPos = 0.0; }
+		void Clear() 
+		{ 
+			std::queue<KeyInput> empty;
+			keyInputs.swap(empty);
+			mouseDeltaPos.deltaXPos = mouseDeltaPos.deltaYPos = 0.0; 
+		}
 	};
 
 

@@ -28,8 +28,8 @@ namespace inceptionengine
 	InceptionEngine::InceptionEngine()
 	{
 		srand(static_cast <unsigned> (time(0)));
-
-		PathHelper::SetEngineDirectory(PathHelper::GetEnginePath(std::filesystem::current_path().string()));
+		std::string enginePath = PathHelper::GetEnginePath(std::filesystem::current_path().string());
+		PathHelper::SetEngineDirectory(enginePath);
 		
 		mRenderer = std::make_unique<Renderer>();
 

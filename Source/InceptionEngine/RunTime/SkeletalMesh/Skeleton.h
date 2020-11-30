@@ -55,7 +55,9 @@ namespace inceptionengine
 			return true;
 		}
 
-		std::vector<Matrix4x4f> GetBindPose() const;
+		std::vector<Matrix4x4f> GetGlobalBindPose() const;
+
+		std::vector<Matrix4x4f> GetLocalBindPose() const;
 
 		template<typename Archive>
 		void serialize(Archive& archive)

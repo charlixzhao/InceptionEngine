@@ -35,38 +35,6 @@ namespace inceptionengine
 	using Matrix4x4f = glm::mat4x4;
 	using Quaternion4f = glm::quat;
 
-	struct Transform { using DataType = Matrix4x4f; };
-	struct Translation { using DataType = Vec4f; };
-	struct Rotation { using DataType = Quaternion4f; };
-	struct Scale { using DataType = Vec4f; };
-
-	template<typename T>
-	inline typename T::DataType Identity();
-
-	template<>
-	inline Matrix4x4f Identity<Transform>()
-	{
-		return Matrix4x4f(1.0);
-	}
-
-	template<>
-	inline Vec4f Identity<Translation>()
-	{
-		return Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-	}
-
-	template<>
-	inline Quaternion4f Identity<Rotation>()
-	{
-		return Quaternion4f();
-	}
-
-	template<>
-	inline Vec4f Identity<Scale>()
-	{
-		return Vec4f(1.0f, 1.0f, 1.0f, 0.0f);
-	}
-
 
 	inline Matrix4x4f LookAt(Vec3f const& pos, Vec3f const& forward, Vec3f const& up)
 	{
@@ -93,6 +61,16 @@ namespace inceptionengine
 		return glm::normalize(vec);
 	}
 
+	inline float VecLength(Vec4f const& vec)
+	{
+		return glm::length(vec);
+	}
+
+	inline float VecLength(Vec3f const& vec)
+	{
+		return glm::length(vec);
+	}
+
 	inline Vec3f CrossProduct(Vec3f const& u, Vec3f const& v)
 	{
 		return glm::cross(u, v);
@@ -103,17 +81,50 @@ namespace inceptionengine
 		return glm::rotate(point, glm::radians(degree), axis);
 	}
 
-	template<typename T>
-	inline std::vector<typename T::DataType> GetArrayOfIdentity(size_t num)
+
+	inline Matrix4x4f Scale(float x, float y, float z)
 	{
-		static_assert(std::is_same_v<T, Transform> || std::is_same_v<T, Translation> ||
-					  std::is_same_v<T, Rotation> || std::is_same_v<T, Scale>);
-		std::vector<typename T::DataType> res;
-		res.resize(num, Identity<T>());
+		return glm::scale(Vec3f(x, y, z));
+	}
+
+	inline Matrix4x4f Translate(float x, float y, float z)
+	{
+		return glm::translate(Vec3f(x, y, z));
+	}
+
+	inline std::vector<Matrix4x4f> GetIdentityTransfromVector(size_t num)
+	{
+		std::vector<Matrix4x4f> res;
+		res.resize(num);
 		return res;
 	}
 
+	inline float DotProduct(Vec3f const& x, Vec3f const& y)
+	{
+		return glm::dot(x, y);
+	}
 
+	inline Matrix4x4f FromToRotation(Vec3f x, Vec3f y)
+	{
+		x = NormalizeVec(x);
+		y = NormalizeVec(y);
+		auto axis = CrossProduct(x, y);
+		float cosAngle = DotProduct(x, y);
+		float angle = glm::acos(cosAngle);
+		return glm::rotate(angle, axis);
+	}
+	
+	inline Matrix4x4f Translation(Vec4f const& vec)
+	{
+		return glm::translate(Vec3f(vec));
+
+	}
+	inline Matrix4x4f Translation(Vec3f const& vec)
+	{
+		return glm::translate(vec);
+	}
+
+	
 	inline std::string VecToString(Vec3f const& vec)
 	{
 		return glm::to_string(vec);

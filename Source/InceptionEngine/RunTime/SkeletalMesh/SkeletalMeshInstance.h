@@ -7,6 +7,13 @@
 
 namespace inceptionengine
 {
+	struct IkChain
+	{
+		int Size() const { return BoneIDs.size(); }
+		
+		std::vector<unsigned int> BoneIDs;
+	};
+
 	class SkeletalMeshInstance final : public IRenderObject
 	{
 	public:
@@ -29,6 +36,8 @@ namespace inceptionengine
 		std::vector<Matrix4x4f> mCurrentPose;
 
 		RenderObejctID mRenderObejctID = Renderer::InvalidRenderObjectID;
+
+		IkChain mHandArmIkChain;
 
 		std::vector<VertexBuffer> mVertexBuffers;
 

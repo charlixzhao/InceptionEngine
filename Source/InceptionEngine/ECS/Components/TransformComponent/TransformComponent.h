@@ -14,6 +14,8 @@ namespace inceptionengine
 
 		Matrix4x4f GetWorldTransform() const;
 
+		void SetWorldTransform(Matrix4x4f const& t) { mWorldTransform = t; }
+
 	private:
 		friend class TransformSystem;
 

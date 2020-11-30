@@ -34,7 +34,7 @@ namespace inceptionengine::fbximport
     void ImportSkeletalMesh(FbxScene* pFbxScene, std::vector<FbxNode*> const& meshNodes, SkeletalMesh& mesh, Skeleton const& skeleton);
     void FillDataArray(FbxScene* pFbxScene, std::vector<FbxNode*>& meshNodes, std::vector<FbxNode*>& boneNodes);
     void ImportSkeleton(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton& skeleton);
-    void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, std::vector<Animation>& animations);
+    void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations);
 
 
 
@@ -96,7 +96,7 @@ namespace inceptionengine::fbximport
         ImportSkeletalMesh(pFbxScene, meshNodes, skmesh, skeleton);
 
         std::vector<Animation> animations;
-        ImportAnimations(pFbxScene, boneNodes, animations);
+        ImportAnimations(pFbxScene, boneNodes, skeleton, animations);
 
 
         if (skeleton.mBones.size() > 0)
@@ -108,8 +108,9 @@ namespace inceptionengine::fbximport
             if (useExsitingSkeleton == "y")
             {
                 std::string pathToSkeleton;
-                std::cout << "Enter the path to the skeleton file, with extension: ";
+                std::cout << "Enter the path to the skeleton file, without extension: ";
                 std::getline(std::cin, pathToSkeleton);
+                pathToSkeleton += ".ie_skeleton";
                 std::shared_ptr<Skeleton> existingSkeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(pathToSkeleton));
                 if (skeleton != *existingSkeleton)
                 {
@@ -521,7 +522,15 @@ namespace inceptionengine::fbximport
             Skeleton::Bone bone;
             bone.name = boneNodes[boneIndex]->GetName();
             bone.ID = skeleton.GetBoneID(bone.name);
-            bone.parentID = skeleton.GetBoneID(boneNodes[boneIndex]->GetParent()->GetName());
+            FbxNode* parentNode = boneNodes[boneIndex]->GetParent();
+            if (parentNode->GetNodeAttribute() != nullptr && parentNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::EType::eSkeleton)
+            {
+                bone.parentID = skeleton.GetBoneID(boneNodes[boneIndex]->GetParent()->GetName());
+            }
+            else
+            {
+                bone.parentID = -1;
+            }
             bone.bindPose = ConvertMatrix(boneNodes[boneIndex]->EvaluateGlobalTransform());
             bone.bindPoseInv = Inverse(bone.bindPose);
 
@@ -536,7 +545,7 @@ namespace inceptionengine::fbximport
        // Serializer::Serailize<Animation>(importScene.animation, PathHelper::GetAbsolutePath(outputFolder) + "\\" + animName + ".ie_anim");
     }
 
-    void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, std::vector<Animation>& animations)
+    void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations)
     {
         for (int animIndex = 0; animIndex < pFbxScene->GetSrcObjectCount<FbxAnimStack>(); animIndex++)
         {
@@ -554,12 +563,25 @@ namespace inceptionengine::fbximport
             {
                 FbxTime fbxTime;
                 fbxTime.SetSecondDouble(time);
-                std::vector<Matrix4x4f> frame;
+                std::vector<Matrix4x4f> globalFrame;
                 for (int boneIndex = 0; boneIndex < boneNodes.size(); boneIndex++)
                 {
-                    frame.push_back(ConvertMatrix(boneNodes[boneIndex]->EvaluateGlobalTransform(fbxTime)));
+                    globalFrame.push_back(ConvertMatrix(boneNodes[boneIndex]->EvaluateGlobalTransform(fbxTime)));
                 }
-                animations.back().mBoneTransforms.push_back(std::move(frame));
+                std::vector<Matrix4x4f> localFrame;
+                localFrame.resize(globalFrame.size());
+                for (auto const& bone : skeleton.mBones)
+                {
+                    if (bone.parentID == -1)
+                    {
+                        localFrame[bone.ID] = globalFrame[bone.ID];
+                    }
+                    else
+                    {
+                        localFrame[bone.ID] = Inverse(globalFrame[bone.parentID]) * globalFrame[bone.ID];
+                    }
+                }
+                animations.back().mBoneTransforms.push_back(std::move(localFrame));
             }
 
         }

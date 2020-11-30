@@ -2,27 +2,35 @@
 
 #include "EngineGlobals/EngineApiPrefix.h"
 #include "NativeScript.h"
+#include "ECS/Entity/EntityID.h"
 
 namespace inceptionengine
 {
 	class Entity;
+	class World;
 
 	class IE_API NativeScriptComponent
 	{
 	public:
-		NativeScriptComponent(Entity const& entity);
+
+		NativeScriptComponent(EntityID entityID, std::reference_wrapper<World> world);
+
 
 		template<typename T>
 		void SetScript()
 		{
 			static_assert(std::is_base_of_v<NativeScript, T>);
-			mScript = std::make_unique<T>(mEntity);
+			mScript = std::make_unique<T>(mEntityID, mWorld);
 		}
+
+		Entity const& GetEntity();
 
 	private:
 		friend class NativeScriptSystem;
 
-		std::reference_wrapper<Entity const> mEntity;
+		EntityID mEntityID;
+
+		std::reference_wrapper<World> mWorld;
 
 		std::unique_ptr<NativeScript> mScript = nullptr;
 

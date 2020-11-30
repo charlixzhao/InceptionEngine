@@ -6,6 +6,7 @@ namespace inceptionengine
 {
 	struct Animation;
 	struct Skeleton;
+	struct IkChain;
 
 	class AnimationController
 	{
@@ -13,6 +14,8 @@ namespace inceptionengine
 		AnimationController();
 
 		~AnimationController();
+
+		void Initialize(std::shared_ptr<Skeleton const> skeleton);
 
 		bool Update(float deltaTime);
 
@@ -24,8 +27,14 @@ namespace inceptionengine
 
 		bool IsPlayingAnimation();
 
+		void HandReachTarget(IkChain const& ikChain, Matrix4x4f const& EndEffector);
+
 	private:
+		Matrix4x4f GetBoneGlobalTransform(int boneID);
+
 		float mCurrentTime = 0.0f;
+
+		std::shared_ptr<Skeleton const> mSkeleton = nullptr;
 
 		std::shared_ptr<Animation const> mCurrentAnimation = nullptr;
 
