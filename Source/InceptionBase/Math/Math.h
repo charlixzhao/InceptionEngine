@@ -35,6 +35,7 @@ namespace inceptionengine
 	using Matrix4x4f = glm::mat4x4;
 	using Quaternion4f = glm::quat;
 
+	float constexpr PI = glm::pi<float>();
 
 	inline Matrix4x4f LookAt(Vec3f const& pos, Vec3f const& forward, Vec3f const& up)
 	{
@@ -81,6 +82,12 @@ namespace inceptionengine
 		return glm::rotate(point, glm::radians(degree), axis);
 	}
 
+	inline float Sign(float x)
+	{
+		if (x >= 0) return 1;
+		else return -1;
+	}
+
 
 	inline Matrix4x4f Scale(float x, float y, float z)
 	{
@@ -107,11 +114,12 @@ namespace inceptionengine
 	inline Matrix4x4f FromToRotation(Vec3f x, Vec3f y)
 	{
 		x = NormalizeVec(x);
-		y = NormalizeVec(y);
+		y = NormalizeVec(y);			
 		auto axis = CrossProduct(x, y);
 		float cosAngle = DotProduct(x, y);
 		float angle = glm::acos(cosAngle);
-		return glm::rotate(angle, axis);
+		if (std::isnan(angle)) return Matrix4x4f(1.0f);
+		else return glm::rotate(angle, axis);		
 	}
 	
 	inline Matrix4x4f Translation(Vec4f const& vec)
