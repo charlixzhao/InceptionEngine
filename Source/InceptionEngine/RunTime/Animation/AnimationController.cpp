@@ -130,22 +130,21 @@ namespace inceptionengine
 				Vec4f originalDirection = GetBoneGlobalTransform(ikChain.BoneIDs[i + 1])[3] - currentBonePosition;
 				Vec4f desiredDirection = desiredPosition[i + 1] - currentBonePosition;
 				Matrix4x4f deltaRotation = FromToRotation(originalDirection, desiredDirection);
-				Matrix4x4f translateToOrigin = Translation(-currentBonePosition);
-				Matrix4x4f translateBack = Translation(currentBonePosition);
+				Matrix4x4f translateToOrigin = Translate(-currentBonePosition);
+				Matrix4x4f translateBack = Translate(currentBonePosition);
 				Matrix4x4f newCurrentboneGlobalTransform = translateBack * deltaRotation * translateToOrigin * currentBoneGlobalTransform;
 				int parentID = mSkeleton->mBones[ikChain.BoneIDs[i]].parentID;
 				if (parentID == -1) mFinalPose[ikChain.BoneIDs[i]] = newCurrentboneGlobalTransform;
 				else mFinalPose[ikChain.BoneIDs[i]] = Inverse(GetBoneGlobalTransform(parentID)) * newCurrentboneGlobalTransform;
-
 			}
 
-			//apply joint constraint for shoulder bone, which at index 0 in the ikChain
+			//apply joint constraint for shoulder bone, which is at index 0 in the ikChain
 			Matrix4x4f shoulderLocalTransform = mFinalPose[ikChain.BoneIDs[0]];
 			Vec4f shoulderTranslation = shoulderLocalTransform[3];
 			shoulderLocalTransform[3] = { 0.0f,0.0f,0.0f,1.0f };
-			Quaternion4f shoulderRotation = glm::quat_cast(shoulderLocalTransform);
-			Vec3f rotationAxis = NormalizeVec(Vec3f(shoulderRotation.x, shoulderRotation.y, shoulderRotation.z));
-			float rotationAngle = 2 * glm::acos(shoulderRotation.w);
+			Quaternion4f shoulderRotation = RotToQuat(shoulderLocalTransform);
+			Vec3f rotationAxis = RotationAxis(shoulderRotation);
+			float rotationAngle = RotationAngle(shoulderRotation);
 
 			rotationAngle = std::fmod(rotationAngle, 2 * PI);
 			if (rotationAngle > PI)
@@ -154,12 +153,13 @@ namespace inceptionengine
 				rotationAngle += 2 * PI;
 
 			float constexpr limit = PI / 2.0f;
-
 			if (std::abs(rotationAngle) > limit)
 			{
-				Matrix4x4f newRoatiton = glm::rotate(Sign(rotationAngle) * limit, rotationAxis);
-				mFinalPose[ikChain.BoneIDs[0]] = glm::translate(Vec3f(shoulderTranslation)) * newRoatiton;
+				Matrix4x4f newRoatiton = Rotate(Sign(rotationAngle) * limit, rotationAxis);
+				mFinalPose[ikChain.BoneIDs[0]] = Translate(Vec3f(shoulderTranslation)) * newRoatiton;
 			}
+
+			//apply hinge constraint for ankle bone, which is at index 1 in the ikChain
 
 		}
 

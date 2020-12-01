@@ -82,10 +82,40 @@ namespace inceptionengine
 		return glm::rotate(point, glm::radians(degree), axis);
 	}
 
+	inline Matrix4x4f Rotate(float angleInRad, Vec3f const& axis)
+	{
+		return glm::rotate(angleInRad, axis);
+	}
+
+	inline Matrix4x4f Translate(Vec3f const& vec)
+	{
+		return glm::translate(vec);
+	}
+
 	inline float Sign(float x)
 	{
 		if (x >= 0) return 1;
 		else return -1;
+	}
+
+	inline float Acos(float f)
+	{
+		return glm::acos(f);
+	}
+
+	inline Vec3f RotationAxis(Quaternion4f const& quat)
+	{
+		return NormalizeVec(Vec3f(quat.x, quat.y, quat.z));
+	}
+
+	inline float RotationAngle(Quaternion4f const& quat)
+	{
+		return 2 * glm::acos(quat.w);
+	}
+
+	inline Quaternion4f RotToQuat(Matrix4x4f const& mat)
+	{
+		return glm::quat_cast(mat);
 	}
 
 
@@ -122,17 +152,12 @@ namespace inceptionengine
 		else return glm::rotate(angle, axis);		
 	}
 	
-	inline Matrix4x4f Translation(Vec4f const& vec)
+	inline Matrix4x4f Translate(Vec4f const& vec)
 	{
-		return glm::translate(Vec3f(vec));
+		return Translate(Vec3f(vec));
 
 	}
-	inline Matrix4x4f Translation(Vec3f const& vec)
-	{
-		return glm::translate(vec);
-	}
 
-	
 	inline std::string VecToString(Vec3f const& vec)
 	{
 		return glm::to_string(vec);
