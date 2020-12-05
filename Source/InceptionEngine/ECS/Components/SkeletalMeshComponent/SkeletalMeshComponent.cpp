@@ -69,6 +69,11 @@ namespace inceptionengine
 		mAnimationController->StopAnimation();
 	}
 
+	void SkeletalMeshComponent::TestAxis()
+	{
+		mAnimationController->TestAxis(mSkeletalMeshInstance->mHandArmIkChain);
+	}
+
 	bool SkeletalMeshComponent::IsPlayingAnimation()
 	{
 		return mAnimationController->IsPlayingAnimation();
@@ -84,6 +89,7 @@ namespace inceptionengine
 		mSkeletalMeshInstance->InitializeRenderObjects();
 
 		/*
+		* mSkeletalMeshInstance->mHandArmIkChain.ChainType = IkChain::IkChainType::LeftArmHand;
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("LeftArm"));
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("LeftForeArm"));
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("LeftHand"));
@@ -92,6 +98,7 @@ namespace inceptionengine
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("LeftHandMiddle3"));
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("LeftHandMiddle4"));*/
 
+		mSkeletalMeshInstance->mHandArmIkChain.ChainType = IkChain::IkChainType::RightArmHand;
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightArm"));
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightForeArm"));
 		mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHand"));

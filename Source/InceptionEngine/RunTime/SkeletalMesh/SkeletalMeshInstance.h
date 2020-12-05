@@ -9,9 +9,20 @@ namespace inceptionengine
 {
 	struct IkChain
 	{
+		enum class IkChainType
+		{
+			None,
+			RightArmHand,
+			LeftArmHand
+		};
+
 		int Size() const { return BoneIDs.size(); }
 		
+		IkChainType ChainType = IkChainType::None;
+
 		std::vector<unsigned int> BoneIDs;
+
+
 	};
 
 	class SkeletalMeshInstance final : public IRenderObject

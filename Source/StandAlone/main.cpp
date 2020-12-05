@@ -115,25 +115,27 @@ private:
 
 	void OnKey_Space(bool press)
 	{
-		/*
-		if (press)
-		{
-			if (!mEntity.get().GetComponent<SkeletalMeshComponent>().IsPlayingAnimation())
-			{
-				mEntity.get().GetComponent<SkeletalMeshComponent>().PlayAnimation("StandAloneResource\\maria\\maria_dance.ie_anim");
-			}
-			else
-			{
-				mEntity.get().GetComponent<SkeletalMeshComponent>().StopAnimation();
-			}
-			
-		}*/
-
 		
 		if (press)
 		{
-			GetEntity().GetComponent<SkeletalMeshComponent>().HandReachTarget(TestTarget);
+			if (!GetEntity().GetComponent<SkeletalMeshComponent>().IsPlayingAnimation())
+			{
+				GetEntity().GetComponent<SkeletalMeshComponent>().PlayAnimation("StandAloneResource\\maria\\maria_dance.ie_anim");
+			}
+			else
+			{
+				GetEntity().GetComponent<SkeletalMeshComponent>().StopAnimation();
+			}
+			
 		}
+
+		
+		/*
+		if (press)
+		{
+			GetEntity().GetComponent<SkeletalMeshComponent>().HandReachTarget(TestTarget);
+			//GetEntity().GetComponent<SkeletalMeshComponent>().TestAxis();
+		}*/
 	}
 };
 

@@ -41,6 +41,8 @@ namespace inceptionengine
 
 		void HandReachTarget(Matrix4x4f const& EndEffector);
 
+		void TestAxis();
+
 		void StopAnimation();
 
 		bool IsPlayingAnimation();

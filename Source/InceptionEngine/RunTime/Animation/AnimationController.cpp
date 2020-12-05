@@ -71,8 +71,19 @@ namespace inceptionengine
 		return globalTransform;
 	}
 
+	void AnimationController::TestAxis(IkChain const& ikChain)
+	{
+		int armID = ikChain.BoneIDs[1];
+		mFinalPose[armID] = Translate(mFinalPose[armID][3]) * Rotate(PI / 6.0f, Vec3f(0.0f, 1.0f, 0.0f)) * Translate(-mFinalPose[armID][3]) * mFinalPose[armID];
+		float x, y, z = 0;
+		glm::extractEulerAngleXYZ(mFinalPose[armID] * Translate(-mFinalPose[armID][3]), x, y, z);
+		std::cout << "x is " << x << " y is " << glm::degrees(y) << "z is " << z << std::endl;
+	}
+
 	void AnimationController::HandReachTarget(IkChain const& ikChain, Matrix4x4f const& endEffector)
 	{
+
+
 		/*
 		Do FABIK here
 		*/
@@ -96,7 +107,7 @@ namespace inceptionengine
 			}
 
 			if (VecLength(currentChainPosition[chainSize - 1] - targetPosition) < 1)
-				return;
+				break;
 
 			std::vector<Vec4f> desiredPosition = currentChainPosition;
 
@@ -160,17 +171,25 @@ namespace inceptionengine
 			}
 
 			//apply hinge constraint for ankle bone, which is at index 1 in the ikChain
+			float rotX, rotY, rotZ = 0;
+			glm::extractEulerAngleXYZ(Translate(-mFinalPose[ikChain.BoneIDs[1]][3]) * mFinalPose[ikChain.BoneIDs[1]],
+									  rotX, rotY, rotZ);
+			switch (ikChain.ChainType)
+			{
+				case IkChain::IkChainType::RightArmHand: rotY = std::max(0.0f, rotY); break;
+				case IkChain::IkChainType::LeftArmHand: rotY = std::min(0.0f, rotY); break;
+				default: throw std::runtime_error("");
+			}
+			
+			//std::cout << "x is " << rotX << " y is " << glm::degrees(rotY) << "z is " << rotZ << std::endl;
+			mFinalPose[ikChain.BoneIDs[1]] =  Translate(mFinalPose[ikChain.BoneIDs[1]][3]) * Rotate(rotY, Vec3f(0.0f, 1.0f, 0.0f));
+
 
 		}
 
-		
 
 
-
-
-
-
-
+		//std::cout << "x is " << rotX << " y is " << glm::degrees(rotY) << "z is " << rotZ << std::endl;
 		
 	}
 }

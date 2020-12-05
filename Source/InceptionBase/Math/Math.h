@@ -23,6 +23,8 @@ positive-y is to the up, and positive-z goes into the screen.
 #include "External/glm/gtx/rotate_vector.hpp"
 #include "External/glm/gtx/matrix_decompose.hpp"
 
+#include "External/glm/gtx/euler_angles.hpp"
+
 #include <vector>
 #include <random>
 
@@ -168,9 +170,19 @@ namespace inceptionengine
 		return glm::to_string(vec);
 	}
 
-	inline void Decompose(Matrix4x4f const& matrix)
+	inline void Decompose(Matrix4x4f const& transformation, Vec4f& translation, Quaternion4f& rotation, Vec4f& scale)
 	{
-		//TODO
+		translation = transformation[3];
+		float scaleX = VecLength(transformation[0]);
+		float scaleY = VecLength(transformation[1]);
+		float scaleZ = VecLength(transformation[2]);
+		scale = { scaleX, scaleY, scaleZ, 0.0f };
+		Matrix4x4f rotMatrix = transformation;
+		rotMatrix[3] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		rotMatrix[0] /= scaleX;
+		rotMatrix[1] /= scaleY;
+		rotMatrix[2] /= scaleZ;
+		rotation = RotToQuat(rotMatrix);
 	}
 
 	inline Matrix4x4f Compose(Vec3f const& T, Quaternion4f const& R, Vec3f const& S)
@@ -185,6 +197,17 @@ namespace inceptionengine
 
 
 	float Adder(float a, float b);
+
+	template<typename T>
+	inline T LinearInterpolate(T const& t1, T const& t2, float alpha)
+	{
+		return t1 * alpha + t2 * (1.0f - alpha);
+	}
+
+	inline Quaternion4f SLerp(Quaternion4f const& q1, Quaternion4f const& q2, float alpha)
+	{
+		return glm::slerp(q1, q2, 1.0f - alpha);
+	}
 
 	inline float RandFloat(float min, float max)
 	{

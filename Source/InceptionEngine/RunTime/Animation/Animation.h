@@ -5,8 +5,10 @@ namespace inceptionengine
 {
 	struct Skeleton;
 
+
 	struct Animation
 	{
+
 		float mDuration = 0.0f;
 		std::string mName;
 		std::string mPathToSkeleton;

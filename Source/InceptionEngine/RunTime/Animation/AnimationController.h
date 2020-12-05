@@ -29,6 +29,8 @@ namespace inceptionengine
 
 		void HandReachTarget(IkChain const& ikChain, Matrix4x4f const& EndEffector);
 
+		void TestAxis(IkChain const& ikChain);
+
 	private:
 		Matrix4x4f GetBoneGlobalTransform(int boneID);
 
