@@ -12,10 +12,11 @@ namespace inceptionengine
 			int parentID = -1;
 			Matrix4x4f bindPose = {};
 			Matrix4x4f bindPoseInv = {};
+			Matrix4x4f lclRefPose = {};
 
 			bool operator == (Bone const& other) const
 			{
-				return (name == other.name && ID == other.ID && parentID == other.parentID && Distance2(bindPose, other.bindPose) < 0.00001);
+				return (name == other.name && ID == other.ID && parentID == other.parentID && Distance2(bindPose, other.bindPose) < 0.00001 && Distance2(lclRefPose, other.lclRefPose) < 0.00001);
 			}
 
 			bool operator != (Bone const& other) const
@@ -26,7 +27,7 @@ namespace inceptionengine
 			template<typename Archive>
 			void serialize(Archive& archive)
 			{
-				archive(name, ID, parentID, bindPose, bindPoseInv);
+				archive(name, ID, parentID, bindPose, bindPoseInv, lclRefPose);
 			}
 		};
 
@@ -57,7 +58,7 @@ namespace inceptionengine
 
 		std::vector<Matrix4x4f> GetGlobalBindPose() const;
 
-		std::vector<Matrix4x4f> GetLocalBindPose() const;
+		std::vector<Matrix4x4f> GetLocalRefPose() const;
 
 		template<typename Archive>
 		void serialize(Archive& archive)

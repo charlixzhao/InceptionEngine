@@ -17,6 +17,11 @@ include all systems
 */
 #include "ECS/Systems/Systems.h"
 
+//for test purpose
+#include "RunTime/Resource/ResourceManager.h"
+#include "RunTime/SkeletalMesh/Skeleton.h"
+#include "RunTime/Animation/Animation.h"
+
 namespace inceptionengine
 {
     class World::WorldImpl
@@ -41,6 +46,8 @@ namespace inceptionengine
         void SetSkybox(std::array<std::string, 6> const& texturePaths);
 
         void SetGameCamera(CameraComponent const& camera);
+
+        void DrawAnimationTest();
 
         ComponentsPool& GetComponentsPool();
 
@@ -193,6 +200,32 @@ namespace inceptionengine
         mCameraSystem.SetGameCamera(camera);
     }
 
+
+    Matrix4x4f GetBoneGlobalTransform(std::vector<Matrix4x4f> const& lcl, Skeleton const& sk, int boneID)
+    {
+        Matrix4x4f globalTransform = lcl[boneID];
+        auto const& bone = sk.mBones[boneID];
+        int parentID = bone.parentID;
+        while (parentID != -1)
+        {
+            globalTransform = lcl[parentID] * globalTransform;
+            parentID = sk.mBones[parentID].parentID;
+        }
+        return globalTransform;
+    }
+
+    void World::WorldImpl::DrawAnimationTest()
+    {
+        auto anim = gResourceMgr.GetResource<Animation>("StandAloneResource\\milia_sm\\milia_a_pose.ie_anim");
+        for (int i = 0; i < anim->mBoneTransforms[0].size(); i++)
+        {
+            Entity const& ent = CreateEntity();
+            ent.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\cube\\cube_mesh.ie_skmesh");
+            ent.GetComponent<TransformComponent>().SetWorldTransform(GetBoneGlobalTransform(anim->mBoneTransforms[10], *anim->mSkeleton, i) * Scale(0.1f, 0.1f, 0.1f));
+        }
+        
+    }
+
     ComponentsPool& World::WorldImpl::GetComponentsPool()
     {
         return mEntityComponentPool;
@@ -265,6 +298,11 @@ namespace inceptionengine
     void World::SetGameCamera(CameraComponent const& camera)
     {
         mWorldImpl->SetGameCamera(camera);
+    }
+
+    void World::DrawAnimationTest()
+    {
+        mWorldImpl->DrawAnimationTest();
     }
 
     void World::WorldStart()

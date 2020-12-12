@@ -23,7 +23,7 @@ namespace inceptionengine
 	void AnimationController::Initialize(std::shared_ptr<Skeleton const> skeleton)
 	{
 		mSkeleton = skeleton;
-		mFinalPose = skeleton->GetLocalBindPose();
+		mFinalPose = skeleton->GetLocalRefPose();
 	}
 
 	bool AnimationController::Update(float deltaTime)
@@ -48,7 +48,7 @@ namespace inceptionengine
 	}
 	void AnimationController::StopAnimation()
 	{
-		mFinalPose = mCurrentAnimation->mSkeleton->GetLocalBindPose();
+		mFinalPose = mCurrentAnimation->mSkeleton->GetLocalRefPose();
 		mCurrentAnimation = nullptr;
 		mCurrentTime = 0.0f;
 	}
@@ -174,15 +174,23 @@ namespace inceptionengine
 			float rotX, rotY, rotZ = 0;
 			glm::extractEulerAngleXYZ(Translate(-mFinalPose[ikChain.BoneIDs[1]][3]) * mFinalPose[ikChain.BoneIDs[1]],
 									  rotX, rotY, rotZ);
-			switch (ikChain.ChainType)
+
+			rotY = std::fmod(rotY, 2 * PI);
+			if (rotY > PI)
+				rotY -= 2 * PI;
+			if (rotY < -PI)
+				rotY += 2 * PI;
+
+			rotY = std::clamp(rotY, -PI / 4.0f, PI / 4.0f);
+			/*switch (ikChain.ChainType)
 			{
 				case IkChain::IkChainType::RightArmHand: rotY = std::max(0.0f, rotY); break;
-				case IkChain::IkChainType::LeftArmHand: rotY = std::min(0.0f, rotY); break;
+				case IkChain::IkChainType::LeftArmHand: rotY = std::min(0.0f, rotY); break; 
 				default: throw std::runtime_error("");
-			}
+			}*/
 			
 			//std::cout << "x is " << rotX << " y is " << glm::degrees(rotY) << "z is " << rotZ << std::endl;
-			mFinalPose[ikChain.BoneIDs[1]] =  Translate(mFinalPose[ikChain.BoneIDs[1]][3]) * Rotate(rotY, Vec3f(0.0f, 1.0f, 0.0f));
+			//mFinalPose[ikChain.BoneIDs[1]] =  Translate(mFinalPose[ikChain.BoneIDs[1]][3]) * Rotate(rotY, Vec3f(0.0f, 1.0f, 0.0f));
 
 
 		}

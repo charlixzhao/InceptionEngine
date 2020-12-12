@@ -1321,7 +1321,7 @@ namespace inceptionengine
 
 				Light light;
 				
-				light.m_locationAndIntensity = { -500.0f, 500.0f, 0.0f, 1.8f };
+				light.m_locationAndIntensity = { 100.0f, 80.0f, 500.0f, 1.4f };
 				
 				vkMapMemory(m_device, uBuffer.lightMemory[i], 0, sizeof(Light), 0, &data);
 

@@ -116,11 +116,12 @@ private:
 	void OnKey_Space(bool press)
 	{
 		
+		
 		if (press)
 		{
 			if (!GetEntity().GetComponent<SkeletalMeshComponent>().IsPlayingAnimation())
 			{
-				GetEntity().GetComponent<SkeletalMeshComponent>().PlayAnimation("StandAloneResource\\maria\\maria_dance.ie_anim");
+				GetEntity().GetComponent<SkeletalMeshComponent>().PlayAnimation("StandAloneResource\\milia\\milia_walk.ie_anim");
 			}
 			else
 			{
@@ -129,6 +130,7 @@ private:
 			
 		}
 
+		
 		
 		/*
 		if (press)
@@ -165,18 +167,21 @@ int main()
 	Entity const& entityOne = world->CreateEntity();
 	
 
-	entityOne.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\maria\\maria_mesh.ie_skmesh");
+	entityOne.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
+	//entityOne.GetComponent<TransformComponent>().SetWorldTransform(Rotate(-PI/2.0f, Vec3f(1.0f, 0.0f, 0.0f)));
 
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
 
-	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(-280.0f, 80.0f, 0.0f), Vec3f(0.0f, 80.0f, 0.0f));
+	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 80.0f, 280.0f), Vec3f(0.0f, 80.0f, 0.0f));
 
 	world->SetGameCamera(entityOne.GetComponent<CameraComponent>());
 
 	Entity const& entityTwo = world->CreateEntity();
 
-	entityTwo.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\cube\\cube_mesh.ie_skmesh");
+	//entityTwo.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\cube\\cube_mesh.ie_skmesh");
 	entityTwo.GetComponent<TransformComponent>().SetWorldTransform(TestTarget * Scale(0.1f, 0.1f, 0.1f));
+
+	//world->DrawAnimationTest();
 
 	engine.PlayGame();
 

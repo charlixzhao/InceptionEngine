@@ -43,6 +43,8 @@ namespace inceptionengine
 
 		void SetGameCamera(CameraComponent const& camera);
 
+		void DrawAnimationTest();
+
 	private:
 		/*
 		PIMPL idiom

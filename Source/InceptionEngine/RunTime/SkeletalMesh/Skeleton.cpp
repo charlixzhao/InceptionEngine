@@ -7,31 +7,17 @@ namespace inceptionengine
 
 	std::vector<Matrix4x4f> Skeleton::GetGlobalBindPose() const
 	{
-		std::vector<Matrix4x4f> bindPose;
-		for (auto const& bone : mBones)
-		{
-			bindPose.push_back(bone.bindPose);
-		}
-		return bindPose;
+		return std::vector<Matrix4x4f>();
 	}
 
-	std::vector<Matrix4x4f> Skeleton::GetLocalBindPose() const
+	std::vector<Matrix4x4f> Skeleton::GetLocalRefPose() const
 	{
-		auto const& worldBindPose = GetGlobalBindPose();
-		std::vector<Matrix4x4f> localBindPose;
-		localBindPose.resize(worldBindPose.size());
+		std::vector<Matrix4x4f> refPose;
 		for (auto const& bone : mBones)
 		{
-			if (bone.parentID == -1)
-			{
-				localBindPose[bone.ID] = worldBindPose[bone.ID];
-			}
-			else
-			{
-				localBindPose[bone.ID] = Inverse(worldBindPose[bone.parentID]) * worldBindPose[bone.ID];
-			}
+			refPose.push_back(bone.lclRefPose);
 		}
-		return localBindPose;
+		return refPose;
 	}
 
 

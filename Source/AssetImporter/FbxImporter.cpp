@@ -33,7 +33,8 @@ namespace inceptionengine::fbximport
     void NormalizeVertexBoneWeights(Vertex& vertex);
     void ImportSkeletalMesh(FbxScene* pFbxScene, std::vector<FbxNode*> const& meshNodes, SkeletalMesh& mesh, Skeleton const& skeleton);
     void FillDataArray(FbxScene* pFbxScene, std::vector<FbxNode*>& meshNodes, std::vector<FbxNode*>& boneNodes);
-    void ImportSkeleton(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton& skeleton);
+    void ImportSkeletonHierachy(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton& skeleton);
+    void ImportSkeletonBindPose(FbxScene* pFbxScene, std::vector<FbxNode*> const& meshNodes, Skeleton& skeleton);
     void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations);
 
 
@@ -68,12 +69,18 @@ namespace inceptionengine::fbximport
 
         fbxsdkImporter->Import(pFbxScene);
 
-        fbxsdkImporter->Destroy();
-
 
         FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
         OurAxisSystem.ConvertScene(pFbxScene);
         FbxSystemUnit::cm.ConvertScene(pFbxScene);
+
+        FbxGeometryConverter geoConverter(fbxsdkManager);
+        bool rc = geoConverter.SplitMeshesPerMaterial(pFbxScene, true);
+        assert(rc);
+
+        fbxsdkImporter->Destroy();
+
+
         return pFbxScene;
     }
 
@@ -90,7 +97,8 @@ namespace inceptionengine::fbximport
         FillDataArray(pFbxScene, meshNodes, boneNodes);
 
         Skeleton skeleton;
-        ImportSkeleton(pFbxScene, boneNodes, skeleton);
+        ImportSkeletonHierachy(pFbxScene, boneNodes, skeleton);
+        ImportSkeletonBindPose(pFbxScene, meshNodes, skeleton);
 
         SkeletalMesh skmesh;
         ImportSkeletalMesh(pFbxScene, meshNodes, skmesh, skeleton);
@@ -175,8 +183,8 @@ namespace inceptionengine::fbximport
 
     void ImportMeshVertexPosition(FbxMesh* pFbxMesh, SubMesh& mesh)
     {
-        auto axisMat = pFbxMesh->GetNode()->EvaluateGlobalTransform();//.Inverse();
-        auto geoMat = GetGeometryTransformation(pFbxMesh->GetNode());
+        //auto axisMat = pFbxMesh->GetNode()->EvaluateGlobalTransform();//.Inverse();
+        //auto geoMat = GetGeometryTransformation(pFbxMesh->GetNode());
 
         int ctrlPointsCount = pFbxMesh->GetControlPointsCount();
 
@@ -185,7 +193,8 @@ namespace inceptionengine::fbximport
             fbxsdk::FbxVector4 ctrlPoint = pFbxMesh->GetControlPointAt(ctrlPointIndex);
 
             Vertex vertex;
-            vertex.position = ConvertMatrix(axisMat * geoMat) * Vec4f(ctrlPoint[0], ctrlPoint[1], ctrlPoint[2], 1.0f);
+            //vertex.position = ConvertMatrix(axisMat * geoMat) * Vec4f(ctrlPoint[0], ctrlPoint[1], ctrlPoint[2], 1.0f);
+            vertex.position = Vec4f(ctrlPoint[0], ctrlPoint[1], ctrlPoint[2], 1.0f);
 
             mesh.vertices.push_back(vertex);
         }
@@ -359,8 +368,8 @@ namespace inceptionengine::fbximport
                         //Got normals of each polygon-vertex.
 
                         FbxVector4 lNormal = lNormalElement->GetDirectArray().GetAt(lNormalIndex);
-                        FBXSDK_printf("normals for polygon[%d]vertex[%d]: %f %f %f %f \n",
-                                      lPolygonIndex, i, lNormal[0], lNormal[1], lNormal[2], lNormal[3]);
+                        //FBXSDK_printf("normals for polygon[%d]vertex[%d]: %f %f %f %f \n",
+                         //             lPolygonIndex, i, lNormal[0], lNormal[1], lNormal[2], lNormal[3]);
                         //add your custom code here, to output normals or get them into a list, such as KArrayTemplate<FbxVector4>
                         int ctrlPointIndex = pFbxMesh->GetPolygonVertex(lPolygonIndex, i);
 
@@ -436,9 +445,6 @@ namespace inceptionengine::fbximport
     }
 
 
-
-
-
     void AddSkinToVertex(Vertex& vertex, int boneID, float weight)
     {
         int argminWeight = FindVertexAgrminBoneWeight(vertex);
@@ -461,7 +467,30 @@ namespace inceptionengine::fbximport
     {
         for (int meshIndex = 0; meshIndex < meshNodes.size(); meshIndex++)
         {
+            int attributeCount = meshNodes[meshIndex]->GetNodeAttributeCount();
+            for (int submeshIndex = 0; submeshIndex < attributeCount; submeshIndex++)
+            {
+                FbxMesh* pFbxMesh = reinterpret_cast<FbxMesh*>(meshNodes[meshIndex]->GetNodeAttributeByIndex(submeshIndex));
+                if (pFbxMesh)
+                {
+                    mesh.mSubMeshes.push_back({});
+                    mesh.mSubMeshes.back().mName = pFbxMesh->GetName();
+
+                    ImportMeshVertexPosition(pFbxMesh, mesh.mSubMeshes.back());
+                    ImportMeshIndices(pFbxMesh, mesh.mSubMeshes.back());
+                    ImportMeshVertexUV(pFbxMesh, mesh.mSubMeshes.back());
+                    ImportMeshVertexNormal(pFbxMesh, mesh.mSubMeshes.back());
+                    ImportMeshSkin(pFbxMesh, mesh.mSubMeshes.back(), skeleton);
+
+                    std::cout << "Find submesh in the fbx. The name of the submesh is " << pFbxMesh->GetName() << std::endl;
+                    std::cout << "Enter a texture path for the submesh, empty to use default texture: ";
+                    std::getline(std::cin, mesh.mSubMeshes.back().texturePath);
+                }
+            }
+
+            /*
             FbxMesh* pFbxMesh = meshNodes[meshIndex]->GetMesh();
+
             assert(pFbxMesh != nullptr);
 
             mesh.mSubMeshes.push_back({});
@@ -475,12 +504,8 @@ namespace inceptionengine::fbximport
 
             std::cout << "Find submesh in the fbx. The name of the submesh is " << pFbxMesh->GetName() << std::endl;
             std::cout << "Enter a texture path for the submesh, empty to use default texture: ";
-            std::getline(std::cin, mesh.mSubMeshes.back().texturePath);
+            std::getline(std::cin, mesh.mSubMeshes.back().texturePath);*/
         }
-
-
-      
-
     }
 
     void FillDataArray(FbxScene* pFbxScene, std::vector<FbxNode*>& meshNodes, std::vector<FbxNode*>& boneNodes)
@@ -510,7 +535,7 @@ namespace inceptionengine::fbximport
         }
     }
 
-    void ImportSkeleton(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton& skeleton)
+    void ImportSkeletonHierachy(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton& skeleton)
     {
         for (int boneIndex = 0; boneIndex < boneNodes.size(); boneIndex++)
         {
@@ -526,23 +551,72 @@ namespace inceptionengine::fbximport
             if (parentNode->GetNodeAttribute() != nullptr && parentNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::EType::eSkeleton)
             {
                 bone.parentID = skeleton.GetBoneID(boneNodes[boneIndex]->GetParent()->GetName());
+            
             }
             else
             {
                 bone.parentID = -1;
             }
-            bone.bindPose = ConvertMatrix(boneNodes[boneIndex]->EvaluateGlobalTransform());
-            bone.bindPoseInv = Inverse(bone.bindPose);
+            bone.bindPose = Matrix4x4f(1.0f); //ConvertMatrix(boneNodes[boneIndex]->EvaluateGlobalTransform());
+            bone.bindPoseInv = Matrix4x4f(1.0f);  //Inverse(bone.bindPose);
+            bone.lclRefPose = ConvertMatrix(boneNodes[boneIndex]->EvaluateGlobalTransform());
 
             skeleton.mBones.push_back(bone);
         }
+        std::vector<Matrix4x4f> globalRefPose;
+        for (auto const& bone : skeleton.mBones)
+        {
+            globalRefPose.push_back(bone.lclRefPose);
+        }
+        for (int i = 0; i < skeleton.mBones.size(); i++)
+        {
+            if (skeleton.mBones[i].parentID != -1)
+            {
+                skeleton.mBones[i].lclRefPose = Inverse(globalRefPose[skeleton.mBones[i].parentID]) * globalRefPose[i];
+            }
+            else
+            {
+                skeleton.mBones[i].lclRefPose = globalRefPose[i];
+            }
+        }
+    }
 
-        
-        //std::cout << "Find animation in the fbx. The name of the animation is " << pAnimStack->GetName() << std::endl;
-        //std::string animName;
-       // std::cout << "Enter the file name for the animation, without extension: ";
-       // std::getline(std::cin, animName);
-       // Serializer::Serailize<Animation>(importScene.animation, PathHelper::GetAbsolutePath(outputFolder) + "\\" + animName + ".ie_anim");
+
+    void ImportSkeletonBindPose(FbxScene* pFbxScene, std::vector<FbxNode*> const& meshNodes, Skeleton& skeleton)
+    {
+        for (int i = 0; i < meshNodes.size(); i++)
+        {
+            FbxNode* inNode = meshNodes[i];
+            FbxMesh* currMesh = inNode->GetMesh();
+            unsigned int numOfDeformers = currMesh->GetDeformerCount();
+
+            FbxAMatrix geometryTransform = GetGeometryTransformation(inNode);
+
+            for (unsigned int deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
+            {
+                // There are many types of deformers in Maya, 
+                // We are using only skins, so we see if this is a skin 
+                FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+
+                if (!currSkin) { continue; }
+
+                unsigned int numOfClusters = currSkin->GetClusterCount();
+                for (unsigned int clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
+                {
+                    FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
+                    std::string currJointName = currCluster->GetLink()->GetName();
+                    unsigned int currJointIndex = skeleton.GetBoneID(currJointName);
+                    assert(currJointIndex != -1);
+                    FbxAMatrix transformMatrix;
+                    FbxAMatrix transformLinkMatrix;
+                    currCluster->GetTransformMatrix(transformMatrix);
+                    currCluster->GetTransformLinkMatrix(transformLinkMatrix);
+
+                    skeleton.mBones[currJointIndex].bindPoseInv = ConvertMatrix(transformLinkMatrix.Inverse() * transformMatrix * geometryTransform);
+                    skeleton.mBones[currJointIndex].bindPose = Inverse(skeleton.mBones[currJointIndex].bindPoseInv);
+                }
+            }
+        }
     }
 
     void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations)
