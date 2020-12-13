@@ -5,6 +5,7 @@
 namespace inceptionengine
 {
 	using EntityID = unsigned long long;
+	EntityID constexpr InvalidEntityID = std::numeric_limits<EntityID>().max();
 
 	//struct EntityID
 	//{

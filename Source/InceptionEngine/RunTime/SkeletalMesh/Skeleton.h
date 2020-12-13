@@ -16,7 +16,7 @@ namespace inceptionengine
 
 			bool operator == (Bone const& other) const
 			{
-				return (name == other.name && ID == other.ID && parentID == other.parentID && Distance2(bindPose, other.bindPose) < 0.00001 && Distance2(lclRefPose, other.lclRefPose) < 0.00001);
+				return (name == other.name && ID == other.ID && parentID == other.parentID);//&& Distance2(bindPose, other.bindPose) < 0.00001 && Distance2(lclRefPose, other.lclRefPose) < 0.00001);
 			}
 
 			bool operator != (Bone const& other) const

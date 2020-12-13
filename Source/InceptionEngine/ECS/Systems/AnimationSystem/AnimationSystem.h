@@ -13,6 +13,8 @@ namespace inceptionengine
 	public:
 		AnimationSystem(ComponentsPool& componentsPool);
 
+		void Start();
+
 		void Update(float deltaTime);
 
 	private:

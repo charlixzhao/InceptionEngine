@@ -71,26 +71,29 @@ namespace inceptionengine
 					}
 				}*/
 
-				std::vector<Matrix4x4f> const& localFinalPose = component.mAnimationController->GetFinalPose();
-				std::vector<Matrix4x4f> globalFinalPose;
-				globalFinalPose.resize(localFinalPose.size());
-				for (auto const& bone : component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones)
+				if (mComponentsPool.get().EntityHasComponent<AnimationComponent>(component.mEntityID))
 				{
-					Matrix4x4f globalTransform = localFinalPose[bone.ID];
-					int parentID = bone.parentID;
-					while (parentID != -1)
+					std::vector<Matrix4x4f> const& localFinalPose = mComponentsPool.get().GetComponent<AnimationComponent>(component.mEntityID).mAnimationController->GetFinalPose();
+						std::vector<Matrix4x4f> globalFinalPose;
+						globalFinalPose.resize(localFinalPose.size());
+						for (auto const& bone : component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones)
+						{
+							Matrix4x4f globalTransform = localFinalPose[bone.ID];
+								int parentID = bone.parentID;
+								while (parentID != -1)
+								{
+									globalTransform = localFinalPose[parentID] * globalTransform;
+									parentID = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[parentID].parentID;
+								}
+							globalFinalPose[bone.ID] = globalTransform;
+						}
+
+					for (int bone = 0; bone < globalFinalPose.size(); bone++)
 					{
-						globalTransform = localFinalPose[parentID] * globalTransform;
-						parentID = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[parentID].parentID;
+						uBufferMat[bone + 2] = globalFinalPose[bone] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
 					}
-					globalFinalPose[bone.ID] = globalTransform;
 				}
 
-
-				for (int bone = 0; bone < globalFinalPose.size(); bone++)
-				{
-					uBufferMat[bone + 2] = globalFinalPose[bone] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
-				}
 
 				mRenderer.get().UpdateUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer, uBufferMat, nullptr);
 			}
@@ -146,12 +149,12 @@ namespace inceptionengine
 			mRenderer.get().CreateTexture(component.mSkeletalMeshInstance->mTextures[i], component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].texturePath);
 
 			mRenderer.get().CreateUniformBufferDescription(component.mSkeletalMeshInstance->mUniformBufferDescriptions[i],
-													 component.mSkeletalMeshInstance->mUniformBuffer,
-													 component.mSkeletalMeshInstance->mTextures[i]);
+														   component.mSkeletalMeshInstance->mUniformBuffer,
+														   component.mSkeletalMeshInstance->mTextures[i]);
 
 			mRenderer.get().CreatePipeline(component.mSkeletalMeshInstance->mPipelines[i],
-									 component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].shaderPath, 
-									 component.mSkeletalMeshInstance->mUniformBufferDescriptions[i]);
+										   component.mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].shaderPath,
+										   component.mSkeletalMeshInstance->mUniformBufferDescriptions[i]);
 		}
 
 		CreateRenderUnit(component);

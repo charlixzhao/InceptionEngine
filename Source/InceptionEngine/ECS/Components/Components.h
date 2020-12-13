@@ -7,3 +7,4 @@
 #include "SkeletalMeshComponent/SkeletalMeshComponent.h"
 #include "TransformComponent/TransformComponent.h"
 #include "CameraComponent/CameraComponent.h"
+#include "AnimationComponent/AnimationComponent.h"

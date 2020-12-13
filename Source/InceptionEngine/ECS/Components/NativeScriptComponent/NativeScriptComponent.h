@@ -4,6 +4,7 @@
 #include "NativeScript.h"
 #include "ECS/Entity/EntityID.h"
 
+
 namespace inceptionengine
 {
 	class Entity;
@@ -15,6 +16,7 @@ namespace inceptionengine
 
 		NativeScriptComponent(EntityID entityID, std::reference_wrapper<World> world);
 
+		NativeScript* GetScript();
 
 		template<typename T>
 		void SetScript()

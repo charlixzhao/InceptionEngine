@@ -2,8 +2,9 @@
 
 #include "AnimationSystem.h"
 #include "ECS/Entity/EntityComponentPool.hpp"
+#include "ECS/Components/AnimationComponent/AnimationComponent.h"
 #include "RunTime/Animation/AnimationController.h"
-#include "ECS/Components/SkeletalMeshComponent/SkeletalMeshComponent.h"
+
 
 namespace inceptionengine
 {
@@ -13,9 +14,19 @@ namespace inceptionengine
 
 	}
 
+	void AnimationSystem::Start()
+	{
+		auto& view = mComponentsPool.get().GetComponentPool<AnimationComponent>()->GetComponentView();
+
+		for (auto& component : view)
+		{
+			component.mAnimationController->StartAnimStateMachine();
+		}
+	}
+
 	void AnimationSystem::Update(float deltaTime)
 	{
-		auto& view = mComponentsPool.get().GetComponentPool<SkeletalMeshComponent>()->GetComponentView();
+		auto& view = mComponentsPool.get().GetComponentPool<AnimationComponent>()->GetComponentView();
 
 		for (auto& component : view)
 		{

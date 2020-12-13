@@ -5,6 +5,7 @@
 #include <iostream>
 
 
+
 using namespace inceptionengine;
 float TestX = -50.0f;
 float TestY = 150.0f;
@@ -31,6 +32,10 @@ public:
 		BindKeyInputCallback(KeyInputTypes::Keyboard_6, std::bind(&HornetScript::OnKey_6, this, std::placeholders::_1));
 	}
 
+public:
+	int mAttackState = 1;
+	float mSpeed = 0.0f;
+
 private:
 	virtual void OnBegin() override
 	{
@@ -44,12 +49,15 @@ private:
 
 	void OnKey_1(bool press)
 	{
+		if(press)
+			mAttackState += 1;
+		/*
 		if (press)
 		{
 			TestX += 5;
 			TestTarget = Translate(TestX, TestY, TestZ);
 			GetEntity().GetWorld().GetEntity(1).GetComponent<TransformComponent>().SetWorldTransform(TestTarget * Scale(0.1f, 0.1f, 0.1f));
-		}
+		}*/
 	}
 	void OnKey_2(bool press)
 	{
@@ -116,18 +124,27 @@ private:
 	void OnKey_Space(bool press)
 	{
 		
-		
+		/*
 		if (press)
 		{
-			if (!GetEntity().GetComponent<SkeletalMeshComponent>().IsPlayingAnimation())
+			if (!GetEntity().GetComponent<AnimationComponent>().IsPlayingAnimation())
 			{
-				GetEntity().GetComponent<SkeletalMeshComponent>().PlayAnimation("StandAloneResource\\milia\\milia_walk.ie_anim");
+				GetEntity().GetComponent<AnimationComponent>().PlayAnimation("StandAloneResource\\milia\\milia_walk.ie_anim");
 			}
 			else
 			{
-				GetEntity().GetComponent<SkeletalMeshComponent>().StopAnimation();
+				GetEntity().GetComponent<AnimationComponent>().StopAnimation();
 			}
 			
+		}*/
+
+		if (press)
+		{
+			mSpeed = 1.0f;
+		}
+		else
+		{
+			mSpeed = 0.0f;
 		}
 
 		
@@ -141,7 +158,31 @@ private:
 	}
 };
 
+class MiliaASM : public AnimStateMachine
+{
+public:
+	MiliaASM(EntityID entityID, std::reference_wrapper<World> world)
+		:AnimStateMachine(entityID, world)
+	{
+		CreateState("StandAloneResource\\milia\\milia_idle.ie_anim");
+		CreateState("StandAloneResource\\milia\\milia_walk.ie_anim");
+		CreateLink(0, 1, [&]() -> bool
+				   {
+					   HornetScript* script = reinterpret_cast<HornetScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
+					   return script->mSpeed > 0.0f;
+				   }, 0.15f);
 
+		CreateLink(1, 0, [&]() -> bool
+				   {
+					   HornetScript* script = reinterpret_cast<HornetScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
+					   return script->mSpeed == 0.0f;
+				   }, 0.15f);
+
+		SetEntryState(0);
+	}
+
+private:
+};
 
 
 int main()
@@ -168,7 +209,7 @@ int main()
 	
 
 	entityOne.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
-	//entityOne.GetComponent<TransformComponent>().SetWorldTransform(Rotate(-PI/2.0f, Vec3f(1.0f, 0.0f, 0.0f)));
+	entityOne.AddComponent<AnimationComponent>().SetAnimStateMachine<MiliaASM>();
 
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
 
@@ -178,8 +219,8 @@ int main()
 
 	Entity const& entityTwo = world->CreateEntity();
 
-	//entityTwo.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\cube\\cube_mesh.ie_skmesh");
-	entityTwo.GetComponent<TransformComponent>().SetWorldTransform(TestTarget * Scale(0.1f, 0.1f, 0.1f));
+	entityTwo.AddComponent<SkeletalMeshComponent>().SetPlane();
+	entityTwo.GetComponent<TransformComponent>().SetWorldTransform(TestTarget);
 
 	//world->DrawAnimationTest();
 

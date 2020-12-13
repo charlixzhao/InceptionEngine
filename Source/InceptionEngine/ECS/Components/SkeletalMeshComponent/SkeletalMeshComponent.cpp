@@ -5,14 +5,19 @@
 #include "RunTime/Resource/ResourceManager.h"
 #include "RunTime/Animation/AnimationController.h"
 #include "RunTime/Animation/Animation.h"
+#include "ECS/Components/AnimationComponent/AnimationComponent.h"
+
+#include "ECS/World.h"
+#include "ECS/Entity/Entity.h"
 
 namespace inceptionengine
 {
 
-	SkeletalMeshComponent::SkeletalMeshComponent()
+	SkeletalMeshComponent::SkeletalMeshComponent(EntityID entityID, std::reference_wrapper<World> world)
+		:mEntityID(entityID), mWorld(world)
 	{
 		mSkeletalMeshInstance = std::make_unique<SkeletalMeshInstance>();
-		mAnimationController = std::make_unique<AnimationController>();
+		//mAnimationController = std::make_unique<AnimationController>();
 	}
 
 	SkeletalMeshComponent::~SkeletalMeshComponent() = default;
@@ -51,33 +56,7 @@ namespace inceptionengine
 		mSkeletalMeshInstance->InitializeRenderObjects();
 	}
 
-	void SkeletalMeshComponent::PlayAnimation(std::string const& filePath)
-	{
-		auto pAnimation = gResourceMgr.GetResource<Animation>(filePath);
-		assert(pAnimation != nullptr);
-		assert(mSkeletalMeshInstance->mSkeletalMesh != nullptr && mSkeletalMeshInstance->mSkeletalMesh->mSkeleton == pAnimation->mSkeleton);
-		mAnimationController->PlayAnimation(pAnimation);
-	}
-
-	void SkeletalMeshComponent::HandReachTarget(Matrix4x4f const& endEffector)
-	{
-		mAnimationController->HandReachTarget(mSkeletalMeshInstance->mHandArmIkChain, endEffector);
-	}
-
-	void SkeletalMeshComponent::StopAnimation()
-	{
-		mAnimationController->StopAnimation();
-	}
-
-	void SkeletalMeshComponent::TestAxis()
-	{
-		mAnimationController->TestAxis(mSkeletalMeshInstance->mHandArmIkChain);
-	}
-
-	bool SkeletalMeshComponent::IsPlayingAnimation()
-	{
-		return mAnimationController->IsPlayingAnimation();
-	}
+	
 
 	void SkeletalMeshComponent::SetMesh(std::string const& filePath)
 	{
@@ -117,8 +96,11 @@ mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBo
 		//mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHandMiddle3"));
 		//mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBoneID("RightHandMiddle4"));
 	
-
-		mAnimationController->Initialize(mSkeletalMeshInstance->mSkeletalMesh->mSkeleton);
+		if (mWorld.get().GetEntity(mEntityID).HasComponent<AnimationComponent>())
+		{
+			mWorld.get().GetEntity(mEntityID).GetComponent<AnimationComponent>().mAnimationController->Initialize(mSkeletalMeshInstance->mSkeletalMesh->mSkeleton);
+		}
+		
 	}
 
 

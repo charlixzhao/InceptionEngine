@@ -14,4 +14,9 @@ namespace inceptionengine
 		return mWorld.get().GetEntity(mEntityID);
 	}
 
+	NativeScript* NativeScriptComponent::GetScript()
+	{
+		return mScript.get();
+	}
+
 }

@@ -65,6 +65,7 @@ namespace inceptionengine
 	extern template IE_API SkeletalMeshComponent& Entity::AddComponent() const;
 	extern template IE_API NativeScriptComponent& Entity::AddComponent() const;
 	extern template IE_API CameraComponent& Entity::AddComponent() const;
+	extern template IE_API AnimationComponent& Entity::AddComponent() const;
 
 	/*
 	GetComponent declaration
@@ -73,6 +74,7 @@ namespace inceptionengine
 	extern template IE_API SkeletalMeshComponent& Entity::GetComponent() const;
 	extern template IE_API NativeScriptComponent& Entity::GetComponent() const;
 	extern template IE_API CameraComponent& Entity::GetComponent() const;
+	extern template IE_API AnimationComponent& Entity::GetComponent() const;
 
 	/*
 	HasComponent declaration
@@ -81,6 +83,7 @@ namespace inceptionengine
 	extern template IE_API bool Entity::HasComponent<SkeletalMeshComponent>() const;
 	extern template IE_API bool Entity::HasComponent<NativeScriptComponent>() const;
 	extern template IE_API bool Entity::HasComponent<CameraComponent>() const;
+	extern template IE_API bool Entity::HasComponent<AnimationComponent>() const;
 
 	/*
 	DeleteComponent declaration
@@ -89,7 +92,7 @@ namespace inceptionengine
 	extern template IE_API void Entity::DeleteComponent<SkeletalMeshComponent>() const;
 	extern template IE_API void Entity::DeleteComponent<NativeScriptComponent>() const;
 	extern template IE_API void Entity::DeleteComponent<CameraComponent>() const;
-
+	extern template IE_API void Entity::DeleteComponent<AnimationComponent>() const;
 }
 
 

@@ -6,6 +6,8 @@
 
 #include "EngineGlobals/RenderGlobals.h"
 
+#include "ECS/Entity/EntityID.h"
+
 
 namespace inceptionengine
 {
@@ -15,11 +17,13 @@ namespace inceptionengine
 	
 	class AnimationController;
 
+	class World;
+
 	class IE_API SkeletalMeshComponent
 	{
 	public:
 
-		SkeletalMeshComponent();
+		SkeletalMeshComponent(EntityID entityID, std::reference_wrapper<World> world);
 
 		~SkeletalMeshComponent();
 
@@ -37,23 +41,20 @@ namespace inceptionengine
 
 		void SetTriangle();
 
-		void PlayAnimation(std::string const& filePath);
-
-		void HandReachTarget(Matrix4x4f const& EndEffector);
-
-		void TestAxis();
-
-		void StopAnimation();
-
-		bool IsPlayingAnimation();
 
 	private:
 		friend class SkeletalMeshRenderSystem;
 		friend class AnimationSystem;
+		friend class SkeletalMeshComponent;
+		friend class AnimationComponent;
 
 		std::unique_ptr<SkeletalMeshInstance> mSkeletalMeshInstance = nullptr;
 
-		std::unique_ptr<AnimationController> mAnimationController = nullptr;
+		//std::unique_ptr<AnimationController> mAnimationController = nullptr;
+
+		EntityID mEntityID = InvalidEntityID;
+
+		std::reference_wrapper<World> mWorld;
 
 		bool mLoadedToDevice = false;
 

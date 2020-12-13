@@ -11,13 +11,15 @@ namespace inceptionengine
 	class CameraComponent;
 	class SkeletalMeshComponent;
 	class NativeScriptComponent;
+	class AnimationComponent;
 
 
 	using ComponentTypeList = std::tuple<
 		TransformComponent,
 		CameraComponent,
 		SkeletalMeshComponent,
-		NativeScriptComponent>;
+		NativeScriptComponent,
+		AnimationComponent>;
 
 	template<typename T, size_t I>
 	struct CComponentChecker;

@@ -1,12 +1,15 @@
 
 #pragma once
 
+#include "ECS/Entity/EntityID.h"
 
 namespace inceptionengine
 {
 	struct Animation;
 	struct Skeleton;
 	struct IkChain;
+	class World;
+	class AnimStateMachine;
 
 	class AnimationController
 	{
@@ -31,6 +34,15 @@ namespace inceptionengine
 
 		void TestAxis(IkChain const& ikChain);
 
+		template<typename T>
+		void SetAnimStateMachine(EntityID entityID, std::reference_wrapper<World> world)
+		{
+			static_assert(std::is_base_of_v<AnimStateMachine, T>);
+			mAnimStateMachine = std::make_unique<T>(entityID, world);
+		}
+
+		void StartAnimStateMachine();
+
 	private:
 		Matrix4x4f GetBoneGlobalTransform(int boneID);
 
@@ -41,6 +53,8 @@ namespace inceptionengine
 		std::shared_ptr<Animation const> mCurrentAnimation = nullptr;
 
 		std::vector<Matrix4x4f> mFinalPose;
+
+		std::unique_ptr<AnimStateMachine> mAnimStateMachine = nullptr;
 
 	};
 }

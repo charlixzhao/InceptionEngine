@@ -237,6 +237,7 @@ namespace inceptionengine
         system of entties' components start
         */
         mNativeScriptSystem.Start();
+        mAnimationSystem.Start();
         mSkeletalMeshRenderSystem.Start();
 
         /*

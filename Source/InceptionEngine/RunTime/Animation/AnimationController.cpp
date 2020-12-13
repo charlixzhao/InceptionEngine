@@ -7,6 +7,7 @@
 #include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 
 #include "RunTime/Resource/ResourceManager.h"
+#include "ECS/Components/AnimationComponent/AnimStateMachine.h"
 
 namespace inceptionengine
 {
@@ -28,13 +29,22 @@ namespace inceptionengine
 
 	bool AnimationController::Update(float deltaTime)
 	{
+		if (mAnimStateMachine != nullptr)
+		{
+			mAnimStateMachine->Update(deltaTime);
+			mFinalPose = mAnimStateMachine->mFinalPose;
+			return true;
+		}
+
+		/*
 		if (mCurrentAnimation != nullptr)
 		{
 			mCurrentTime += deltaTime;
 			mCurrentTime = fmod(mCurrentTime, mCurrentAnimation->GetDuration());
 			mFinalPose = mCurrentAnimation->Interpolate(mCurrentTime);
 			return true;
-		}
+		}*/
+
 		return false;
 
 	}
@@ -56,6 +66,14 @@ namespace inceptionengine
 	bool AnimationController::IsPlayingAnimation()
 	{
 		return mCurrentAnimation != nullptr;
+	}
+
+	void AnimationController::StartAnimStateMachine()
+	{
+		if (mAnimStateMachine != nullptr)
+		{
+			mAnimStateMachine->mCurrentState = mAnimStateMachine->mEntryState;
+		}
 	}
 
 	Matrix4x4f AnimationController::GetBoneGlobalTransform(int boneID)

@@ -59,9 +59,11 @@ namespace inceptionengine
 	template<CComponent Component, typename ...Arg>
 	Component& Entity::AddComponent(Arg && ...args) const
 	{
-		if constexpr (std::is_same_v<Component, NativeScriptComponent>)
+		if constexpr (std::is_same_v<Component, NativeScriptComponent> || 
+					  std::is_same_v<Component, SkeletalMeshComponent> ||
+					  std::is_same_v<Component, AnimationComponent>)
 		{
-			return mWorld.get().GetComponentsPools().AddComponent<NativeScriptComponent>(mID, mID, mWorld);
+			return mWorld.get().GetComponentsPools().AddComponent<Component>(mID, mID, mWorld);
 		}
 		else
 		{
@@ -89,7 +91,7 @@ namespace inceptionengine
 	template IE_API SkeletalMeshComponent& Entity::AddComponent() const;
 	template IE_API NativeScriptComponent& Entity::AddComponent() const;
 	template IE_API CameraComponent& Entity::AddComponent() const;
-
+	template IE_API AnimationComponent& Entity::AddComponent() const;
 
 	/*
 	GetComponent instantiation
@@ -98,7 +100,7 @@ namespace inceptionengine
 	template IE_API SkeletalMeshComponent& Entity::GetComponent() const;
 	template IE_API NativeScriptComponent& Entity::GetComponent() const;
 	template IE_API CameraComponent& Entity::GetComponent() const;
-
+	template IE_API AnimationComponent& Entity::GetComponent() const;
 	/*
 	HasComponent instantiation
 	*/
@@ -106,7 +108,7 @@ namespace inceptionengine
 	template IE_API bool Entity::HasComponent<SkeletalMeshComponent>() const;
 	template IE_API bool Entity::HasComponent<NativeScriptComponent>() const;
 	template IE_API bool Entity::HasComponent<CameraComponent>() const;
-
+	template IE_API bool Entity::HasComponent<AnimationComponent>() const;
 
 	/*
 	DeleteComponent instantiation
@@ -115,6 +117,6 @@ namespace inceptionengine
 	template IE_API void Entity::DeleteComponent<SkeletalMeshComponent>() const;
 	template IE_API void Entity::DeleteComponent<NativeScriptComponent>() const;
 	template IE_API void Entity::DeleteComponent<CameraComponent>() const;
-
+	template IE_API void Entity::DeleteComponent<AnimationComponent>() const;
 }
 
