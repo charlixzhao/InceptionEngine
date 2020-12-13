@@ -220,9 +220,7 @@ int main()
 	Entity const& entityTwo = world->CreateEntity();
 
 	entityTwo.AddComponent<SkeletalMeshComponent>().SetPlane();
-	entityTwo.GetComponent<TransformComponent>().SetWorldTransform(TestTarget);
 
-	//world->DrawAnimationTest();
 
 	engine.PlayGame();
 

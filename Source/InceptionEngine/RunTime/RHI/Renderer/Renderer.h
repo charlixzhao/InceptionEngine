@@ -125,7 +125,7 @@ namespace inceptionengine
 
 	class Renderer
 	{
-	
+
 	public:
 		static constexpr RenderObejctID InvalidRenderObjectID = std::numeric_limits<RenderObejctID>::max();
 
@@ -212,7 +212,7 @@ namespace inceptionengine
 
 		void SetTerrain(Terrain* terrain);
 
-		void SetCameraMatirx(Matrix4x4f const& cameraMatrix);
+		void SetCameraMatrix(Matrix4x4f const& cameraMatrix);
 
 
 	private:
@@ -334,7 +334,7 @@ namespace inceptionengine
 		QueueFamilyIndices m_queueFamilyIndices;
 
 		std::unordered_map<std::string, VkQueue> m_queues;
-	
+
 		VkDevice m_device = VK_NULL_HANDLE;
 
 		VkFormat m_imageFormat;
@@ -390,7 +390,7 @@ namespace inceptionengine
 		std::vector<IRenderObject*> m_actors;
 	};
 
-
+	
 	/*
 struct Image {};
 struct CubeMap {};

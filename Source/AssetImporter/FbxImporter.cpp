@@ -76,7 +76,9 @@ namespace inceptionengine::fbximport
 
         FbxGeometryConverter geoConverter(fbxsdkManager);
         bool rc = geoConverter.SplitMeshesPerMaterial(pFbxScene, true);
+        bool rc2 = geoConverter.Triangulate(pFbxScene, true);
         assert(rc);
+        assert(rc2);
 
         fbxsdkImporter->Destroy();
 

@@ -17,7 +17,7 @@ namespace inceptionengine
 
 	void CameraSystem::Update(float deltaTime)
 	{
-		if(mGameCamera != nullptr) mRenderer.get().SetCameraMatirx(mGameCamera->CameraMatrix());
+		if(mGameCamera != nullptr) mRenderer.get().SetCameraMatrix(mGameCamera->CameraMatrix());
 	}
 }
 

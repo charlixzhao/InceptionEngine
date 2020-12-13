@@ -11,8 +11,8 @@
 #define GLM_FORCE_SILENT_WARNINGS
 
 /*
-Inception Engine use a left-hand coordinate system. positive-x is to the right,
-positive-y is to the up, and positive-z goes into the screen.
+Inception Engine use a right-hand coordinate system. positive-x is to the right,
+positive-y is to the up, and positive-z goes out of the screen.
 */
 #define GLM_FORCE_RIGHT_HANDED
 
@@ -129,13 +129,6 @@ namespace inceptionengine
 	inline Matrix4x4f Translate(float x, float y, float z)
 	{
 		return glm::translate(Vec3f(x, y, z));
-	}
-
-	inline std::vector<Matrix4x4f> GetIdentityTransfromVector(size_t num)
-	{
-		std::vector<Matrix4x4f> res;
-		res.resize(num);
-		return res;
 	}
 
 	inline float DotProduct(Vec3f const& x, Vec3f const& y)

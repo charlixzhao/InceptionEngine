@@ -55,7 +55,8 @@ namespace inceptionengine
 				{
 					boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
 				}
-				auto uBufferMat = GetIdentityTransfromVector(boneNumber + AnimPoseOffsetInUBuffer);
+				std::vector<Matrix4x4f> uBufferMat;
+				uBufferMat.resize(boneNumber + AnimPoseOffsetInUBuffer, Matrix4x4f(1.0f));
 
 				//set model transform
 				uBufferMat[1] = mTransformSystem.get().GetEntityWorldTransform(pair.first);
@@ -131,7 +132,8 @@ namespace inceptionengine
 		{
 			boneNumber = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->GetBoneNumber();
 		}
-		auto uBufferMat = GetIdentityTransfromVector(boneNumber + AnimPoseOffsetInUBuffer);
+		std::vector<Matrix4x4f> uBufferMat;
+		uBufferMat.resize(boneNumber + AnimPoseOffsetInUBuffer, Matrix4x4f(1.0f));
 		//for (int i = 0; i < boneNumber; i++)
 		//{
 			//uBufferMat[i + AnimPoseOffsetInUBuffer] = component.mSkeletalMeshInstance->mCurrentPose[i] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton.mBones[i].bindPoseInv;

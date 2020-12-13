@@ -191,7 +191,7 @@ namespace inceptionengine
 		return renderObjectID;
 	}
 
-	
+
 
 	void Renderer::CreateTexture(Texture& texture, std::string filePath)
 	{
@@ -257,7 +257,7 @@ namespace inceptionengine
 		texture.sampler = CreateTextureSampler();
 	}
 
-	
+
 
 	void Renderer::CreateInstance()
 	{
@@ -447,8 +447,8 @@ namespace inceptionengine
 		createInfo.imageFormat = m_imageFormat; //SHORTCUT!!
 		createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 		mSwapchainExtent = { m_windowWidth, m_windowHeight };
-		m_mvp.view = LookAt(Vec3f(-280.0f, 80.0f, 0.0f), Vec3f(0.0f, 80.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f));
-		m_mvp.proj = Perspective(45.0f, static_cast<float>(mSwapchainExtent.width) / static_cast<float>(mSwapchainExtent.height), 
+		m_mvp.view = LookAt(Vec3f(0.0f, 80.0f, 80.0f), Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 1.0f, 0.0f));
+		m_mvp.proj = Perspective(45.0f, static_cast<float>(mSwapchainExtent.width) / static_cast<float>(mSwapchainExtent.height),
 								 0.1f, 1000000.0f);
 		createInfo.imageExtent = mSwapchainExtent;
 		createInfo.imageArrayLayers = 1;
@@ -515,18 +515,18 @@ namespace inceptionengine
 	{
 		VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
 
-		CreateImage(mDepthImage, 
-					mDepthImageMem, 
-					m_windowWidth, 
-					m_windowHeight, 
+		CreateImage(mDepthImage,
+					mDepthImageMem,
+					m_windowWidth,
+					m_windowHeight,
 					1,
 					1,
 					1,
 					0,
 					VK_IMAGE_TYPE_2D,
-					depthFormat, 
-					VK_IMAGE_TILING_OPTIMAL, 
-					VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+					depthFormat,
+					VK_IMAGE_TILING_OPTIMAL,
+					VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		mDepthImageView = CreateImageView(mDepthImage, 1, VK_IMAGE_ASPECT_DEPTH_BIT, depthFormat, VK_IMAGE_VIEW_TYPE_2D);
@@ -624,7 +624,7 @@ namespace inceptionengine
 
 				vkCmdDrawIndexed(m_commandBuffers[i], renderUnit.numOfIndices, 1, 0, 0, 0);
 			}
-			
+
 		}
 
 
@@ -665,7 +665,7 @@ namespace inceptionengine
 
 	}
 
-	
+
 
 	void Renderer::CreatePipeline(Pipeline& pipeline, ShaderPath const& shaderpath, UniformBufferDescription& dataDesc, bool useDepthTest, VkPrimitiveTopology topology)
 	{
@@ -786,7 +786,7 @@ namespace inceptionengine
 		graphicsPipelineCreateInfo.layout = pipeline.pipelineLayout;
 		graphicsPipelineCreateInfo.renderPass = m_renderPass;
 		graphicsPipelineCreateInfo.subpass = 0; //index of the subpass that this graphics pipeline will use
-		if(useDepthTest) graphicsPipelineCreateInfo.pDepthStencilState = &depthStencil;
+		if (useDepthTest) graphicsPipelineCreateInfo.pDepthStencilState = &depthStencil;
 
 		if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &(pipeline.pipeline)) != VK_SUCCESS)
 		{
@@ -899,7 +899,7 @@ namespace inceptionengine
 
 	}
 
-	
+
 
 	void Renderer::CreateVertexBuffer(VertexBuffer& vertexBuffer, std::vector<Vertex> const& vertices)
 	{
@@ -926,11 +926,11 @@ namespace inceptionengine
 
 	}
 
-	
+
 
 	void Renderer::CreateIndexBuffer(IndexBuffer& indexBuffer, std::vector<uint32_t> const& indices)
 	{
-	
+
 		VkDeviceSize size = indices.size() * sizeof(uint32_t);
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMem;
@@ -1320,15 +1320,15 @@ namespace inceptionengine
 				data = nullptr;
 
 				Light light;
-				
+
 				light.m_locationAndIntensity = { 100.0f, 80.0f, 500.0f, 1.4f };
-				
+
 				vkMapMemory(m_device, uBuffer.lightMemory[i], 0, sizeof(Light), 0, &data);
 
 				memcpy(data, &light, sizeof(Light));
 
 				vkUnmapMemory(m_device, uBuffer.lightMemory[i]);
-			
+
 			}
 		}
 	}
@@ -1651,7 +1651,7 @@ namespace inceptionengine
 		m_terrain = terrain;
 	}
 
-	void Renderer::SetCameraMatirx(Matrix4x4f const& cameraMatrix)
+	void Renderer::SetCameraMatrix(Matrix4x4f const& cameraMatrix)
 	{
 		m_mvp.view = cameraMatrix;
 	}
