@@ -3,6 +3,7 @@
 #include "AnimInstance.h"
 #include "Animation.h"
 #include "RunTime/Resource/ResourceManager.h"
+#include "ECS/Components/AnimationComponent/EventAnimPlaySetting.h"
 
 namespace inceptionengine
 {
@@ -10,13 +11,62 @@ namespace inceptionengine
 	{
 		std::shared_ptr<Animation> pAnimation = gResourceMgr.GetResource<Animation>(animFilePath);
 		assert(pAnimation != nullptr);
-		animationResource = pAnimation;
-		animationFilePath = animFilePath;
+		mAnimationResource = pAnimation;
+		mAnimationFilePath = animFilePath;
+	}
+
+	AnimInstance::AnimInstance(EventAnimPlaySetting const& setting)
+	{
+		std::shared_ptr<Animation> pAnimation = gResourceMgr.GetResource<Animation>(setting.animFilePath);
+		assert(pAnimation != nullptr);
+		mAnimationResource = pAnimation;
+		mAnimationFilePath = setting.animFilePath;
+
+		mRootMotion = setting.rootMotion;
+		mAnimSpeedBar.AddAnimSpeedRanges(setting.animSpeedRanges);
+
+		mAnimStartCallback = setting.animStartCallback;
+		mAnimInterruptCallback = setting.animInterruptCallback;
+		mAnimEndCallback = setting.animEndCallback;
+
+		mAnimNotifies = setting.animNotifies;
+		mAnimNotifyStates = setting.animNotifyStates;
+
+
 	}
 
 	std::vector<Matrix4x4f> AnimInstance::Sample(float time, AnimInterpType interpType)
 	{
-		return animationResource->Interpolate(time);
+		return mAnimationResource->Interpolate(time);
+	}
+
+	float AnimInstance::GetDuration() const
+	{
+		return mAnimationResource->GetDuration();
+	}
+
+	void AnimInstance::Start()
+	{
+		mAnimStartCallback();
+	}
+
+	void AnimInstance::End()
+	{
+		mAnimEndCallback();
+	}
+
+	void AnimInstance::Interrupt()
+	{
+		mAnimInterruptCallback();
+	}
+
+	void AnimInstance::Notify(float time)
+	{
+	}
+
+	float AnimInstance::QueryAnimSpeed(float ratio) const
+	{
+		return mAnimSpeedBar.QueryAnimSpeed(ratio);
 	}
 
 	AnimInstance::~AnimInstance() = default;

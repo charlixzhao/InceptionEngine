@@ -5,6 +5,7 @@
 
 #include "ECS/World.h"
 #include "RunTime/KeyInputCallbackRegistry.h"
+#include "RunTime/RHI/WindowHandler/WindowHandler.h"
 
 namespace inceptionengine
 {
@@ -88,6 +89,7 @@ namespace inceptionengine
 	{
 		return mWorld.get().GetEntity(mEntityID);
 	}
+
 
 
 

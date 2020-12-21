@@ -75,6 +75,11 @@ namespace inceptionengine
 		
 	}
 
+	void InceptionEngine::SetMouseVisibility(bool visibility)
+	{
+		mWindowHandler->SetMouseVisibility(visibility);
+	}
+
 	void InceptionEngine::GameStart()
 	{
 		mWorld->WorldStart();

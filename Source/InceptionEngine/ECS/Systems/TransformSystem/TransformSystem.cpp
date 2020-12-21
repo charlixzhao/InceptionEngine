@@ -12,5 +12,16 @@ namespace inceptionengine
 	{
 		return mComponentsPool.get().GetComponent<TransformComponent>(id).GetWorldTransform();
 	}
+
+	void TransformSystem::Update(float dt)
+	{
+		auto& view = mComponentsPool.get().GetComponentPool<TransformComponent>()->GetComponentView();
+		for (auto& component : view)
+		{
+			component.Update(dt);
+		}
+	}
+
+
 }
 

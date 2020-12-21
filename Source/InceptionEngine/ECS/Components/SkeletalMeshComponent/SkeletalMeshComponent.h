@@ -37,7 +37,7 @@ namespace inceptionengine
 
 		void SetMeshPose(AnimPose const& pose);
 
-		void SetPlane();
+		void SetPlane(float scale);
 
 		void SetTriangle();
 

@@ -12,6 +12,8 @@ namespace inceptionengine
 		explicit TransformSystem(ComponentsPool& componentsPool);
 
 		Matrix4x4f GetEntityWorldTransform(EntityID id) const;
+
+		void Update(float dt);
 	
 	private:
 

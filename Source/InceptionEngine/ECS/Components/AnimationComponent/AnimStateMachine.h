@@ -18,7 +18,7 @@ namespace inceptionengine
 
 		AnimStateMachine& operator=(AnimStateMachine&&) noexcept;
 
-		
+
 
 	protected:
 		struct State;
@@ -61,6 +61,7 @@ namespace inceptionengine
 	private:
 		friend class AnimationController;
 		void Update(float dt);
+		void Restart();
 
 		std::reference_wrapper<World> mWorld;
 		EntityID mEntityID = InvalidEntityID;

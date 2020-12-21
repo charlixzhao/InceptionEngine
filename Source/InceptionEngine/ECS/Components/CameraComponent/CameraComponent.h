@@ -2,17 +2,17 @@
 #pragma once
 
 #include "EngineGlobals/EngineApiPrefix.h"
+#include "ECS/Entity/EntityID.h"
 
 namespace inceptionengine
 {
 	class CameraSystem;
+	class World;
 
 	class IE_API CameraComponent
 	{
 	public:
-		CameraComponent();
-
-		CameraComponent(Vec4f position, Vec4f forward);
+		CameraComponent(EntityID entityID, std::reference_wrapper<World> world);
 		
 		void SetPosAndForward(Vec3f position, Vec3f forward);
 
@@ -28,10 +28,20 @@ namespace inceptionengine
 
 		Vec3f GetForwardVec() const;
 
+		void SetCameraControlYaw(bool enable);
+
+		bool GetCameraControlYaw() const;
+
 	private:
 
 		Vec4f mPosition = { 0.0f,0.0f,1.0f,1.0f };
 		
 		Vec4f mForwardPoint = { 0.0f,0.0f,0.0f,1.0f };
+
+		EntityID mEntityID;
+
+		std::reference_wrapper<World> mWorld;
+
+		bool mCameraControlYaw = false;
 	};
 }

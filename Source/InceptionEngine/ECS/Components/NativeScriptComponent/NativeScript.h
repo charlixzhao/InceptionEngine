@@ -12,16 +12,19 @@ so this class will be exposed to the dll
 
 #include "KeyInputTypes.h"
 
+
+
 namespace inceptionengine
 {
 	struct KeyInputCallbackRegistry;
 	class Entity;
 	class World;
+	class WindowHandler;
 
 	class IE_API NativeScript
 	{
 	public:
-		NativeScript(EntityID entityID, std::reference_wrapper<World> world);
+		NativeScript(EntityID entityID, std::reference_wrapper<World> world );
 
 		virtual ~NativeScript();
 
@@ -47,11 +50,14 @@ namespace inceptionengine
 
 		virtual void OnDestroy() { ; }
 
+		virtual void OnMouseDeltaPos(MouseDeltaPos mouseDeltaPos) { ; }
+
 		std::unique_ptr<KeyInputCallbackRegistry> mKeyInputCallbackRegistry;
 
 		EntityID mEntityID;
 
 		std::reference_wrapper<World> mWorld;
+
 
 	};
 

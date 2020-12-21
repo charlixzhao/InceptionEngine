@@ -2,6 +2,15 @@
 
 namespace inceptionengine
 {
+	struct MouseDeltaPos
+	{
+		MouseDeltaPos() = default;
+		MouseDeltaPos(double dx, double dy) : deltaXPos(static_cast<float>(dx)), deltaYPos(static_cast<float>(dy)) { ; }
+
+		float deltaXPos = 0.0f;
+		float deltaYPos = 0.0f;
+	};
+
 	enum class KeyInputTypes
 	{
 		None,

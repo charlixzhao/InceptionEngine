@@ -1,9 +1,13 @@
 
 #pragma once
 #include "AnimSpeedBar.h"
+#include "ECS/Components/AnimationComponent/AnimNotify.h"
+#include "ECS/Components/AnimationComponent/AnimNotifyState.h"
+
 namespace inceptionengine
 {
 	struct Animation;
+	struct EventAnimPlaySetting;
 
 	enum class AnimInterpType
 	{
@@ -16,17 +20,40 @@ namespace inceptionengine
 	public:
 		AnimInstance(std::string const& animFilePath);
 
+		AnimInstance(EventAnimPlaySetting const& setting);
+
 		std::vector<Matrix4x4f> Sample(float time, AnimInterpType interpType = AnimInterpType::Linear);
+
+		float GetDuration() const;
+
+		void Start();
+
+		void End();
+
+		void Interrupt();
+
+		void Notify(float time);
+
+		float QueryAnimSpeed(float ratio) const;
 
 		~AnimInstance();
 
 		
 	private:
-		std::shared_ptr<Animation const> animationResource;
-		std::string animationFilePath;
-		bool rootMotion = false;
-		AnimSpeedBar animSpeedBar;
-		Matrix4x4f rootTransform = {};
-		AnimInterpType interpType = AnimInterpType::Linear;
+		AnimInterpType mInterpType = AnimInterpType::Linear;
+
+		std::shared_ptr<Animation const> mAnimationResource;
+
+		std::string mAnimationFilePath;
+
+		bool mRootMotion = false;
+		AnimSpeedBar mAnimSpeedBar;
+		std::function<void()> mAnimStartCallback;
+		std::function<void()> mAnimInterruptCallback;
+		std::function<void()> mAnimEndCallback;
+		std::vector<AnimNotify> mAnimNotifies;
+		std::vector<AnimNotifyState> mAnimNotifyStates;
+
+
 	};
 }

@@ -1,17 +1,21 @@
 
+#include "IE_PCH.h"
 #include "CameraComponent.h"
+#include "ECS/Entity/Entity.h"
+#include "ECS/World.h"
+#include "ECS/Components/TransformComponent/TransformComponent.h"
 
 
 namespace inceptionengine
 {
-	CameraComponent::CameraComponent() = default;
-
-
-	CameraComponent::CameraComponent(Vec4f position, Vec4f forward)
-		:mPosition(position), mForwardPoint(forward)
+	CameraComponent::CameraComponent(EntityID entityID, std::reference_wrapper<World> world)
+		:mEntityID(entityID), mWorld(world)
 	{
-		;
+
 	}
+
+
+
 
 	void CameraComponent::SetPosAndForward(Vec3f position, Vec3f forward)
 	{
@@ -24,8 +28,11 @@ namespace inceptionengine
 	*/
 	Matrix4x4f CameraComponent::CameraMatrix() const
 	{
-		auto worldPosition = mPosition;
-		auto worldForward = mForwardPoint;
+		Matrix4x4f globalPosition = mWorld.get().GetEntity(mEntityID).GetComponent<TransformComponent>().GetWorldTransform();
+		globalPosition = Translate(globalPosition[3]);
+
+		Vec4f worldPosition = globalPosition * mPosition;
+		Vec4f worldForward = globalPosition * mForwardPoint;
 
 		return LookAt(Vec3f(worldPosition.x, worldPosition.y, worldPosition.z), Vec3f(worldForward.x, worldForward.y, worldForward.z), Vec3f(0.0f, 1.0f, 0.0f));
 	}
@@ -45,6 +52,11 @@ namespace inceptionengine
 	{
 		mPosition = Rotate(mPosition, degree, Vec3f(0.0f, 1.0f, 0.0f));
 		mForwardPoint = Rotate(mForwardPoint, degree, Vec3f(0.0f, 1.0f, 0.0f));
+		if (mCameraControlYaw)
+		{
+			TransformComponent& transformComponent = mWorld.get().GetEntity(mEntityID).GetComponent<TransformComponent>();
+			transformComponent.Rotate(Vec3f(0.0f, 1.0f, 0.0f), degree);
+		}
 	}
 
 	void CameraComponent::PrintCameraPramameter()
@@ -64,5 +76,13 @@ namespace inceptionengine
 		auto temp = Vec3f(mForwardPoint - mPosition);
 		temp.y = 0;
 		return NormalizeVec(temp);
+	}
+	void CameraComponent::SetCameraControlYaw(bool enable)
+	{
+		mCameraControlYaw = enable;
+	}
+	bool CameraComponent::GetCameraControlYaw() const
+	{
+		return mCameraControlYaw;
 	}
 }

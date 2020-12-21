@@ -104,22 +104,22 @@ mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBo
 	}
 
 
-	void SkeletalMeshComponent::SetPlane()
+	void SkeletalMeshComponent::SetPlane(float scale)
 	{
 		Vertex v1 = {};
-		v1.position = Vec4f(100.0f, 0.0f, 100.0f, 1.0f);
+		v1.position = Vec4f(scale, 0.0f, scale, 1.0f);
 		v1.texCoord =Vec3f(0.0f, 0.0f, 0.0f);
 		v1.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v1.position[0], v1.position[1], v1.position[2]);
 		Vertex v2 = {};
-		v2.position = Vec4f(-100.0f, 0.0f, 100.0f, 1.0f);
+		v2.position = Vec4f(-scale, 0.0f, scale, 1.0f);
 		v2.texCoord = Vec3f(0.0f, 1.0f, 0.0f);
 		v2.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v2.position[0], v2.position[1], v2.position[2]);
 		Vertex v3 = {};
-		v3.position = Vec4f(-100.0f, 0.0f, -100.0f, 1.0f);
+		v3.position = Vec4f(-scale, 0.0f, -scale, 1.0f);
 		v3.texCoord = Vec3f(1.0f, 1.0f, 0.0f);
 		v3.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v3.position[0], v3.position[1], v3.position[2]);
 		Vertex v4 = {};
-		v4.position = Vec4f(100.0f, 0.0f, -100.0f, 1.0f);
+		v4.position = Vec4f(scale, 0.0f, -scale, 1.0f);
 		v4.texCoord = Vec3f(1.0f, 0.0f, 0.0f);
 		v4.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v4.position[0], v4.position[1], v4.position[2]);
 

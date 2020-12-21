@@ -61,17 +61,8 @@ namespace inceptionengine
 				//set model transform
 				uBufferMat[1] = mTransformSystem.get().GetEntityWorldTransform(pair.first);
 
-				//set bone transform
-				/*
-				if (component.IsPlayingAnimation())
-				{
-					std::vector<Matrix4x4f> const& finalPose = component.mAnimationController->GetFinalPose();
-					for (int bone = 0; bone < finalPose.size(); bone++)
-					{
-						uBufferMat[bone + 2] = finalPose[bone] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
-					}
-				}*/
 
+				//set bones
 				if (mComponentsPool.get().EntityHasComponent<AnimationComponent>(component.mEntityID))
 				{
 					std::vector<Matrix4x4f> const& localFinalPose = mComponentsPool.get().GetComponent<AnimationComponent>(component.mEntityID).mAnimationController->GetFinalPose();

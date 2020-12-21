@@ -1,5 +1,6 @@
 
 #pragma once
+#include "ECS/Components/AnimationComponent/AnimSpeedRange.h"
 
 namespace inceptionengine
 {
@@ -7,28 +8,20 @@ namespace inceptionengine
 	{
 	public:
 		//return the index of the newly created speed range
-		int CreateAnimSpeedRange(float startRatio, float endRatio, float playSpeed = 1.0f);
-		
+		void AddAnimSpeedRanges(std::vector<AnimSpeedRange> const& ranges);
 
-	private:
-		//internal data representation
-		struct AnimSpeedRange
-		{
-			float startRatio = 0.0f;
-			float endRatio = 1.0f;
-			float playSpeed = 1.0f;
-			int index = -1;
-		};
+		float QueryAnimSpeed(float ratio) const;
 
 	private:
 		//private methods
 		void SortSpeedRanges();
+		bool InRange(AnimSpeedRange const& range, float ratio) const;
+		bool CheckOverlap(AnimSpeedRange const& range) const;
+		static bool CompareRange(AnimSpeedRange const& lhs, AnimSpeedRange const& rhs);
 
 	private:
 		//private data member
 
 		std::vector<AnimSpeedRange> mAnimSpeedRanges;
-
-		
 	};
 }

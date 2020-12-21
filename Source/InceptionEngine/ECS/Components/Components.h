@@ -8,3 +8,4 @@
 #include "TransformComponent/TransformComponent.h"
 #include "CameraComponent/CameraComponent.h"
 #include "AnimationComponent/AnimationComponent.h"
+#include "RigidbodyComponent/RigidbodyComponent.h"

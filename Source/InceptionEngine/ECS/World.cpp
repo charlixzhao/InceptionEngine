@@ -35,11 +35,11 @@ namespace inceptionengine
 
         void DeleteEntity(EntityID entityID);
 
-        bool CheckValidEntityID(EntityID entityID);
+        bool CheckValidEntityID(EntityID entityID); 
 
         void WorldStart();
 
-        void Simulate(float deltaTime, PeripheralInput&& keyInputs);
+        void Simulate(float deltaTime, PeripheralInput keyInputs);
 
         void WorldEnd();
 
@@ -91,6 +91,7 @@ namespace inceptionengine
         SkeletalMeshRenderSystem mSkeletalMeshRenderSystem;
         AnimationSystem mAnimationSystem;
         NativeScriptSystem mNativeScriptSystem;
+        RigidbodySystem mRigidbodySystem;
 
 
     private:
@@ -112,7 +113,7 @@ namespace inceptionengine
         mSkeletalMeshRenderSystem(renderer, mEntityComponentPool, mTransformSystem),
         mAnimationSystem(mEntityComponentPool),
         mNativeScriptSystem(mEntityComponentPool),
-
+        mRigidbodySystem(mEntityComponentPool),
         /*
         Initialization of systems of world's component
         */
@@ -174,13 +175,19 @@ namespace inceptionengine
         SystemsStart();
     }
 
-    void World::WorldImpl::Simulate(float deltaTime, PeripheralInput&& keyInputs)
+    void World::WorldImpl::Simulate(float deltaTime, PeripheralInput keyInputs)
     {
-        mNativeScriptSystem.Update(std::move(keyInputs.keyInputs));
+        mNativeScriptSystem.Update(keyInputs.keyInputs, keyInputs.mouseDeltaPos);
 
         mCameraSystem.Update(deltaTime);
 
         mAnimationSystem.Update(deltaTime);
+
+        mRigidbodySystem.Update(deltaTime);
+
+        mTransformSystem.Update(deltaTime);
+
+
 
         mSkeletalMeshRenderSystem.Update(deltaTime);
     }
@@ -321,9 +328,10 @@ namespace inceptionengine
         return mWorldImpl->GetComponentsPool();
     }
 
-    void World::Simulate(float deltaTime, PeripheralInput&& keyInputs)
-    {       
-        mWorldImpl->Simulate(deltaTime, std::move(keyInputs));
+
+    void World::Simulate(float deltaTime, PeripheralInput keyInputs)
+    {
+        mWorldImpl->Simulate(deltaTime, keyInputs);
     }
 
 }

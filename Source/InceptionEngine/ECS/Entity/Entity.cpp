@@ -61,7 +61,8 @@ namespace inceptionengine
 	{
 		if constexpr (std::is_same_v<Component, NativeScriptComponent> || 
 					  std::is_same_v<Component, SkeletalMeshComponent> ||
-					  std::is_same_v<Component, AnimationComponent>)
+					  std::is_same_v<Component, AnimationComponent> ||
+					  std::is_same_v<Component, CameraComponent>)
 		{
 			return mWorld.get().GetComponentsPools().AddComponent<Component>(mID, mID, mWorld);
 		}
@@ -92,6 +93,7 @@ namespace inceptionengine
 	template IE_API NativeScriptComponent& Entity::AddComponent() const;
 	template IE_API CameraComponent& Entity::AddComponent() const;
 	template IE_API AnimationComponent& Entity::AddComponent() const;
+	template IE_API RigidbodyComponent& Entity::AddComponent() const;
 
 	/*
 	GetComponent instantiation
@@ -101,6 +103,8 @@ namespace inceptionengine
 	template IE_API NativeScriptComponent& Entity::GetComponent() const;
 	template IE_API CameraComponent& Entity::GetComponent() const;
 	template IE_API AnimationComponent& Entity::GetComponent() const;
+	template IE_API RigidbodyComponent& Entity::GetComponent() const;
+
 	/*
 	HasComponent instantiation
 	*/
@@ -109,6 +113,7 @@ namespace inceptionengine
 	template IE_API bool Entity::HasComponent<NativeScriptComponent>() const;
 	template IE_API bool Entity::HasComponent<CameraComponent>() const;
 	template IE_API bool Entity::HasComponent<AnimationComponent>() const;
+	template IE_API bool Entity::HasComponent<RigidbodyComponent>() const;
 
 	/*
 	DeleteComponent instantiation
@@ -118,5 +123,6 @@ namespace inceptionengine
 	template IE_API void Entity::DeleteComponent<NativeScriptComponent>() const;
 	template IE_API void Entity::DeleteComponent<CameraComponent>() const;
 	template IE_API void Entity::DeleteComponent<AnimationComponent>() const;
+	template IE_API void Entity::DeleteComponent<RigidbodyComponent>() const;
 }
 

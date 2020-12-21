@@ -10,6 +10,8 @@ namespace inceptionengine
 	struct IkChain;
 	class World;
 	class AnimStateMachine;
+	struct EventAnimPlaySetting;
+	class EventAnimController;
 
 	class AnimationController
 	{
@@ -24,7 +26,7 @@ namespace inceptionengine
 
 		std::vector<Matrix4x4f> const& GetFinalPose() const { return mFinalPose; }
 
-		void PlayAnimation(std::shared_ptr<Animation const> pAnimation);
+		void PlayEventAnimation(EventAnimPlaySetting const& setting);
 
 		void StopAnimation();
 
@@ -43,6 +45,8 @@ namespace inceptionengine
 
 		void StartAnimStateMachine();
 
+		void EventAnimFinish();
+
 	private:
 		Matrix4x4f GetBoneGlobalTransform(int boneID);
 
@@ -55,6 +59,8 @@ namespace inceptionengine
 		std::vector<Matrix4x4f> mFinalPose;
 
 		std::unique_ptr<AnimStateMachine> mAnimStateMachine = nullptr;
+
+		std::unique_ptr<EventAnimController> mEventAnimController = nullptr;
 
 	};
 }

@@ -15,6 +15,7 @@ namespace inceptionengine
 	class ComponentsPool;
 	class PeripheralInput;
 	class CameraComponent;
+	class WindowHandler;
 
 	class IE_API World
 	{
@@ -63,7 +64,7 @@ namespace inceptionengine
 
 		void WorldStart();
 
-		void Simulate(float deltaTime, PeripheralInput&& keyInputs);
+		void Simulate(float deltaTime, PeripheralInput keyInputs);
 
 		void WorldEnd();
 

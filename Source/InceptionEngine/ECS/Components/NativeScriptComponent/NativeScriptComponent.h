@@ -9,6 +9,7 @@ namespace inceptionengine
 {
 	class Entity;
 	class World;
+	class windowHandler;
 
 	class IE_API NativeScriptComponent
 	{

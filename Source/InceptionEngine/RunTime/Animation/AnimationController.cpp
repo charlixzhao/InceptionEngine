@@ -8,12 +8,14 @@
 
 #include "RunTime/Resource/ResourceManager.h"
 #include "ECS/Components/AnimationComponent/AnimStateMachine.h"
+#include "EventAnimController.h"
 
 namespace inceptionengine
 {
 
 	AnimationController::AnimationController()
 	{
+		mEventAnimController = std::make_unique<EventAnimController>(*this);
 	}
 
 	AnimationController::~AnimationController()
@@ -29,6 +31,13 @@ namespace inceptionengine
 
 	bool AnimationController::Update(float deltaTime)
 	{
+		if (mEventAnimController->IsPlayingAnimation())
+		{
+			mEventAnimController->Update(deltaTime);
+			mFinalPose = mEventAnimController->GetCurrentPose();
+			return true;
+		}
+
 		if (mAnimStateMachine != nullptr)
 		{
 			mAnimStateMachine->Update(deltaTime);
@@ -36,26 +45,16 @@ namespace inceptionengine
 			return true;
 		}
 
-		/*
-		if (mCurrentAnimation != nullptr)
-		{
-			mCurrentTime += deltaTime;
-			mCurrentTime = fmod(mCurrentTime, mCurrentAnimation->GetDuration());
-			mFinalPose = mCurrentAnimation->Interpolate(mCurrentTime);
-			return true;
-		}*/
 
 		return false;
 
 	}
 
-	void AnimationController::PlayAnimation(std::shared_ptr<Animation const> pAnimation)
+	void AnimationController::PlayEventAnimation(EventAnimPlaySetting const& setting)
 	{
-		std::cout << "animation start!\n";
-		mCurrentAnimation = pAnimation;
-		mCurrentTime = 0.0f;
-
+		mEventAnimController->PlayEventAnimation(setting);
 	}
+
 	void AnimationController::StopAnimation()
 	{
 		mFinalPose = mCurrentAnimation->mSkeleton->GetLocalRefPose();
@@ -74,6 +73,11 @@ namespace inceptionengine
 		{
 			mAnimStateMachine->mCurrentState = mAnimStateMachine->mEntryState;
 		}
+	}
+
+	void AnimationController::EventAnimFinish()
+	{
+		mAnimStateMachine->Restart();
 	}
 
 	Matrix4x4f AnimationController::GetBoneGlobalTransform(int boneID)

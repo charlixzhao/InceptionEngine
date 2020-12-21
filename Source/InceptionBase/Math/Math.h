@@ -84,6 +84,18 @@ namespace inceptionengine
 		return glm::rotate(point, glm::radians(degree), axis);
 	}
 
+	inline Vec4f RotateVec(Vec3f const& vec, float degree, Vec3f const& axis)
+	{
+		Vec4f vector = Vec4f(vec[0], vec[1], vec[2], 0.0f);
+		return glm::rotate(vector, glm::radians(degree), axis);
+	}
+
+	inline Vec4f RotatePoint(Vec3f const& vec, float degree, Vec3f const& axis)
+	{
+		Vec4f point = Vec4f(vec[0], vec[1], vec[2], 1.0f);
+		return glm::rotate(point, glm::radians(degree), axis);
+	}
+
 	inline Matrix4x4f Rotate(float angleInRad, Vec3f const& axis)
 	{
 		return glm::rotate(angleInRad, axis);
@@ -143,8 +155,59 @@ namespace inceptionengine
 		auto axis = CrossProduct(x, y);
 		float cosAngle = DotProduct(x, y);
 		float angle = glm::acos(cosAngle);
-		if (std::isnan(angle)) return Matrix4x4f(1.0f);
+		if (std::isnan(angle))
+		{
+			if (cosAngle > 0)
+				return Matrix4x4f(1.0f);
+			else
+				return -Matrix4x4f(1.0f);
+		}
 		else return glm::rotate(angle, axis);		
+	}
+
+
+	inline Matrix4x4f FromToRotation(Vec3f x, Vec3f y, Vec3f upward)
+	{
+		x = NormalizeVec(x);
+		y = NormalizeVec(y);
+		if (VecLength(x - y) < 0.001f)
+		{
+			return Matrix4x4f(1.0f);
+		}
+		else if (VecLength(x + y) < 0.001f)
+		{
+			return Rotate(PI, upward);
+		}
+		else
+		{
+			auto axis = CrossProduct(x, y);
+			float cosAngle = DotProduct(x, y);
+			float angle = glm::acos(cosAngle);
+			return glm::rotate(angle, axis);
+		}
+
+
+	}
+
+	inline float RadsBetween(Vec3f x, Vec3f y)
+	{
+		x = NormalizeVec(x);
+		y = NormalizeVec(y);
+		if (VecLength(x - y) < 0.001f)
+		{
+			return 0.0f;
+		}
+		else if (VecLength(x + y) < 0.001f)
+		{
+			return PI;
+		}
+		else
+		{
+			float cosAngle = DotProduct(x, y);
+			float angle = glm::acos(cosAngle);
+			assert(!std::isnan(angle));
+			return angle;
+		}
 	}
 	
 	inline Matrix4x4f Translate(Vec4f const& vec)

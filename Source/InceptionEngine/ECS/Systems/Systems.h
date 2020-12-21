@@ -13,5 +13,7 @@
 
 #include "SkyboxSystem/SkyboxSystem.h"
 
+#include "RigidbodySystem/RigidbodySystem.h"
+
 
 

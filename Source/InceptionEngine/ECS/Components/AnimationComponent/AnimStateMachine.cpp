@@ -68,6 +68,14 @@ namespace inceptionengine
         mFinalPose = currentState.animInstance->Sample(currentState.runningTime);
     }
 
+    void AnimStateMachine::Restart()
+    {
+        mCurrentState = mEntryState;
+        mStates[mCurrentState].runningTime = 0.0f;
+        mCurrentBlendingTime = mBlendingDuration = -1.0f;
+        mActiveLink = nullptr;
+    }
+
 
     Entity const& AnimStateMachine::GetEntity()
     {

@@ -30,11 +30,9 @@ public:
 		BindKeyInputCallback(KeyInputTypes::Keyboard_4, std::bind(&HornetScript::OnKey_4, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_5, std::bind(&HornetScript::OnKey_5, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_6, std::bind(&HornetScript::OnKey_6, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&HornetScript::OnMouse_Left, this, std::placeholders::_1));
 	}
 
-public:
-	int mAttackState = 1;
-	float mSpeed = 0.0f;
 
 private:
 	virtual void OnBegin() override
@@ -42,15 +40,28 @@ private:
 		std::cout << "Hello Script!\n";
 	}
 
-	void OnKey_D(bool press)
+	virtual void OnMouseDeltaPos(MouseDeltaPos mouseDeltaPos) override
 	{
-		if(press) GetEntity().GetComponent<CameraComponent>().RotateVertical(10.0f);
+		if (mUseMouseToControlCamera)
+		{
+			GetEntity().GetComponent<CameraComponent>().RotateVertical(-mouseDeltaPos.deltaXPos * mCameraRotateVerticalSpeed);
+			GetEntity().GetComponent<CameraComponent>().RotateHorizontal(-mouseDeltaPos.deltaYPos * mCameraRotateHoritonzallSpeed);
+		}
+
 	}
+
+
 
 	void OnKey_1(bool press)
 	{
-		if(press)
-			mAttackState += 1;
+		if (press)
+		{
+			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, -200.0f });
+		}
+		else
+		{
+			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
+		}
 		/*
 		if (press)
 		{
@@ -59,13 +70,14 @@ private:
 			GetEntity().GetWorld().GetEntity(1).GetComponent<TransformComponent>().SetWorldTransform(TestTarget * Scale(0.1f, 0.1f, 0.1f));
 		}*/
 	}
+
+	
 	void OnKey_2(bool press)
 	{
 		if (press)
 		{
-			TestX += -5;
-			TestTarget = Translate(TestX, TestY, TestZ);
-			GetEntity().GetWorld().GetEntity(1).GetComponent<TransformComponent>().SetWorldTransform(TestTarget * Scale(0.1f, 0.1f, 0.1f));
+			mUseMouseToControlCamera = ! mUseMouseToControlCamera;
+			InceptionEngine::GetInstance().SetMouseVisibility(!mUseMouseToControlCamera);
 		}
 	}
 	void OnKey_3(bool press)
@@ -105,20 +117,50 @@ private:
 		}
 	}
 
+	void OnKey_W(bool press)
+	{
+		mPressedW = press;
+		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
+		ControlMovement(press, cameraForward);
+	}
 
 	void OnKey_A(bool press)
 	{
-		if (press) GetEntity().GetComponent<CameraComponent>().RotateVertical(-10.0f);
-	}
-
-	void OnKey_W(bool press)
-	{
-		if (press) GetEntity().GetComponent<CameraComponent>().RotateHorizontal(-10.0f);
+		mPressedA = press;
+		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
+		Vec3f rotateToVec = RotateVec(cameraForward, 90.0f, Vec3f(0.0f, 1.0f, 0.0f));
+		ControlMovement(press, rotateToVec);
 	}
 
 	void OnKey_S(bool press)
 	{
-		if (press) GetEntity().GetComponent<CameraComponent>().RotateHorizontal(10.0f);
+		mPressedS = press;
+		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
+		Vec3f rotateToVec = RotateVec(cameraForward, 180.0f, Vec3f(0.0f, 1.0f, 0.0f));
+		ControlMovement(press, rotateToVec);
+	}
+
+	void OnKey_D(bool press)
+	{
+		mPressedD = press;
+		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
+		Vec3f rotateToVec = RotateVec(cameraForward, -90.0f, Vec3f(0.0f, 1.0f, 0.0f));
+		ControlMovement(press, rotateToVec);
+	}
+
+	void ControlMovement(bool start, Vec3f const& rotateToVec)
+	{
+		if (start)
+		{
+			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed });
+			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
+			GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(rotateToVec, 0.5f);
+		}
+		else if(!mPressedA && !mPressedD && !mPressedS && !mPressedW)
+		{
+			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
+			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
+		}
 	}
 
 	void OnKey_Space(bool press)
@@ -138,17 +180,6 @@ private:
 			
 		}*/
 
-		if (press)
-		{
-			mSpeed = 1.0f;
-		}
-		else
-		{
-			mSpeed = 0.0f;
-		}
-
-		
-		
 		/*
 		if (press)
 		{
@@ -156,6 +187,52 @@ private:
 			//GetEntity().GetComponent<SkeletalMeshComponent>().TestAxis();
 		}*/
 	}
+
+	void OnMouse_Left(bool press)
+	{
+		if (press)
+		{
+			EventAnimPlaySetting setting;
+			setting.animFilePath = attcks[mAttackState];
+			AnimSpeedRange range1;
+			range1.startRatio = 0.0f;
+			range1.endRatio = 0.3f;
+			range1.playSpeed = 0.8f;
+			AnimSpeedRange range2;
+			range2.startRatio = 0.5f;
+			range2.endRatio = 0.8f;
+			range2.playSpeed = 0.1f;
+			setting.animSpeedRanges = { range1, range2 };
+
+			mAttackState += 1;
+			if (mAttackState >= attcks.size()) mAttackState = 0;
+			setting.animEndCallback = [&]() {mAttackState = 0; };
+			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
+		}
+	}
+
+	private:
+		std::array<std::string, 5> attcks =
+		{
+			"StandAloneResource\\milia\\milia_combo_a1.ie_anim",
+			"StandAloneResource\\milia\\milia_combo_a2.ie_anim",
+			"StandAloneResource\\milia\\milia_combo_a3.ie_anim",
+			"StandAloneResource\\milia\\milia_combo_a4.ie_anim",
+			"StandAloneResource\\milia\\milia_combo_a5.ie_anim"
+		};
+
+		int mAttackState = 0;
+
+		float const mMaxWalkSpeed = 150.0f;
+		bool mUseMouseToControlCamera = false;
+		float const mCameraRotateVerticalSpeed = 0.03f;
+		float const mCameraRotateHoritonzallSpeed = 0.03f;
+
+		
+		bool mPressedW = false;
+		bool mPressedA = false;
+		bool mPressedS = false;
+		bool mPressedD = false;
 };
 
 class MiliaASM : public AnimStateMachine
@@ -168,14 +245,14 @@ public:
 		CreateState("StandAloneResource\\milia\\milia_walk.ie_anim");
 		CreateLink(0, 1, [&]() -> bool
 				   {
-					   HornetScript* script = reinterpret_cast<HornetScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
-					   return script->mSpeed > 0.0f;
+					   float speed = (GetEntity().GetComponent<RigidbodyComponent>().GetSpeed());
+					   return speed > 0.0f;
 				   }, 0.15f);
 
 		CreateLink(1, 0, [&]() -> bool
 				   {
-					   HornetScript* script = reinterpret_cast<HornetScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
-					   return script->mSpeed == 0.0f;
+					   float speed = (GetEntity().GetComponent<RigidbodyComponent>().GetSpeed());
+					   return speed == 0.0f;
 				   }, 0.15f);
 
 		SetEntryState(0);
@@ -212,14 +289,16 @@ int main()
 	entityOne.AddComponent<AnimationComponent>().SetAnimStateMachine<MiliaASM>();
 
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
+	entityOne.AddComponent<RigidbodyComponent>();
 
-	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 80.0f, 280.0f), Vec3f(0.0f, 80.0f, 0.0f));
+	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 160.0f, -300.0f), Vec3f(0.0f, 100.0f, 0.0f));
+
 
 	world->SetGameCamera(entityOne.GetComponent<CameraComponent>());
 
 	Entity const& entityTwo = world->CreateEntity();
 
-	entityTwo.AddComponent<SkeletalMeshComponent>().SetPlane();
+	entityTwo.AddComponent<SkeletalMeshComponent>().SetPlane(1000.0f);
 
 
 	engine.PlayGame();

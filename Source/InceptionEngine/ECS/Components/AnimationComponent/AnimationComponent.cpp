@@ -41,13 +41,16 @@ namespace inceptionengine
 		mAnimationController = std::move(other.mAnimationController);
 	}*/
 
-	void AnimationComponent::PlayAnimation(std::string const& filePath)
+
+
+	void AnimationComponent::PlayEventAnimation(EventAnimPlaySetting const& setting)
 	{
-		auto pAnimation = gResourceMgr.GetResource<Animation>(filePath);
+		auto pAnimation = gResourceMgr.GetResource<Animation>(setting.animFilePath);
 		assert(pAnimation != nullptr);
 		SkeletalMeshInstance& skeletonMeshInstance = *mWorld.get().GetEntity(mEntityID).GetComponent<SkeletalMeshComponent>().mSkeletalMeshInstance;
 		assert(skeletonMeshInstance.mSkeletalMesh != nullptr && skeletonMeshInstance.mSkeletalMesh->mSkeleton == pAnimation->mSkeleton);
-		mAnimationController->PlayAnimation(pAnimation);
+
+		mAnimationController->PlayEventAnimation(setting);
 	}
 
 	void AnimationComponent::HandReachTarget(Matrix4x4f const& endEffector)

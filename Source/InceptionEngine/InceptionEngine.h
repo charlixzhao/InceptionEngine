@@ -45,6 +45,8 @@ namespace inceptionengine
 
 		void PlayGame();
 
+		void SetMouseVisibility(bool visibility);
+
 	private:
 		InceptionEngine();
 

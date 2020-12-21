@@ -6,14 +6,7 @@
 namespace inceptionengine
 {
 
-	struct MouseDeltaPos
-	{
-		MouseDeltaPos() = default;
-		MouseDeltaPos(double dx, double dy) : deltaXPos(dx), deltaYPos(dy) { ; }
 
-		float deltaXPos = 0.0f;
-		float deltaYPos = 0.0f;
-	};
 
 	struct KeyInput
 	{
@@ -34,7 +27,7 @@ namespace inceptionengine
 		{ 
 			std::queue<KeyInput> empty;
 			keyInputs.swap(empty);
-			mouseDeltaPos.deltaXPos = mouseDeltaPos.deltaYPos = 0.0; 
+			mouseDeltaPos.deltaXPos = mouseDeltaPos.deltaYPos = 0.0f; 
 		}
 	};
 
