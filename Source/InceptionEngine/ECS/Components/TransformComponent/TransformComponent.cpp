@@ -1,19 +1,39 @@
 
+#include "IE_PCH.h"
+
 #include "TransformComponent.h"
 
 #include "Serialization/Serializer.h"
+
+#include "ECS/World.h"
+
+#include "ECS/Entity/Entity.h"
+
+#include "ECS/Components/AnimationComponent/AnimationComponent.h"
 
 
 namespace inceptionengine
 {
 
-	TransformComponent::TransformComponent() = default;
+	TransformComponent::TransformComponent(EntityID entityID, std::reference_wrapper<World> world)
+		:mEntityID(entityID), mWorld(world)
+	{
+		;
+	}
 
 
 	Matrix4x4f TransformComponent::GetWorldTransform() const
 	{
+		Matrix4x4f parentGlobalTranform = Matrix4x4f(1.0f);
 		//need to mutiply parent transform
-		return Matrix4x4f(mLocalXAxis, mLocalYAxis, mLocalZAxis, mLocalPosition);
+		if (mAttachedToSocketEntityID != InvalidEntityID)
+		{
+			Entity const& attachedEntity = mWorld.get().GetEntity(mAttachedToSocketEntityID);
+			parentGlobalTranform = attachedEntity.GetComponent<TransformComponent>().GetWorldTransform() * attachedEntity.GetComponent<AnimationComponent>().GetSocketRefTransformation(mAttachedToSocketName);
+		}
+		
+		return parentGlobalTranform * Matrix4x4f(mLocalXAxis, mLocalYAxis, mLocalZAxis, mLocalPosition);
+
 	}
 
 	Matrix4x4f TransformComponent::GetLocalTransform() const
@@ -106,6 +126,18 @@ namespace inceptionengine
 			mRotationAxis = CrossProduct(NormalizeVec(Vec3f(mLocalZAxis)), NormalizeVec(direction));
 
 		}
+	}
+
+	void TransformComponent::AttachToSocket(EntityID attachedToEntityID, std::string const& socketName)
+	{
+		mAttachedToSocketEntityID = attachedToEntityID;
+		mAttachedToSocketName = socketName;
+	}
+
+	void TransformComponent::DetachFromSocket()
+	{
+		mAttachedToSocketEntityID = InvalidEntityID;
+		mAttachedToSocketName = "";
 	}
 
 }

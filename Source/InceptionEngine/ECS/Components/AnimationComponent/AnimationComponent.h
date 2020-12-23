@@ -33,6 +33,8 @@ namespace inceptionengine
 
 		bool IsPlayingAnimation();
 
+		Matrix4x4f GetSocketRefTransformation(std::string const& socketName);
+
 		template<typename T>
 		void SetAnimStateMachine()
 		{

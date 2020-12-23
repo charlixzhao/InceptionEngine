@@ -193,26 +193,22 @@ private:
 		if (press)
 		{
 			EventAnimPlaySetting setting;
-			setting.animFilePath = attcks[mAttackState];
+			setting.animFilePath = attacks[mAttackState];
 			AnimSpeedRange range1;
 			range1.startRatio = 0.0f;
-			range1.endRatio = 0.3f;
-			range1.playSpeed = 0.8f;
-			AnimSpeedRange range2;
-			range2.startRatio = 0.5f;
-			range2.endRatio = 0.8f;
-			range2.playSpeed = 0.1f;
-			setting.animSpeedRanges = { range1, range2 };
+			range1.endRatio = 1.0f;
+			range1.playSpeed = attackSpeed[mAttackState];
+			setting.animSpeedRanges = { range1 };
 
 			mAttackState += 1;
-			if (mAttackState >= attcks.size()) mAttackState = 0;
+			if (mAttackState >= attacks.size()) mAttackState = 0;
 			setting.animEndCallback = [&]() {mAttackState = 0; };
 			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
 		}
 	}
 
 	private:
-		std::array<std::string, 5> attcks =
+		std::array<std::string, 5> attacks =
 		{
 			"StandAloneResource\\milia\\milia_combo_a1.ie_anim",
 			"StandAloneResource\\milia\\milia_combo_a2.ie_anim",
@@ -220,6 +216,7 @@ private:
 			"StandAloneResource\\milia\\milia_combo_a4.ie_anim",
 			"StandAloneResource\\milia\\milia_combo_a5.ie_anim"
 		};
+		std::array<float, 5> attackSpeed = { 0.85, 0.85, 0.65, 0.7, 0.7 };
 
 		int mAttackState = 0;
 
@@ -283,7 +280,7 @@ int main()
 	
 
 	Entity const& entityOne = world->CreateEntity();
-	
+	EntityID entityOneID = entityOne.GetID();
 
 	entityOne.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
 	entityOne.AddComponent<AnimationComponent>().SetAnimStateMachine<MiliaASM>();
@@ -291,8 +288,14 @@ int main()
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
 	entityOne.AddComponent<RigidbodyComponent>();
 
-	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 160.0f, -300.0f), Vec3f(0.0f, 100.0f, 0.0f));
+	entityOne.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, -300.0f), Vec3f(0.0f, 125.0f, 0.0f));
+	Matrix4x4f fireswordSocket = Matrix4x4f(1.0f);
+	fireswordSocket[0] = (Vec4f(-0.95429f, -0.072989f, 0.289827f, 0.0f));
+	fireswordSocket[1] = (Vec4f(0.052727f, -0.995626f, -0.077125f, 0.0f));
+	fireswordSocket[2] = (Vec4f(0.294189f, -0.058318f, 0.953966f, 0.0f));
+	fireswordSocket[3] = Vec4f(2.31845f, 2.314819f, -16.453683f, 1.0f);
 
+	entityOne.GetComponent<SkeletalMeshComponent>().CreateSocket("FireSword", "Hand_R", fireswordSocket);
 
 	world->SetGameCamera(entityOne.GetComponent<CameraComponent>());
 
@@ -300,6 +303,11 @@ int main()
 
 	entityTwo.AddComponent<SkeletalMeshComponent>().SetPlane(1000.0f);
 
+	Entity const& entityThree = world->CreateEntity();
+	entityThree.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\firesword\\firesword_mesh.ie_skmesh");
+	entityThree.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource\\firesword\\handle.BMP",
+													 "StandAloneResource\\firesword\\fireblade.jpg" });
+	entityThree.GetComponent<TransformComponent>().AttachToSocket(entityOneID, "FireSword");
 
 	engine.PlayGame();
 

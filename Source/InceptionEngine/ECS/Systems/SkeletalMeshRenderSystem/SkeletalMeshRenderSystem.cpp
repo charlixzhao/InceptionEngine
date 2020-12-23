@@ -82,10 +82,21 @@ namespace inceptionengine
 
 					for (int bone = 0; bone < globalFinalPose.size(); bone++)
 					{
-						uBufferMat[bone + 2] = globalFinalPose[bone] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
+						uBufferMat[bone + AnimPoseOffsetInUBuffer] = globalFinalPose[bone] * component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
 					}
 				}
-
+				else
+				{
+					//no animation, use the lcl ref pose instead
+					Matrix4x4f bindposeInv;
+					Matrix4x4f lclRefPose;
+					for (int bone = 0; bone < component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones.size(); bone++)
+					{
+						bindposeInv = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].bindPoseInv;
+						lclRefPose = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[bone].lclRefPose;
+						//uBufferMat[bone + AnimPoseOffsetInUBuffer] = lclRefPose * bindposeInv;
+					}
+				}
 
 				mRenderer.get().UpdateUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer, uBufferMat, nullptr);
 			}

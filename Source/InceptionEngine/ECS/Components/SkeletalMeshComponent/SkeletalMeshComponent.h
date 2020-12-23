@@ -41,6 +41,13 @@ namespace inceptionengine
 
 		void SetTriangle();
 
+		void SetTexture(std::vector<std::string> const& textureFilePaths);
+
+		void CreateSocket(std::string const& socketName, std::string const& parentName, Matrix4x4f const& lclTransform);
+
+		int GetSocketParentID(std::string const& socketName);
+
+		Matrix4x4f GetSocketLclTransform(std::string const& socketName);
 
 	private:
 		friend class SkeletalMeshRenderSystem;

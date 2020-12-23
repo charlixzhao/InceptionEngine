@@ -47,6 +47,8 @@ namespace inceptionengine
 
 		void EventAnimFinish();
 
+		Matrix4x4f GetSocketRefTransformation(std::string const& socket);
+
 	private:
 		Matrix4x4f GetBoneGlobalTransform(int boneID);
 
@@ -56,6 +58,7 @@ namespace inceptionengine
 
 		std::shared_ptr<Animation const> mCurrentAnimation = nullptr;
 
+		//local final pose
 		std::vector<Matrix4x4f> mFinalPose;
 
 		std::unique_ptr<AnimStateMachine> mAnimStateMachine = nullptr;

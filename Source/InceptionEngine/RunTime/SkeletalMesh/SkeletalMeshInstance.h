@@ -43,7 +43,7 @@ namespace inceptionengine
 		friend class SkeletalMeshRenderSystem;
 		friend class AnimationComponent;
 
-		std::shared_ptr<SkeletalMesh const> mSkeletalMesh = nullptr;
+		std::shared_ptr<SkeletalMesh> mSkeletalMesh = nullptr;
 
 		std::vector<Matrix4x4f> mCurrentPose;
 

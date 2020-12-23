@@ -80,6 +80,13 @@ namespace inceptionengine
 		mAnimStateMachine->Restart();
 	}
 
+	Matrix4x4f AnimationController::GetSocketRefTransformation(std::string const& socket)
+	{
+		int socketID = mSkeleton->mSocketToIndexMap.at(socket);
+		int parentID = mSkeleton->mSockets[socketID].parentID;
+		return GetBoneGlobalTransform(parentID) * mSkeleton->mSockets[socketID].lclTransform;
+	}
+
 	Matrix4x4f AnimationController::GetBoneGlobalTransform(int boneID)
 	{
 		Matrix4x4f globalTransform = mFinalPose[boneID];

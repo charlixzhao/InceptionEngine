@@ -59,7 +59,8 @@ namespace inceptionengine
 	template<CComponent Component, typename ...Arg>
 	Component& Entity::AddComponent(Arg && ...args) const
 	{
-		if constexpr (std::is_same_v<Component, NativeScriptComponent> || 
+		if constexpr (std::is_same_v<Component, TransformComponent> ||
+					  std::is_same_v<Component, NativeScriptComponent> || 
 					  std::is_same_v<Component, SkeletalMeshComponent> ||
 					  std::is_same_v<Component, AnimationComponent> ||
 					  std::is_same_v<Component, CameraComponent>)

@@ -75,4 +75,9 @@ namespace inceptionengine
 		return mAnimationController->IsPlayingAnimation();
 	}
 
+	Matrix4x4f AnimationComponent::GetSocketRefTransformation(std::string const& socketName)
+	{
+		return mAnimationController->GetSocketRefTransformation(socketName);
+	}
+
 }

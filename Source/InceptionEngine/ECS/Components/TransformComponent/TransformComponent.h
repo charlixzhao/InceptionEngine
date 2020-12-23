@@ -2,15 +2,18 @@
 #pragma once
 
 #include "EngineGlobals/EngineApiPrefix.h"
+#include "ECS/Entity/EntityID.h"
 
 namespace inceptionengine
 {
 	class TransformSystem;
+	class World;
+	struct Socket;
 
 	class IE_API TransformComponent
 	{
 	public:
-		TransformComponent();
+		TransformComponent(EntityID entityID, std::reference_wrapper<World> world);
 
 		Matrix4x4f GetWorldTransform() const;
 
@@ -24,7 +27,9 @@ namespace inceptionengine
 
 		void RotateForwardVecToInDuration(Vec3f const& direction, float duration);
 		
+		void AttachToSocket(EntityID attachedToEntityID, std::string const& socketName);
 
+		void DetachFromSocket();
 
 
 	private:
@@ -46,5 +51,10 @@ namespace inceptionengine
 		Vec4f mRightwardVecBeginRotation;
 		Vec3f mRotationAxis;
 
+		std::reference_wrapper<World> mWorld;
+		EntityID mEntityID = InvalidEntityID;
+
+		EntityID mAttachedToSocketEntityID = InvalidEntityID;
+		std::string mAttachedToSocketName;
 	};
 }

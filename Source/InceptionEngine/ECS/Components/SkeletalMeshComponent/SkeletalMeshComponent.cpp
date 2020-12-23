@@ -1,8 +1,14 @@
+#include "IE_PCH.h"
 
 #include "SkeletalMeshComponent.h"
+
 #include "Serialization/Serializer.h"
-#include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 #include "RunTime/Resource/ResourceManager.h"
+
+#include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
+#include "RunTime/SkeletalMesh/SkeletalMesh.h"
+#include "RunTime/SkeletalMesh/Skeleton.h"
+
 #include "RunTime/Animation/AnimationController.h"
 #include "RunTime/Animation/Animation.h"
 #include "ECS/Components/AnimationComponent/AnimationComponent.h"
@@ -54,6 +60,42 @@ namespace inceptionengine
 		mSkeletalMeshInstance->mSkeletalMesh = triangle;
 
 		mSkeletalMeshInstance->InitializeRenderObjects();
+	}
+
+	void SkeletalMeshComponent::SetTexture(std::vector<std::string> const& textureFilePaths)
+	{
+		assert(mSkeletalMeshInstance->mSkeletalMesh != nullptr);
+		assert(textureFilePaths.size() == mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.size());
+		for (int i = 0; i < mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.size(); i++)
+		{
+			mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].texturePath = textureFilePaths[i];
+		}
+	}
+
+	void SkeletalMeshComponent::CreateSocket(std::string const& socketName, std::string const& parentName, Matrix4x4f const& lclTransform)
+	{
+		assert(mSkeletalMeshInstance->mSkeletalMesh != nullptr && "no skeletal mesh in this sk mesh component");
+		Skeleton& skeleton = *mSkeletalMeshInstance->mSkeletalMesh->mSkeleton;
+		assert(skeleton.mSocketToIndexMap.find(socketName) == skeleton.mSocketToIndexMap.end() && "socket already exists");
+
+		Skeleton::Socket socket;
+		socket.parentID = skeleton.GetBoneID(parentName);
+		socket.name = socketName;
+		socket.lclTransform = lclTransform;
+		skeleton.mSocketToIndexMap.insert(std::pair(socketName, static_cast<int>(skeleton.mSockets.size())));
+		skeleton.mSockets.push_back(socket);
+	}
+
+	int SkeletalMeshComponent::GetSocketParentID(std::string const& socketName)
+	{
+		int socketID = mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mSocketToIndexMap.at(socketName);
+		return mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mSockets[socketID].parentID;
+	}
+
+	Matrix4x4f SkeletalMeshComponent::GetSocketLclTransform(std::string const& socketName)
+	{
+		int socketID = mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mSocketToIndexMap.at(socketName);
+		return mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mSockets[socketID].lclTransform;
 	}
 
 	

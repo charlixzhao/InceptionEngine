@@ -31,10 +31,19 @@ namespace inceptionengine
 			}
 		};
 
+		struct Socket
+		{
+			int parentID = -1;
+			std::string name;
+			Matrix4x4f lclTransform = Matrix4x4f(1.0f);
+		};
+
 	public:
 		std::string mName;
 		std::unordered_map<std::string, int> mNameToIDMap;
+		std::unordered_map<std::string, int> mSocketToIndexMap;
 		std::vector<Bone> mBones;
+		std::vector<Socket> mSockets;
 
 		size_t GetBoneNumber() const { return mBones.size(); }
 
