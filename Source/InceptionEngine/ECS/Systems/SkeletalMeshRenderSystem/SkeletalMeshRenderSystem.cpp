@@ -199,6 +199,7 @@ namespace inceptionengine
 				unit.pipeline = component.mSkeletalMeshInstance->mPipelines[subpart].pipeline;
 				unit.pipelineLayout = component.mSkeletalMeshInstance->mPipelines[subpart].pipelineLayout;
 				unit.descriptorSet = &component.mSkeletalMeshInstance->mUniformBufferDescriptions[subpart].descriptorSet[bufferIndex];
+				unit.visible = component.mVisible;
 				component.mSkeletalMeshInstance->mRenderUnits[bufferIndex].push_back(std::move(unit));
 			}
 		}

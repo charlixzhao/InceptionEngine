@@ -24,6 +24,7 @@ namespace inceptionengine
 		mAnimInstance = std::make_unique<AnimInstance>(setting);
 		mRunningTime = 0.0f;
 		mAnimInstance->Start();
+		mAnimationController.get().EventAnimStart();
 	}
 
 	bool EventAnimController::IsPlayingAnimation() const

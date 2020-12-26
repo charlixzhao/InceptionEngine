@@ -35,10 +35,10 @@ namespace inceptionengine
 
 		Matrix4x4f GetSocketRefTransformation(std::string const& socketName);
 
-		template<typename T>
-		void SetAnimStateMachine()
+		template<typename T, typename ... Args>
+		void SetAnimStateMachine(Args&& ... args)
 		{
-			mAnimationController->SetAnimStateMachine<T>(mEntityID, mWorld);
+			mAnimationController->SetAnimStateMachine<T>(mEntityID, mWorld, std::forward<Args>(args)...);
 		}
 
 	private:

@@ -80,6 +80,7 @@ namespace inceptionengine
 
 		Skeleton::Socket socket;
 		socket.parentID = skeleton.GetBoneID(parentName);
+		assert(socket.parentID != -1);
 		socket.name = socketName;
 		socket.lclTransform = lclTransform;
 		skeleton.mSocketToIndexMap.insert(std::pair(socketName, static_cast<int>(skeleton.mSockets.size())));
@@ -99,6 +100,18 @@ namespace inceptionengine
 	}
 
 	
+	void SkeletalMeshComponent::SetVisibility(bool visible)
+	{
+		for (int i = 0; i < NumOfRenderBuffers; i++)
+		{
+			for (auto& renderUnit : mSkeletalMeshInstance->mRenderUnits[i])
+			{
+				renderUnit.visible = visible;
+			}
+		}
+
+		mVisible = visible;
+	}
 
 	void SkeletalMeshComponent::SetMesh(std::string const& filePath)
 	{

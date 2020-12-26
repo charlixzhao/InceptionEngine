@@ -18,7 +18,7 @@ namespace inceptionengine
 
 		AnimStateMachine& operator=(AnimStateMachine&&) noexcept;
 
-
+	
 
 	protected:
 		struct State;
@@ -35,6 +35,9 @@ namespace inceptionengine
 			std::string animInstanceFilePath;
 			std::vector<Link> links;
 			float runningTime = 0.0f;
+
+			std::function<void()> enterCallback = []() {};
+			std::function<void()> leaveCallback = []() {};
 		};
 
 		struct Link
@@ -48,9 +51,12 @@ namespace inceptionengine
 
 	protected:
 		Entity const& GetEntity();
-		int CreateState(std::string const& animFilePath);
+		int CreateState(std::string const& animFilePath, 
+						std::function<void()> enterCallback = []() {},
+						std::function<void()> leaveCallback = []() {});
 		void CreateLink(int fromState, int toState, std::function<bool()> translationfunc, float translationDuration);
 		void SetEntryState(int state);
+		float CurrentStateRemainTime() const;
 
 	protected:
 		//private data member
@@ -62,6 +68,7 @@ namespace inceptionengine
 		friend class AnimationController;
 		void Update(float dt);
 		void Restart();
+		int FindRestartState(int state);
 
 		std::reference_wrapper<World> mWorld;
 		EntityID mEntityID = InvalidEntityID;
@@ -71,5 +78,7 @@ namespace inceptionengine
 		std::vector<Matrix4x4f> mBlendFromPose;
 		std::vector<Matrix4x4f> mBlendToPose;
 		Link* mActiveLink = nullptr;
+
+		int mRestartState = -1;
 	};
 }

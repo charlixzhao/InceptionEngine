@@ -226,6 +226,11 @@ namespace inceptionengine
 		return glm::to_string(vec);
 	}
 
+	inline std::string MatToString(Matrix4x4f const& mat)
+	{
+		return glm::to_string(mat);
+	}
+
 	inline void Decompose(Matrix4x4f const& transformation, Vec4f& translation, Quaternion4f& rotation, Vec4f& scale)
 	{
 		translation = transformation[3];

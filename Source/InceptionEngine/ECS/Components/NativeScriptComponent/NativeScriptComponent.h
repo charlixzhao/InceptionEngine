@@ -19,11 +19,11 @@ namespace inceptionengine
 
 		NativeScript* GetScript();
 
-		template<typename T>
-		void SetScript()
+		template<typename T, typename ... Args>
+		void SetScript(Args&& ... args)
 		{
 			static_assert(std::is_base_of_v<NativeScript, T>);
-			mScript = std::make_unique<T>(mEntityID, mWorld);
+			mScript = std::make_unique<T>(mEntityID, mWorld, std::forward<Args>(args)...);
 		}
 
 		Entity const& GetEntity();

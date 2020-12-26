@@ -38,6 +38,7 @@ namespace inceptionengine
                 //finish blending
                 mCurrentBlendingTime = mBlendingDuration = -1.0f;
                 mCurrentState = mActiveLink->toState;
+                mStates[mCurrentState].enterCallback();
                 mStates[mCurrentState].runningTime = 0.0f;
                 mActiveLink = nullptr;
             }
@@ -50,11 +51,12 @@ namespace inceptionengine
 
         auto& currentState = mStates[mCurrentState];
         currentState.runningTime += dt;
+        currentState.runningTime = std::fmod(currentState.runningTime, currentState.animInstance->GetDuration());
         for (auto& link : currentState.links)
         {
             if (link.translationFunc())
             {
-
+                currentState.leaveCallback();
                 auto& blendToState = mStates[link.toState];
                 mBlendFromPose = currentState.animInstance->Sample(currentState.runningTime);
                 mBlendToPose = blendToState.animInstance->Sample(0.0f);
@@ -68,9 +70,23 @@ namespace inceptionengine
         mFinalPose = currentState.animInstance->Sample(currentState.runningTime);
     }
 
+    int AnimStateMachine::FindRestartState(int state)
+    {
+        for (auto& link : mStates[state].links)
+        {
+            if (link.translationFunc())
+            {
+                return FindRestartState(link.toState);
+            }
+        }
+
+        return state;
+    }
+
     void AnimStateMachine::Restart()
     {
-        mCurrentState = mEntryState;
+        mCurrentState = FindRestartState(mRestartState);
+
         mStates[mCurrentState].runningTime = 0.0f;
         mCurrentBlendingTime = mBlendingDuration = -1.0f;
         mActiveLink = nullptr;
@@ -82,11 +98,15 @@ namespace inceptionengine
         return mWorld.get().GetEntity(mEntityID);
     }
 
-    int AnimStateMachine::CreateState(std::string const& animFilePath)
+    int AnimStateMachine::CreateState(std::string const& animFilePath,
+                                      std::function<void()> enterCallback,
+                                      std::function<void()> leaveCallback)
     {
         int index = mStates.size();
         mStates.emplace_back();
         mStates.back().animInstance = std::make_unique<AnimInstance>(animFilePath);
+        mStates.back().enterCallback = enterCallback;
+        mStates.back().leaveCallback = leaveCallback;
         return index;
     }
 
@@ -108,5 +128,11 @@ namespace inceptionengine
     }
 
     AnimStateMachine::State::~State() = default;
+
+
+    float AnimStateMachine::CurrentStateRemainTime() const
+    {
+        return mStates[mCurrentState].animInstance->GetDuration() - mStates[mCurrentState].runningTime;
+    }
 
 }

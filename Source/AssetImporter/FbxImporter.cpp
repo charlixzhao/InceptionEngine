@@ -16,6 +16,8 @@
 
 #include <vector>
 #include <cassert>
+#include <iostream>
+#include <fstream>
 
 namespace inceptionengine::fbximport
 {
@@ -659,6 +661,16 @@ namespace inceptionengine::fbximport
                 }
                 animations.back().mBoneTransforms.push_back(std::move(localFrame));
             }
+
+            /*
+            auto socket_translation = animations.back().mBoneTransforms[10][skeleton.GetBoneID("SwordSocket")];
+            std::string s = MatToString(socket_translation);
+            std::ofstream out("C:/Users/Xiaoxiang Zhao/Desktop/socket.txt");
+            out << s;
+            out.close();
+
+
+            auto socket_translation2 = animations.back().mBoneTransforms[10][skeleton.GetBoneID("SwordSocket")];*/
 
         }
     }

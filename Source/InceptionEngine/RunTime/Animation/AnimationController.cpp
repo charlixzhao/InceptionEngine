@@ -72,7 +72,13 @@ namespace inceptionengine
 		if (mAnimStateMachine != nullptr)
 		{
 			mAnimStateMachine->mCurrentState = mAnimStateMachine->mEntryState;
+			mAnimStateMachine->mStates[mAnimStateMachine->mCurrentState].enterCallback();
 		}
+	}
+
+	void AnimationController::EventAnimStart()
+	{
+		mAnimStateMachine->mRestartState = mAnimStateMachine->mCurrentState;
 	}
 
 	void AnimationController::EventAnimFinish()

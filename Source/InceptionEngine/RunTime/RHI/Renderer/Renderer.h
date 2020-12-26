@@ -119,6 +119,8 @@ namespace inceptionengine
 		VkPipeline pipeline = VK_NULL_HANDLE;
 		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 		VkDescriptorSet* descriptorSet = nullptr;
+
+		bool visible = true;
 	};
 
 	using RenderObejctID = std::vector<IRenderObject>::size_type;

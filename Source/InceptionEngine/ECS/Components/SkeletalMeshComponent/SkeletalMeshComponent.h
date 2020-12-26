@@ -49,6 +49,8 @@ namespace inceptionengine
 
 		Matrix4x4f GetSocketLclTransform(std::string const& socketName);
 
+		void SetVisibility(bool visible);
+
 	private:
 		friend class SkeletalMeshRenderSystem;
 		friend class AnimationSystem;
@@ -64,6 +66,8 @@ namespace inceptionengine
 		std::reference_wrapper<World> mWorld;
 
 		bool mLoadedToDevice = false;
+
+		bool mVisible = true;
 
 	};
 }

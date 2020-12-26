@@ -612,17 +612,20 @@ namespace inceptionengine
 			auto& renderUnits = renderComponent->GetRenderUnits(i);
 			for (auto& renderUnit : renderUnits)
 			{
-				vkCmdBindPipeline(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderUnit.pipeline);
+				if (renderUnit.visible)
+				{
+					vkCmdBindPipeline(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderUnit.pipeline);
 
-				vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, renderUnit.vertexBuffer, offset);
+					vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, renderUnit.vertexBuffer, offset);
 
-				vkCmdBindIndexBuffer(m_commandBuffers[i], renderUnit.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+					vkCmdBindIndexBuffer(m_commandBuffers[i], renderUnit.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-				vkCmdPushConstants(m_commandBuffers[i], renderUnit.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MVP), (void*)&m_mvp);
+					vkCmdPushConstants(m_commandBuffers[i], renderUnit.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MVP), (void*)&m_mvp);
 
-				vkCmdBindDescriptorSets(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderUnit.pipelineLayout, 0, 1, renderUnit.descriptorSet, 0, nullptr);
+					vkCmdBindDescriptorSets(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, renderUnit.pipelineLayout, 0, 1, renderUnit.descriptorSet, 0, nullptr);
 
-				vkCmdDrawIndexed(m_commandBuffers[i], renderUnit.numOfIndices, 1, 0, 0, 0);
+					vkCmdDrawIndexed(m_commandBuffers[i], renderUnit.numOfIndices, 1, 0, 0, 0);
+				}
 			}
 
 		}

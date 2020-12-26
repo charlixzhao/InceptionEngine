@@ -36,16 +36,19 @@ namespace inceptionengine
 
 		void TestAxis(IkChain const& ikChain);
 
-		template<typename T>
-		void SetAnimStateMachine(EntityID entityID, std::reference_wrapper<World> world)
+
+		template<typename T, typename ... Args>
+		void SetAnimStateMachine(EntityID entityID, std::reference_wrapper<World> world, Args&& ... args)
 		{
 			static_assert(std::is_base_of_v<AnimStateMachine, T>);
-			mAnimStateMachine = std::make_unique<T>(entityID, world);
+			mAnimStateMachine = std::make_unique<T>(entityID, world, std::forward<Args>(args)...);
 		}
 
 		void StartAnimStateMachine();
 
 		void EventAnimFinish();
+
+		void EventAnimStart();
 
 		Matrix4x4f GetSocketRefTransformation(std::string const& socket);
 
