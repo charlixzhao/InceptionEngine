@@ -21,6 +21,8 @@ namespace inceptionengine
 
 		bool IsBlending() const;
 
+		void InterruptBlending();
+
 	private:
 		std::vector<Matrix4x4f> BlendPose(float alpha) const;
 

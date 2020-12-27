@@ -23,6 +23,9 @@ namespace inceptionengine
 		mAnimationFilePath = setting.animFilePath;
 
 		mRootMotion = setting.rootMotion;
+		mBlendInDuration = setting.blendInDuration;
+		mBlendOutDuration = setting.blendOutDuration;
+
 		mAnimSpeedBar.AddAnimSpeedRanges(setting.animSpeedRanges);
 
 		mAnimStartCallback = setting.animStartCallback;
@@ -31,9 +34,9 @@ namespace inceptionengine
 
 		mAnimNotifies = setting.animNotifies;
 		mAnimNotifyStates = setting.animNotifyStates;
-
-
 	}
+
+	AnimInstance::~AnimInstance() = default;
 
 	std::vector<Matrix4x4f> AnimInstance::Sample(float time, AnimInterpType interpType)
 	{
@@ -69,6 +72,10 @@ namespace inceptionengine
 		return mAnimSpeedBar.QueryAnimSpeed(ratio);
 	}
 
-	AnimInstance::~AnimInstance() = default;
+
+	float AnimInstance::GetBlendOutDuration() const
+	{
+		return mBlendOutDuration;
+	}
 }
 

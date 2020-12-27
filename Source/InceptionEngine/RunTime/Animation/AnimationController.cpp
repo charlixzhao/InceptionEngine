@@ -9,6 +9,9 @@
 #include "RunTime/Resource/ResourceManager.h"
 #include "ECS/Components/AnimationComponent/AnimStateMachine.h"
 #include "EventAnimController.h"
+#include "Animation.h"
+#include "ECS/Components/AnimationComponent/EventAnimPlaySetting.h"
+
 
 namespace inceptionengine
 {
@@ -31,6 +34,20 @@ namespace inceptionengine
 
 	bool AnimationController::Update(float deltaTime)
 	{
+		if (mBlender.IsBlending())
+		{
+			auto blendedPose = mBlender.Blend(deltaTime);
+			if (blendedPose.has_value())
+			{
+				mFinalPose = blendedPose.value();
+			}
+			else
+			{
+				//stop blending
+			}
+			return true;
+		}
+
 		if (mEventAnimController->IsPlayingAnimation())
 		{
 			mEventAnimController->Update(deltaTime);
@@ -52,19 +69,27 @@ namespace inceptionengine
 
 	void AnimationController::PlayEventAnimation(EventAnimPlaySetting const& setting)
 	{
+		if (!mEventAnimController->IsPlayingAnimation())
+		{
+			mAnimStateMachine->BlendOutOfASM();
+
+			//start a blending from ASM to EventAnim
+			mBlender.StartBlending(mAnimStateMachine->mFinalPose,
+								   gResourceMgr.GetResource<Animation>(setting.animFilePath)->Interpolate(0.0f),
+								   setting.blendInDuration);
+		}
+
 		mEventAnimController->PlayEventAnimation(setting);
 	}
 
 	void AnimationController::StopAnimation()
 	{
-		mFinalPose = mCurrentAnimation->mSkeleton->GetLocalRefPose();
-		mCurrentAnimation = nullptr;
-		mCurrentTime = 0.0f;
+
 	}
 
-	bool AnimationController::IsPlayingAnimation()
+	bool AnimationController::IsPlayingEventAnimation() const
 	{
-		return mCurrentAnimation != nullptr;
+		return mEventAnimController->IsPlayingAnimation();
 	}
 
 	void AnimationController::StartAnimStateMachine()
@@ -76,14 +101,15 @@ namespace inceptionengine
 		}
 	}
 
-	void AnimationController::EventAnimStart()
-	{
-		mAnimStateMachine->mRestartState = mAnimStateMachine->mCurrentState;
-	}
 
-	void AnimationController::EventAnimFinish()
+
+	void AnimationController::EventAnimFinish(float blendOutDuration)
 	{
 		mAnimStateMachine->Restart();
+		//start a blending from EventAnim to ASM
+		mBlender.StartBlending(mEventAnimController->GetCurrentPose(),
+							   mAnimStateMachine->mFinalPose,
+							   blendOutDuration);
 	}
 
 	Matrix4x4f AnimationController::GetSocketRefTransformation(std::string const& socket)
@@ -113,6 +139,11 @@ namespace inceptionengine
 		float x, y, z = 0;
 		glm::extractEulerAngleXYZ(mFinalPose[armID] * Translate(-mFinalPose[armID][3]), x, y, z);
 		std::cout << "x is " << x << " y is " << glm::degrees(y) << "z is " << z << std::endl;
+	}
+
+	bool AnimationController::IsBlendingOccuring() const
+	{
+		return mAnimStateMachine->IsTransiting() || mEventAnimController->IsBlending();
 	}
 
 	void AnimationController::HandReachTarget(IkChain const& ikChain, Matrix4x4f const& endEffector)

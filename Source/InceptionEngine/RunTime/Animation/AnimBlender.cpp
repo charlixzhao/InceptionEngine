@@ -33,6 +33,11 @@ namespace inceptionengine
 		return mBlendingDuration > 0.0f;
 	}
 
+	void AnimBlender::InterruptBlending()
+	{
+		mCurrentBlendingTime = mBlendingDuration = 0.0f;
+	}
+
 	std::vector<Matrix4x4f> AnimBlender::BlendPose(float alpha) const
 	{
 		std::vector<Matrix4x4f> result;

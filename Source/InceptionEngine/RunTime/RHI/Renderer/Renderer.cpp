@@ -6,7 +6,7 @@ External libraries
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include "External/stb/stb_image.h"
-#include "ThirdPartyLibrary/glfw/include/GLFW/glfw3.h"
+#include "ThirdPartyLibraries/glfw/include/GLFW/glfw3.h"
 
 #include "IRenderObject.h"
 #include "RunTime/RHI/WindowHandler/WindowHandler.h"

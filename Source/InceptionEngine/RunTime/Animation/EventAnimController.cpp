@@ -3,6 +3,7 @@
 #include "EventAnimController.h"
 #include "AnimInstance.h"
 #include "AnimationController.h"
+#include "ECS/Components/AnimationComponent/EventAnimPlaySetting.h"
 
 namespace inceptionengine
 {
@@ -16,15 +17,24 @@ namespace inceptionengine
 
 	void EventAnimController::PlayEventAnimation(EventAnimPlaySetting const& setting)
 	{
+		if (mEventAnimBlender.IsBlending()) return;
+
 		if (mAnimInstance != nullptr)
 		{
+			std::vector<Matrix4x4f> currentPose = mAnimInstance->Sample(mRunningTime);
 			mAnimInstance->Interrupt();
+			mAnimInstance = std::make_unique<AnimInstance>(setting);
+			std::vector<Matrix4x4f> blendToPose = mAnimInstance->Sample(0.0f);
+			mEventAnimBlender.StartBlending(currentPose, blendToPose, setting.blendInDuration);
+		}
+		else
+		{
+			mAnimInstance = std::make_unique<AnimInstance>(setting);
 		}
 
-		mAnimInstance = std::make_unique<AnimInstance>(setting);
+		
 		mRunningTime = 0.0f;
 		mAnimInstance->Start();
-		mAnimationController.get().EventAnimStart();
 	}
 
 	bool EventAnimController::IsPlayingAnimation() const
@@ -35,26 +45,46 @@ namespace inceptionengine
 	{
 		if (mAnimInstance != nullptr)
 		{
-			float currentAnimSpeend = mAnimInstance->QueryAnimSpeed(mRunningTime / mAnimInstance->GetDuration());
-			mRunningTime += dt * currentAnimSpeend;
-			if (mRunningTime > mAnimInstance->GetDuration())
+			if (mEventAnimBlender.IsBlending())
 			{
-				//stop animation
-				mAnimInstance->End();
-				mRunningTime = 0.0f;
-				mAnimInstance = nullptr;
-				mAnimationController.get().EventAnimFinish();
+				auto blendedPose = mEventAnimBlender.Blend(dt);
+				if (blendedPose.has_value())
+				{
+					mCurrentPose = blendedPose.value();
+				}
+				else
+				{
+					//stop blending
+				}
 			}
 			else
 			{
-				mAnimInstance->Notify(mRunningTime);
-				mCurrentPose = mAnimInstance->Sample(mRunningTime);
+				float currentAnimSpeend = mAnimInstance->QueryAnimSpeed(mRunningTime / mAnimInstance->GetDuration());
+				mRunningTime += dt * currentAnimSpeend;
+				if (mRunningTime > mAnimInstance->GetDuration())
+				{
+					//stop animation
+					mAnimInstance->End();
+					mRunningTime = 0.0f;
+					mAnimationController.get().EventAnimFinish(mAnimInstance->GetBlendOutDuration());
+					mAnimInstance = nullptr;
+					
+				}
+				else
+				{
+					mAnimInstance->Notify(mRunningTime);
+					mCurrentPose = mAnimInstance->Sample(mRunningTime);
+				}
 			}
 		}
 	}
 	std::vector<Matrix4x4f> const& EventAnimController::GetCurrentPose() const
 	{
 		return mCurrentPose;
+	}
+	bool EventAnimController::IsBlending() const
+	{
+		return mEventAnimBlender.IsBlending();
 	}
 }
 

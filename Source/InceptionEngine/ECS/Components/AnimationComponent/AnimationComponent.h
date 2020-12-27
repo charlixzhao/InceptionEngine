@@ -31,7 +31,7 @@ namespace inceptionengine
 
 		void StopAnimation();
 
-		bool IsPlayingAnimation();
+		bool IsPlayingEventAnimation() const;
 
 		Matrix4x4f GetSocketRefTransformation(std::string const& socketName);
 

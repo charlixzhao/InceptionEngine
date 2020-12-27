@@ -94,7 +94,9 @@ namespace inceptionengine
         mCurrentState = FindRestartState(mRestartState);
 
         mStates[mCurrentState].runningTime = 0.0f;
+        mStates[mCurrentState].enterCallback();
         mActiveLink = nullptr;
+        mFinalPose = mStates[mCurrentState].animInstance->Sample(0.0f);
     }
 
 
@@ -138,6 +140,26 @@ namespace inceptionengine
     float AnimStateMachine::CurrentStateRemainTime() const
     {
         return mStates[mCurrentState].animInstance->GetDuration() - mStates[mCurrentState].runningTime;
+    }
+
+    bool AnimStateMachine::IsTransiting() const
+    {
+        return mTransitionBlender.IsBlending();
+    }
+
+    void AnimStateMachine::InterruptTransition()
+    {
+        mCurrentState = mActiveLink->toState;
+        mStates[mCurrentState].runningTime = 0.0f;
+        mActiveLink = nullptr;
+        mTransitionBlender.InterruptBlending();
+    }
+
+    void AnimStateMachine::BlendOutOfASM()
+    {
+        if (IsTransiting()) InterruptTransition();
+
+        mRestartState = mCurrentState;
     }
 
 }

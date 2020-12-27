@@ -3,6 +3,8 @@
 
 #include "ECS/Entity/EntityID.h"
 
+#include "AnimBlender.h"
+
 namespace inceptionengine
 {
 	struct Animation;
@@ -30,12 +32,13 @@ namespace inceptionengine
 
 		void StopAnimation();
 
-		bool IsPlayingAnimation();
+		bool IsPlayingEventAnimation() const;
 
 		void HandReachTarget(IkChain const& ikChain, Matrix4x4f const& EndEffector);
 
 		void TestAxis(IkChain const& ikChain);
 
+		bool IsBlendingOccuring() const;
 
 		template<typename T, typename ... Args>
 		void SetAnimStateMachine(EntityID entityID, std::reference_wrapper<World> world, Args&& ... args)
@@ -46,9 +49,8 @@ namespace inceptionengine
 
 		void StartAnimStateMachine();
 
-		void EventAnimFinish();
+		void EventAnimFinish(float blendOutDuration);
 
-		void EventAnimStart();
 
 		Matrix4x4f GetSocketRefTransformation(std::string const& socket);
 
@@ -67,6 +69,8 @@ namespace inceptionengine
 		std::unique_ptr<AnimStateMachine> mAnimStateMachine = nullptr;
 
 		std::unique_ptr<EventAnimController> mEventAnimController = nullptr;
+
+		AnimBlender mBlender;
 
 	};
 }

@@ -118,6 +118,8 @@ private:
 	{
 		if (press)
 		{
+			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\explosion.wav");
+
 			EventAnimPlaySetting setting;
 			setting.animFilePath = attacks[mAttackState];
 			AnimSpeedRange range1;
@@ -125,6 +127,7 @@ private:
 			range1.endRatio = 1.0f;
 			range1.playSpeed = attackSpeed[mAttackState];
 			setting.animSpeedRanges = { range1 };
+			setting.blendOutDuration = 0.3f;
 
 			mAttackState += 1;
 			if (mAttackState >= attacks.size()) mAttackState = 0;

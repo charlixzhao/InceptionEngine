@@ -1,5 +1,7 @@
 #pragma once
 
+#include "AnimBlender.h"
+
 namespace inceptionengine
 {
 	class AnimInstance;
@@ -21,11 +23,15 @@ namespace inceptionengine
 
 		std::vector<Matrix4x4f> const& GetCurrentPose() const;
 
+		bool IsBlending() const;
+
 	private:
 		std::unique_ptr<AnimInstance> mAnimInstance = nullptr;
 		float mRunningTime = 0.0f;
 		std::vector<Matrix4x4f> mCurrentPose;
 		std::reference_wrapper<AnimationController> mAnimationController;
+		AnimBlender mEventAnimBlender;
+
 
 	};
 }

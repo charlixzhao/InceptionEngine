@@ -41,8 +41,10 @@ int main()
 
 	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, -350.0f), Vec3f(0.0f, 125.0f, 0.0f));
 
-
 	sice.AddComponent<RigidbodyComponent>();
+
+	sice.AddComponent<AudioComponent>();
+
 	Matrix4x4f swordSocketTransform = { {0.012678, 0.001461, -0.002478, 0.000000},
 									   {-0.001110, 0.012815, 0.001880, 0.000000},
 									   {0.002654, -0.001622, 0.012622, 0.000000},

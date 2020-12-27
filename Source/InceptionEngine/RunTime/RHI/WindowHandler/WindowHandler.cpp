@@ -1,6 +1,6 @@
 #include "WindowHandler.h"
 
-#include "ThirdPartyLibrary/glfw/include/GLFW/glfw3.h"
+#include "ThirdPartyLibraries/glfw/include/GLFW/glfw3.h"
 
 
 namespace inceptionengine

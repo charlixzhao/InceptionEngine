@@ -22,6 +22,8 @@ namespace inceptionengine
 
 		AnimInstance(EventAnimPlaySetting const& setting);
 
+		~AnimInstance();
+
 		std::vector<Matrix4x4f> Sample(float time, AnimInterpType interpType = AnimInterpType::Linear);
 
 		float GetDuration() const;
@@ -36,7 +38,7 @@ namespace inceptionengine
 
 		float QueryAnimSpeed(float ratio) const;
 
-		~AnimInstance();
+		float GetBlendOutDuration() const;
 
 		
 	private:
@@ -53,6 +55,9 @@ namespace inceptionengine
 		std::function<void()> mAnimEndCallback;
 		std::vector<AnimNotify> mAnimNotifies;
 		std::vector<AnimNotifyState> mAnimNotifyStates;
+
+		float mBlendInDuration = 0.05f;
+		float mBlendOutDuration = 0.05f;
 
 
 	};

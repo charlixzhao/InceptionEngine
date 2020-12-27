@@ -70,9 +70,9 @@ namespace inceptionengine
 		mAnimationController->TestAxis(skeletonMeshInstance.mHandArmIkChain);
 	}
 
-	bool AnimationComponent::IsPlayingAnimation()
+	bool AnimationComponent::IsPlayingEventAnimation() const
 	{
-		return mAnimationController->IsPlayingAnimation();
+		return mAnimationController->IsPlayingEventAnimation();
 	}
 
 	Matrix4x4f AnimationComponent::GetSocketRefTransformation(std::string const& socketName)

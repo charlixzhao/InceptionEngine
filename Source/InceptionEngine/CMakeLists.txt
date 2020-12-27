@@ -111,8 +111,9 @@ ${PROJECT_SOURCE_DIR}/ThirdParty)
 
 target_link_libraries(InceptionEngine 
 InceptionBase 
-${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibrary/glfw/lib/glfw3.lib 
-${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibrary/vulkan/Lib/vulkan-1.lib)
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/glfw/lib/glfw3.lib 
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/vulkan/Lib/vulkan-1.lib
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/lib/Winx64-visualStudio/irrKlang.lib)
 
 target_compile_options(InceptionEngine PUBLIC /wd26812 /wd26451 /wd26495)
 
@@ -121,5 +122,20 @@ target_precompile_headers(InceptionEngine PRIVATE "IE_PCH.h")
 add_custom_command(TARGET InceptionEngine POST_BUILD 
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         "${PROJECT_BINARY_DIR}/Source/InceptionEngine/Debug/InceptionEngine.dll"
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+
+add_custom_command(TARGET InceptionEngine POST_BUILD 
+ COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+        "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/winx64-visualStudio/ikpFlac.dll"
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+
+add_custom_command(TARGET InceptionEngine POST_BUILD 
+ COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+        "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/winx64-visualStudio/ikpMP3.dll"
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+
+add_custom_command(TARGET InceptionEngine POST_BUILD 
+ COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+        "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/winx64-visualStudio/irrKlang.dll"
         "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
 

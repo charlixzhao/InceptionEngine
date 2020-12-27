@@ -16,13 +16,13 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
 target_include_directories(AssetImporter PUBLIC 
 ${PROJECT_SOURCE_DIR}/Source/InceptionEngine
 ${PROJECT_SOURCE_DIR}/Source/InceptionBase
-${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibrary/fbxsdk/include)
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/include)
 
 target_link_libraries(AssetImporter 
 InceptionBase 
-${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibrary/fbxsdk/lib/x64/debug/libfbxsdk.lib)
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/debug/libfbxsdk.lib)
 
 add_custom_command(TARGET AssetImporter POST_BUILD 
 COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-        "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibrary/fbxsdk/lib/x64/debug/libfbxsdk.dll"
+        "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/debug/libfbxsdk.dll"
         "${PROJECT_BINARY_DIR}/Source/AssetImporter/Debug")

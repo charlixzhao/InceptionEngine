@@ -59,6 +59,8 @@ namespace inceptionengine
 		void SetEntryState(int state);
 		float CurrentStateRemainTime() const;
 
+
+
 	protected:
 		//private data member
 		std::vector<State> mStates;
@@ -70,6 +72,12 @@ namespace inceptionengine
 		void Update(float dt);
 		void Restart();
 		int FindRestartState(int state);
+
+		bool IsTransiting() const;
+
+		void InterruptTransition();
+
+		void BlendOutOfASM();
 
 	private:
 		std::reference_wrapper<World> mWorld;

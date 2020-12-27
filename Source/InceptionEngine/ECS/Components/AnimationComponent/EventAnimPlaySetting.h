@@ -10,6 +10,8 @@ namespace inceptionengine
 	{
 		std::string animFilePath;
 		bool rootMotion = false;
+		float blendInDuration = 0.05f;
+		float blendOutDuration = 0.05f;
 		std::vector<AnimSpeedRange> animSpeedRanges;
 
 		std::function<void()> animStartCallback = []() {; };

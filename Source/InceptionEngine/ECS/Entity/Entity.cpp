@@ -95,6 +95,7 @@ namespace inceptionengine
 	template IE_API CameraComponent& Entity::AddComponent() const;
 	template IE_API AnimationComponent& Entity::AddComponent() const;
 	template IE_API RigidbodyComponent& Entity::AddComponent() const;
+	template IE_API AudioComponent& Entity::AddComponent() const;
 
 	/*
 	GetComponent instantiation
@@ -105,6 +106,7 @@ namespace inceptionengine
 	template IE_API CameraComponent& Entity::GetComponent() const;
 	template IE_API AnimationComponent& Entity::GetComponent() const;
 	template IE_API RigidbodyComponent& Entity::GetComponent() const;
+	template IE_API AudioComponent& Entity::GetComponent() const;
 
 	/*
 	HasComponent instantiation
@@ -115,6 +117,7 @@ namespace inceptionengine
 	template IE_API bool Entity::HasComponent<CameraComponent>() const;
 	template IE_API bool Entity::HasComponent<AnimationComponent>() const;
 	template IE_API bool Entity::HasComponent<RigidbodyComponent>() const;
+	template IE_API bool Entity::HasComponent<AudioComponent>() const;
 
 	/*
 	DeleteComponent instantiation
@@ -125,5 +128,6 @@ namespace inceptionengine
 	template IE_API void Entity::DeleteComponent<CameraComponent>() const;
 	template IE_API void Entity::DeleteComponent<AnimationComponent>() const;
 	template IE_API void Entity::DeleteComponent<RigidbodyComponent>() const;
+	template IE_API void Entity::DeleteComponent<AudioComponent>() const;
 }
 
