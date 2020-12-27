@@ -2,6 +2,7 @@
 #include "EngineGlobals/EngineApiPrefix.h"
 
 #include "ECS/Entity/EntityID.h"
+#include "RunTime/Animation/AnimBlender.h"
 
 namespace inceptionengine
 {
@@ -70,15 +71,17 @@ namespace inceptionengine
 		void Restart();
 		int FindRestartState(int state);
 
+	private:
 		std::reference_wrapper<World> mWorld;
 		EntityID mEntityID = InvalidEntityID;
-		float mCurrentBlendingTime = -1.0f;
-		float mBlendingDuration = -1.0f;
+
 		std::vector<Matrix4x4f> mFinalPose;
-		std::vector<Matrix4x4f> mBlendFromPose;
-		std::vector<Matrix4x4f> mBlendToPose;
+
 		Link* mActiveLink = nullptr;
 
 		int mRestartState = -1;
+
+		AnimBlender mTransitionBlender;
+		
 	};
 }

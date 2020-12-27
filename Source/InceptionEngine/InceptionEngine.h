@@ -9,6 +9,7 @@ stuff in pch that should be exposed to users
 #include <functional>
 #include <string>
 #include <array>
+#include <optional>
 
 #include "EngineGlobals/EngineApiPrefix.h"
 

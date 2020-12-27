@@ -77,6 +77,8 @@ set(SRC_BUILD_FILES
 "Runtime/Animation/AnimationController.cpp"
 "Runtime/Animation/EventAnimController.h"
 "Runtime/Animation/EventAnimController.cpp"
+"Runtime/Animation/AnimBlender.h"
+"Runtime/Animation/AnimBlender.cpp"
 "Runtime/SkeletalMesh/SkeletalMesh.h"
 "Runtime/SkeletalMesh/SkeletalMesh.cpp"
 "Runtime/SkeletalMesh/SkeletalMeshInstance.h"

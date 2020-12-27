@@ -24,19 +24,25 @@ namespace inceptionengine
  
     void AnimStateMachine::Update(float dt)
     {
-        if (mCurrentBlendingTime >= 0.0f)
+        
+
+        //if the ASM is not active
+        if (mCurrentState == -1)
+            return;
+
+
+        //if blender is active
+        if (mTransitionBlender.IsBlending())
         {
-            mCurrentBlendingTime += dt;
-            if (mCurrentBlendingTime <= mBlendingDuration)
+            auto blendedPose = mTransitionBlender.Blend(dt);
+            if (blendedPose.has_value())
             {
                 //continue blending
-                float alpha = 1.0f - mCurrentBlendingTime / mBlendingDuration;
-                mFinalPose = BlendPose(mBlendFromPose, mBlendToPose, alpha);
+                mFinalPose = blendedPose.value();
             }
             else
             {
                 //finish blending
-                mCurrentBlendingTime = mBlendingDuration = -1.0f;
                 mCurrentState = mActiveLink->toState;
                 mStates[mCurrentState].enterCallback();
                 mStates[mCurrentState].runningTime = 0.0f;
@@ -46,8 +52,7 @@ namespace inceptionengine
             return;
         }
 
-        if (mCurrentState == -1)
-            return;
+
 
         auto& currentState = mStates[mCurrentState];
         currentState.runningTime += dt;
@@ -58,12 +63,13 @@ namespace inceptionengine
             {
                 currentState.leaveCallback();
                 auto& blendToState = mStates[link.toState];
-                mBlendFromPose = currentState.animInstance->Sample(currentState.runningTime);
-                mBlendToPose = blendToState.animInstance->Sample(0.0f);
-                mBlendingDuration = link.translationDuration;
-                mCurrentBlendingTime = 0.0f;
+             
+                //start blending
+                mTransitionBlender.StartBlending(currentState.animInstance->Sample(currentState.runningTime),
+                                                 blendToState.animInstance->Sample(0.0f),
+                                                 link.translationDuration);
                 mActiveLink = &link;
-                return;
+                //return;
             }
         }
 
@@ -88,7 +94,6 @@ namespace inceptionengine
         mCurrentState = FindRestartState(mRestartState);
 
         mStates[mCurrentState].runningTime = 0.0f;
-        mCurrentBlendingTime = mBlendingDuration = -1.0f;
         mActiveLink = nullptr;
     }
 
