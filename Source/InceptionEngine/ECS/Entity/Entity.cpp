@@ -63,7 +63,8 @@ namespace inceptionengine
 					  std::is_same_v<Component, NativeScriptComponent> || 
 					  std::is_same_v<Component, SkeletalMeshComponent> ||
 					  std::is_same_v<Component, AnimationComponent> ||
-					  std::is_same_v<Component, CameraComponent>)
+					  std::is_same_v<Component, CameraComponent> ||
+					  std::is_same_v<Component, RigidbodyComponent>)
 		{
 			return mWorld.get().GetComponentsPools().AddComponent<Component>(mID, mID, mWorld);
 		}

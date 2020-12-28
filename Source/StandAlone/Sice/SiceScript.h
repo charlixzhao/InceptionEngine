@@ -101,11 +101,15 @@ private:
 	{
 		if (start)
 		{
-			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed });
-			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
-			GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(rotateToVec, 0.25f);
+			if (mAttackState == 0)
+			{
+				GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed });
+				GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
+				GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(rotateToVec, 0.25f);
+			}
+			
 		}
-		else if (!mPressedA && !mPressedD && !mPressedS && !mPressedW)
+		else if (!mPressedA && !mPressedD && !mPressedS && !mPressedW && mAttackState == 0)
 		{
 			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
 			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
@@ -118,7 +122,10 @@ private:
 	{
 		if (press)
 		{
-			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\explosion.wav");
+			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
+			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
+
+			//GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\explosion.wav");
 
 			EventAnimPlaySetting setting;
 			setting.animFilePath = attacks[mAttackState];
@@ -131,7 +138,7 @@ private:
 
 			mAttackState += 1;
 			if (mAttackState >= attacks.size()) mAttackState = 0;
-			setting.animEndCallback = [&]() {mAttackState = 0; };
+			setting.animEndCallback = [&]() {mAttackState = 0; GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false); };
 			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
 		}
 	}

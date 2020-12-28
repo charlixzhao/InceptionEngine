@@ -3,6 +3,16 @@
 
 namespace inceptionengine
 {
+	RigidbodyComponent::RigidbodyComponent(EntityID entityID, std::reference_wrapper<World> world)
+		:mEntityID(entityID), mWorld(world)
+	{
+
+	}
+
+	RigidbodyComponent::~RigidbodyComponent() = default;
+
+	RigidbodyComponent::RigidbodyComponent(RigidbodyComponent&&) noexcept = default;
+
 	float RigidbodyComponent::GetSpeed() const
 	{
 		return VecLength(mVelocity);

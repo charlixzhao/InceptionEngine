@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EngineGlobals/EngineApiPrefix.h"
+#include "ECS/Entity/EntityID.h"
 
 namespace inceptionengine
 {
@@ -12,9 +13,21 @@ namespace inceptionengine
 		Box
 	};
 
+	class World;
+
 	class IE_API RigidbodyComponent
 	{
 	public:
+
+		RigidbodyComponent(EntityID entityID, std::reference_wrapper<World> world);
+
+		~RigidbodyComponent();
+
+		RigidbodyComponent(RigidbodyComponent const&) = delete;
+
+		RigidbodyComponent(RigidbodyComponent&&) noexcept;
+
+
 		float GetSpeed() const;
 
 		Vec3f GetVelocity() const;
@@ -29,9 +42,12 @@ namespace inceptionengine
 		friend class RigidbodySystem;
 
 		//forth position is always 0
-		Vec4f mVelocity;
+		Vec4f mVelocity = {};
 
-		Vec3f mAngulerVelocity;
+		Vec3f mAngulerVelocity = {};
+
+		EntityID mEntityID = InvalidEntityID;
+		std::reference_wrapper<World> mWorld;
 
 	};
 
