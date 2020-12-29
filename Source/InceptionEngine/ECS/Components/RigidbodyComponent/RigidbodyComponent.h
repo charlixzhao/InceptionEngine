@@ -14,6 +14,7 @@ namespace inceptionengine
 	};
 
 	class World;
+	struct CapsuleCollider;
 
 	class IE_API RigidbodyComponent
 	{
@@ -27,6 +28,8 @@ namespace inceptionengine
 
 		RigidbodyComponent(RigidbodyComponent&&) noexcept;
 
+		//first field is whether collision occur, second field is whether the collison is blocking
+		std::pair<bool, bool> DetectCapsuleCollision(RigidbodyComponent const& other);
 
 		float GetSpeed() const;
 
@@ -36,7 +39,13 @@ namespace inceptionengine
 
 		void SetVelocity(Vec3f const& v);
 
-		void RotateInDuration(float degree, Vec3f axis, float duration);
+		void SetCollider(ColliderType colliderType);
+
+		void SetCapsuleColliderProperties(Vec3f const& bottom, Vec3f const& top, float radius);
+
+		void SetCapsuleColliderBlocking(bool blocking);
+
+	
 
 	private:
 		friend class RigidbodySystem;
@@ -48,6 +57,8 @@ namespace inceptionengine
 
 		EntityID mEntityID = InvalidEntityID;
 		std::reference_wrapper<World> mWorld;
+		
+		std::unique_ptr<CapsuleCollider> mCapsuleCollider = nullptr;
 
 	};
 

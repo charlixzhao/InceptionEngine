@@ -20,6 +20,7 @@ public:
 
 		BindKeyInputCallback(KeyInputTypes::Keyboard_1, std::bind(&SiceScript::OnKey_1, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_2, std::bind(&SiceScript::OnKey_2, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_3, std::bind(&SiceScript::OnKey_3, this, std::placeholders::_1));
 
 		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&SiceScript::OnMouse_Left, this, std::placeholders::_1));
 	}
@@ -53,6 +54,21 @@ private:
 			//GetEntity().GetWorld().GetEntity(mSwordID).GetComponent<SkeletalMeshComponent>().SetVisibility(mInBattleMode);
 		}
 		
+	}
+
+	void OnKey_3(bool press)
+	{
+		if (press)
+		{
+			Vec3f bottom = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordStart")[3];
+			Vec3f top = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordEnd")[3];
+			std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 10.0f);
+			if (traceRes.size() > 0)
+			{
+				std::cout << "Hit!" << std::endl;
+			}
+		}
+
 	}
 
 

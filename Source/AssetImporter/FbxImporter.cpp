@@ -662,8 +662,9 @@ namespace inceptionengine::fbximport
                 animations.back().mBoneTransforms.push_back(std::move(localFrame));
             }
 
+            
             /*
-            auto socket_translation = animations.back().mBoneTransforms[10][skeleton.GetBoneID("SwordSocket")];
+            auto socket_translation = animations.back().mBoneTransforms[10][skeleton.GetBoneID("SwordEnd")];
             std::string s = MatToString(socket_translation);
             std::ofstream out("C:/Users/Xiaoxiang Zhao/Desktop/socket.txt");
             out << s;

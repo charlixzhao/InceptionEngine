@@ -15,6 +15,7 @@
 
 #include "ECS/World.h"
 #include "ECS/Entity/Entity.h"
+#include "ECS/Components/TransformComponent/TransformComponent.h"
 
 namespace inceptionengine
 {
@@ -97,6 +98,14 @@ namespace inceptionengine
 	{
 		int socketID = mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mSocketToIndexMap.at(socketName);
 		return mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mSockets[socketID].lclTransform;
+	}
+
+	Matrix4x4f SkeletalMeshComponent::GetSocketGlobalTransform(std::string const& socketName)
+	{
+	
+		Entity const& entity = mWorld.get().GetEntity(mEntityID);
+		assert(entity.HasComponent<AnimationComponent>() && "Add AnimationComponent if you want to use socket");
+		return entity.GetComponent<TransformComponent>().GetWorldTransform() * entity.GetComponent<AnimationComponent>().GetSocketRefTransformation(socketName);
 	}
 
 	

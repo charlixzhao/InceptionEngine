@@ -1,3 +1,4 @@
+#include "IE_PCH.h"
 
 #include "World.h"
 
@@ -50,6 +51,8 @@ namespace inceptionengine
         void DrawAnimationTest();
 
         ComponentsPool& GetComponentsPool();
+
+        std::vector<SphereTraceResult> SphereTrace(Vec3f const& bottom, Vec3f const& top, float radius);
 
 
     private:
@@ -267,6 +270,11 @@ namespace inceptionengine
         mSkyboxSystem.End();
     }
 
+    std::vector<SphereTraceResult> World::WorldImpl::SphereTrace(Vec3f const& bottom, Vec3f const& top, float radius)
+    {
+        return mRigidbodySystem.SphereTrace(bottom, top, radius);
+    }
+
 }
 
 namespace inceptionengine
@@ -334,5 +342,9 @@ namespace inceptionengine
         mWorldImpl->Simulate(deltaTime, keyInputs);
     }
 
+    std::vector<SphereTraceResult> World::SphereTrace(Vec3f const& bottom, Vec3f const& top, float radius)
+    {
+        return mWorldImpl->SphereTrace(bottom, top, radius);
+    }
 }
 

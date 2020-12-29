@@ -112,6 +112,7 @@ namespace inceptionengine
 							   blendOutDuration);
 	}
 
+	//in the coordinate of the model, not parent bone
 	Matrix4x4f AnimationController::GetSocketRefTransformation(std::string const& socket)
 	{
 		int socketID = mSkeleton->mSocketToIndexMap.at(socket);

@@ -39,9 +39,13 @@ int main()
 															   "StandAloneResource\\sice\\skin.HDR" ,
 															   "StandAloneResource\\sice\\cloth.BMP" });
 
-	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, -350.0f), Vec3f(0.0f, 125.0f, 0.0f));
+	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, 400.0f), Vec3f(0.0f, 125.0f, 0.0f));
 
 	sice.AddComponent<RigidbodyComponent>();
+	sice.GetComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
+	sice.GetComponent<RigidbodyComponent>().SetCapsuleColliderProperties(Vec3f(0.0f, 0.0f, 0.0f),
+																		 Vec3f(0.0f, 150.0f, 0.0f),
+																		 40.0f);
 
 	sice.AddComponent<AudioComponent>();
 
@@ -50,7 +54,20 @@ int main()
 									   {0.002654, -0.001622, 0.012622, 0.000000},
 									   {0.171233, -0.007158, 0.361185, 1.000000 } };
 
+	Matrix4x4f swordStart = { {1.000000, -0.000000, 0.000000, 0.000000},
+							 {-0.000000, 1.000000, -0.000000, 0.000000},
+							 {0.000000, -0.000000, 1.000000, 0.000000},
+							 {0.161875, 0.016064, 0.158630, 1.000000} };
+
+	Matrix4x4f swordEnd = { {1.000000, -0.000000, 0.000000, 0.000000},
+						   {-0.000000, 1.000000, -0.000000, 0.000000},
+						   {0.000000, -0.000000, 1.000000, 0.000000},
+						   {0.516013, -0.056450, 0.869853, 1.000000} };
+
+
 	sice.GetComponent<SkeletalMeshComponent>().CreateSocket("SwordSocket", "Bip001 R Hand", swordSocketTransform);
+	sice.GetComponent<SkeletalMeshComponent>().CreateSocket("SwordStart", "Bip001 R Hand", swordStart);
+	sice.GetComponent<SkeletalMeshComponent>().CreateSocket("SwordEnd", "Bip001 R Hand", swordEnd);
 
 	world->SetGameCamera(sice.GetComponent<CameraComponent>());
 
@@ -67,6 +84,14 @@ int main()
 	Entity const& plane = world->CreateEntity();
 	plane.AddComponent<SkeletalMeshComponent>().SetPlane(1000.0f);
 
+	Entity const& milia = world->CreateEntity();
+	milia.GetComponent<TransformComponent>().SetWorldTransform(Translate(Vec3f(0.0f, 0.0f, -500.0f)));
+	milia.AddComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
+	milia.GetComponent<RigidbodyComponent>().SetCapsuleColliderProperties(Vec3f(0.0f, 0.0f, 0.0f),
+																		  Vec3f(0.0f, 150.0f, 0.0f),
+																		  40.0f);
+	milia.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
+	milia.AddComponent<AnimationComponent>().SetAnimStateMachine<MiliaASM>();
 
 	engine.PlayGame();
 

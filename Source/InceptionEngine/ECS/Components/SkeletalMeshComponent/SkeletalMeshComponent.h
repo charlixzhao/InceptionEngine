@@ -49,6 +49,8 @@ namespace inceptionengine
 
 		Matrix4x4f GetSocketLclTransform(std::string const& socketName);
 
+		Matrix4x4f GetSocketGlobalTransform(std::string const& socketName);
+
 		void SetVisibility(bool visible);
 
 	private:

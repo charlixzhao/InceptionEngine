@@ -7,6 +7,8 @@
 #include "Entity/EntityFriend.h"
 #include "ECS/ComponentSystemTypeTraits.h"
 
+#include "ECS/Components/RigidbodyComponent/SphereTraceResult.h"
+
 
 namespace inceptionengine
 {
@@ -16,6 +18,9 @@ namespace inceptionengine
 	class PeripheralInput;
 	class CameraComponent;
 	class WindowHandler;
+
+
+
 
 	class IE_API World
 	{
@@ -46,13 +51,15 @@ namespace inceptionengine
 
 		void DrawAnimationTest();
 
+		std::vector<SphereTraceResult> SphereTrace(Vec3f const& bottom, Vec3f const& top, float radius);
+
 	private:
 		/*
 		PIMPL idiom
 		*/
 		class WorldImpl;
 
-		std::unique_ptr<WorldImpl> mWorldImpl;
+		std::unique_ptr<WorldImpl> mWorldImpl = nullptr;
 
 		EntityFriend const mEntityFriend = {};
 

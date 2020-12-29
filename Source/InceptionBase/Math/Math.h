@@ -289,4 +289,10 @@ namespace inceptionengine
 	{
 		return glm::sqrt(Distance2(mat1, mat2));
 	}
+
+	inline float Distance(Vec3f const& p1, Vec3f const& p2)
+	{
+		return glm::distance(p1, p2);
+	}
+
 }
