@@ -53,7 +53,7 @@ namespace inceptionengine
 		std::function<void()> mAnimStartCallback;
 		std::function<void()> mAnimInterruptCallback;
 		std::function<void()> mAnimEndCallback;
-		std::vector<AnimNotify> mAnimNotifies;
+		std::list<AnimNotify> mAnimNotifies;
 		std::vector<AnimNotifyState> mAnimNotifyStates;
 
 		float mBlendInDuration = 0.05f;

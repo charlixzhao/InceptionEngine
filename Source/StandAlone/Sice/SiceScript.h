@@ -151,10 +151,28 @@ private:
 			range1.playSpeed = attackSpeed[mAttackState];
 			setting.animSpeedRanges = { range1 };
 			setting.blendOutDuration = 0.3f;
+			if (mAttackState == 0)
+			{
+				AnimNotify attackDetection;
+				attackDetection.ratio = 8.0f / 14.0f;
+				attackDetection.notify = [&]()
+				{
+					Vec3f bottom = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordStart")[3];
+					Vec3f top = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordEnd")[3];
+					std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 10.0f);
+					if (traceRes.size() > 0)
+					{
+						std::cout << "Hit!" << std::endl;
+					} 
+				};
+
+				setting.animNotifies.push_back(attackDetection);
+			}
 
 			mAttackState += 1;
 			if (mAttackState >= attacks.size()) mAttackState = 0;
 			setting.animEndCallback = [&]() {mAttackState = 0; GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false); };
+
 			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
 		}
 	}
