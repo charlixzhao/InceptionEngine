@@ -54,7 +54,7 @@ namespace inceptionengine
 			{
 				if (path[i] == '.')
 				{
-					return path.substr(i + 1, path.length());
+					return path.substr(static_cast<size_t>(i) + 1, path.length());
 				}
 			}
 			return "";
@@ -69,11 +69,11 @@ namespace inceptionengine
 		static std::string GetEnginePath(std::string const& path)
 		{
 			int location = -1;
-			for (int i = 0; i < path.length(); i++)
+			for (size_t i = 0; i < path.length(); i++)
 			{
 				if (path[i] == '\\')
 				{
-					for (int j = i + 1; j < path.length(); j++)
+					for (size_t j = i + 1; j < path.length(); j++)
 					{
 						if (path[j] == '\\')
 						{
@@ -88,7 +88,7 @@ namespace inceptionengine
 				}
 			}
 			assert(location != -1);
-			return path.substr(0, location + 1);
+			return path.substr(0, (static_cast<size_t>(location) + 1));
 		}
 
 	private:

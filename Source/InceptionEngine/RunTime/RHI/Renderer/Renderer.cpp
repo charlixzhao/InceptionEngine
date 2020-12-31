@@ -274,14 +274,27 @@ namespace inceptionengine
 		appInfo.pApplicationName = appName;
 		appInfo.apiVersion = VK_API_VERSION_1_2;
 		createInfo.pApplicationInfo = &appInfo;
-		createInfo.enabledExtensionCount = enableExtensionCount;
+		createInfo.enabledExtensionCount = enableExtensionCount; 
 		createInfo.ppEnabledExtensionNames = enableExtensionNames;
 		createInfo.enabledLayerCount = enableLayerCount;
 		createInfo.ppEnabledLayerNames = enableLayerNames;
-		if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+		try
 		{
-			std::cerr << "Fail to create vulkan instance!" << std::endl;
-			throw std::runtime_error("");
+			if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+			{
+				throw - 1;
+			}
+
+		}
+		catch(int e)
+		{
+			createInfo.enabledLayerCount = 0;
+			if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+			{
+				std::cerr << "Fail to create vulkan instance!" << std::endl;
+				throw std::runtime_error("");
+			}
+
 		}
 
 	}
