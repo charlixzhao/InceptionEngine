@@ -120,6 +120,21 @@ namespace inceptionengine
 		return GetBoneGlobalTransform(parentID) * mSkeleton->mSockets[socketID].lclTransform;
 	}
 
+	float AnimationController::GetCurrentEventAnimTime() const
+	{
+		return mEventAnimController->GetCurrentEventAnimTime();
+	}
+
+	float AnimationController::GetCurrentEventAnimDuration() const
+	{
+		return mEventAnimController->GetCurrentEventAnimDuration();
+	}
+
+	void AnimationController::InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed)
+	{
+		mEventAnimController->InsertAnimSpeedRange(startRatio, endRatio, playSpeed);
+	}
+
 	Matrix4x4f AnimationController::GetBoneGlobalTransform(int boneID)
 	{
 		Matrix4x4f globalTransform = mFinalPose[boneID];

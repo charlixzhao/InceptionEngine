@@ -53,6 +53,21 @@ namespace inceptionengine
 		mAnimationController->PlayEventAnimation(setting);
 	}
 
+	float AnimationComponent::GetCurrentEventAnimTime() const
+	{
+		return mAnimationController->GetCurrentEventAnimTime();
+	}
+
+	float AnimationComponent::GetCurrentEventAnimDuration() const
+	{
+		return  mAnimationController->GetCurrentEventAnimDuration();
+	}
+
+	float AnimationComponent::GetCurrentEventAnimRatio() const
+	{
+		return mAnimationController->GetCurrentEventAnimTime() / mAnimationController->GetCurrentEventAnimDuration();
+	}
+
 	void AnimationComponent::HandReachTarget(Matrix4x4f const& endEffector)
 	{
 		SkeletalMeshInstance& skeletonMeshInstance = *mWorld.get().GetEntity(mEntityID).GetComponent<SkeletalMeshComponent>().mSkeletalMeshInstance;
@@ -78,6 +93,11 @@ namespace inceptionengine
 	Matrix4x4f AnimationComponent::GetSocketRefTransformation(std::string const& socketName)
 	{
 		return mAnimationController->GetSocketRefTransformation(socketName);
+	}
+
+	void AnimationComponent::InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed)
+	{
+		mAnimationController->InsertEventAnimSpeedRange(startRatio, endRatio, playSpeed);
 	}
 
 }

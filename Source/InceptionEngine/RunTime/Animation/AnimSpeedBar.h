@@ -12,6 +12,8 @@ namespace inceptionengine
 
 		float QueryAnimSpeed(float ratio) const;
 
+		//insert without check overlap
+		void InsertAnimSpeedRange(AnimSpeedRange const& range);
 	private:
 		//private methods
 		void SortSpeedRanges();
@@ -22,6 +24,6 @@ namespace inceptionengine
 	private:
 		//private data member
 
-		std::vector<AnimSpeedRange> mAnimSpeedRanges;
+		std::list<AnimSpeedRange> mAnimSpeedRanges;
 	};
 }

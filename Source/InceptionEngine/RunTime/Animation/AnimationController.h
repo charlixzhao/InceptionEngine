@@ -54,6 +54,12 @@ namespace inceptionengine
 
 		Matrix4x4f GetSocketRefTransformation(std::string const& socket);
 
+		float GetCurrentEventAnimTime() const;
+
+		float GetCurrentEventAnimDuration() const;
+
+		void InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
+
 	private:
 		Matrix4x4f GetBoneGlobalTransform(int boneID);
 

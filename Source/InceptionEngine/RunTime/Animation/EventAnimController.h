@@ -25,6 +25,12 @@ namespace inceptionengine
 
 		bool IsBlending() const;
 
+		float GetCurrentEventAnimTime() const;
+
+		float GetCurrentEventAnimDuration() const;
+
+		void InsertAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
+
 	private:
 		std::unique_ptr<AnimInstance> mAnimInstance = nullptr;
 		float mRunningTime = 0.0f;

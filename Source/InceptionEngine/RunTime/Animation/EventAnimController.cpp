@@ -86,6 +86,25 @@ namespace inceptionengine
 	{
 		return mEventAnimBlender.IsBlending();
 	}
+	float EventAnimController::GetCurrentEventAnimTime() const
+	{
+		if (mRunningTime == 0.0f) return -1.0f;
+		else return mRunningTime;
+	}
+	float EventAnimController::GetCurrentEventAnimDuration() const
+	{
+		assert(mAnimInstance != nullptr);
+		return mAnimInstance->GetDuration();
+	}
+	void EventAnimController::InsertAnimSpeedRange(float startRatio, float endRatio, float playSpeed)
+	{
+		assert(mAnimInstance != nullptr);
+		AnimSpeedRange range;
+		range.startRatio = startRatio;
+		range.endRatio = endRatio;
+		range.playSpeed = playSpeed;
+		mAnimInstance->InsertAnimSpeedRange(range);
+	}
 }
 
 

@@ -162,7 +162,8 @@ private:
 					std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 10.0f);
 					if (traceRes.size() > 0)
 					{
-						std::cout << "Hit!" << std::endl;
+						float currentRatio = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimRatio();
+						GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRange(currentRatio, currentRatio + 0.04f, 0.1f);
 					} 
 				};
 

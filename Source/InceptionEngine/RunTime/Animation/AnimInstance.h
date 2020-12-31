@@ -40,6 +40,8 @@ namespace inceptionengine
 
 		float GetBlendOutDuration() const;
 
+		void InsertAnimSpeedRange(AnimSpeedRange const& range);
+
 		
 	private:
 		AnimInterpType mInterpType = AnimInterpType::Linear;

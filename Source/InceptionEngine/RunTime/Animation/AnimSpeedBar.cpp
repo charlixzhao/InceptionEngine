@@ -29,9 +29,15 @@ namespace inceptionengine
 		return 1.0f;
 	}
 
+	void AnimSpeedBar::InsertAnimSpeedRange(AnimSpeedRange const& range)
+	{
+		mAnimSpeedRanges.push_front(range);
+		
+	}
+
 	void AnimSpeedBar::SortSpeedRanges()
 	{
-		std::sort(mAnimSpeedRanges.begin(), mAnimSpeedRanges.end(), CompareRange);
+		mAnimSpeedRanges.sort(CompareRange);
 	}
 
 	bool AnimSpeedBar::InRange(AnimSpeedRange const& range, float ratio) const

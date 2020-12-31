@@ -98,5 +98,9 @@ namespace inceptionengine
 	{
 		return mBlendOutDuration;
 	}
+	void AnimInstance::InsertAnimSpeedRange(AnimSpeedRange const& range)
+	{
+		mAnimSpeedBar.InsertAnimSpeedRange(range);
+	}
 }
 

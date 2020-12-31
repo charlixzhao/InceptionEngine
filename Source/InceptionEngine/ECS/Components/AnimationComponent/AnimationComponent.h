@@ -25,6 +25,10 @@ namespace inceptionengine
 
 		void PlayEventAnimation(EventAnimPlaySetting const& setting);
 
+		float GetCurrentEventAnimTime() const;
+
+		float GetCurrentEventAnimRatio() const;
+
 		void HandReachTarget(Matrix4x4f const& EndEffector);
 
 		void TestAxis();
@@ -40,6 +44,9 @@ namespace inceptionengine
 		{
 			mAnimationController->SetAnimStateMachine<T>(mEntityID, mWorld, std::forward<Args>(args)...);
 		}
+
+		void InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
+		float GetCurrentEventAnimDuration() const;
 
 	private:
 		friend class AnimationSystem;
