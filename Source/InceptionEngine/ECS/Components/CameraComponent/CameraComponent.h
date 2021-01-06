@@ -38,8 +38,6 @@ namespace inceptionengine
 
 		Vec4f GetLootAtDirection() const;
 
-	private:
-		void ResetToLootAtDirection();
 
 	private:
 

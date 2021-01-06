@@ -125,18 +125,6 @@ namespace inceptionengine
 			mPosition = currentPostion;
 			mForwardPoint = currentForward;
 		}
-
-
-		//ResetToLootAtDirection();
 	}
 
-	void CameraComponent::ResetToLootAtDirection()
-	{
-		float length = VecLength(Vec3f(mPosition - mForwardPoint));
-
-		Vec4f lootAtDirection = NormalizeVec(mLookAtPoint - mPosition);
-
-		mForwardPoint = mPosition + length * lootAtDirection;
-
-	}
 }
