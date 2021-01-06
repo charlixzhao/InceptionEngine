@@ -8,6 +8,10 @@ set(SRC_BUILD_FILES
 "Sice/SiceScript.cpp"
 "Sice/SiceASM.h"
 "Sice/SiceASM.cpp"
+"Shinokao/ShinokaoScript.h"
+"Shinokao/ShinokaoScript.cpp"
+"Shinokao/ShinokaoASM.h"
+"Shinokao/ShinokaoASM.cpp"
 "Interfaces/IHitable.h")
 
 add_executable(StandAlone ${SRC_BUILD_FILES})

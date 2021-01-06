@@ -34,6 +34,13 @@ namespace inceptionengine
 
 		Vec4f GetCameraRefPosition() const;
 
+		void MoveForward(float amount);
+
+		Vec4f GetLootAtDirection() const;
+
+	private:
+		void ResetToLootAtDirection();
+
 	private:
 
 		Vec4f mPosition = { 0.0f,0.0f,1.0f,1.0f };
@@ -45,5 +52,7 @@ namespace inceptionengine
 		std::reference_wrapper<World> mWorld;
 
 		bool mCameraControlYaw = false;
+
+		Vec4f mLookAtPoint = { 0.0f,0.0f,0.0f, 1.0f };
 	};
 }

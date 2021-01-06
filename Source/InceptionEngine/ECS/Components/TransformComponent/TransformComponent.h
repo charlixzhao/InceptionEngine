@@ -33,6 +33,8 @@ namespace inceptionengine
 
 		Vec3f GetGlobalForward() const;
 
+		void SetUniformScale(float scale);
+
 
 	private:
 		friend class TransformSystem;
@@ -44,6 +46,8 @@ namespace inceptionengine
 		Vec4f mLocalYAxis = { 0.0f, 1.0f, 0.0f, 0.0f };
 		Vec4f mLocalZAxis = { 0.0f, 0.0f, 1.0f, 0.0f };
 		Vec4f mLocalPosition = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+		float mUniformScale = 1.0f;
 
 		float mRotationDuration = 0.0f;
 		float mRotationCountDown = 0.0f;
@@ -58,5 +62,7 @@ namespace inceptionengine
 
 		EntityID mAttachedToSocketEntityID = InvalidEntityID;
 		std::string mAttachedToSocketName;
+
+		
 	};
 }

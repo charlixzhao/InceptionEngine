@@ -32,13 +32,13 @@ namespace inceptionengine
 			parentGlobalTranform = attachedEntity.GetComponent<TransformComponent>().GetWorldTransform() * attachedEntity.GetComponent<AnimationComponent>().GetSocketRefTransformation(mAttachedToSocketName);
 		}
 		
-		return parentGlobalTranform * Matrix4x4f(mLocalXAxis, mLocalYAxis, mLocalZAxis, mLocalPosition);
+		return parentGlobalTranform * GetLocalTransform();
 
 	}
 
 	Matrix4x4f TransformComponent::GetLocalTransform() const
 	{
-		return Matrix4x4f(mLocalXAxis, mLocalYAxis, mLocalZAxis, mLocalPosition);
+		return Matrix4x4f(mLocalXAxis, mLocalYAxis, mLocalZAxis, mLocalPosition) * Scale(mUniformScale, mUniformScale, mUniformScale);
 	}
 
 	void TransformComponent::SetWorldTransform(Matrix4x4f const& t)
@@ -143,6 +143,11 @@ namespace inceptionengine
 	Vec3f TransformComponent::GetGlobalForward() const
 	{
 		return GetWorldTransform()[2];
+	}
+
+	void TransformComponent::SetUniformScale(float scale)
+	{
+		mUniformScale = scale;
 	}
 
 }

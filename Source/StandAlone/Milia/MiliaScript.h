@@ -3,11 +3,11 @@
 #include "InceptionEngine.h"
 #include <iostream>
 
-#include "Interfaces/IHitable.h"
+
 
 using namespace inceptionengine;
 
-class MiliaScript : public NativeScript, public IHitable
+class MiliaScript : public NativeScript
 {
 public:
 	MiliaScript(EntityID entityID, std::reference_wrapper<World> world)
@@ -28,20 +28,6 @@ public:
 		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&HornetScript::OnMouse_Left, this, std::placeholders::_1));*/
 	}
 
-public:
-	virtual void GetHit()
-	{
-		EventAnimPlaySetting setting;
-		setting.animFilePath = attacks[0];
-		AnimSpeedRange range1;
-		range1.startRatio = 0.0f;
-		range1.endRatio = 1.0f;
-		range1.playSpeed = attackSpeed[0];
-		setting.animSpeedRanges = { range1 };
-
-		GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
-		//std::cout << "i'm hit\n";
-	}
 
 private:
 

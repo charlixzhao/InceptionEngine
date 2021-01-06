@@ -6,6 +6,8 @@
 #include "Milia/MiliaASM.h"
 #include "Sice/SiceScript.h"
 #include "Sice/SiceASM.h"
+#include "Shinokao/ShinokaoASM.h"
+#include "Shinokao/ShinokaoScript.h"
 
 using namespace inceptionengine;
 
@@ -84,21 +86,18 @@ int main()
 	Entity const& plane = world->CreateEntity();
 	plane.AddComponent<SkeletalMeshComponent>().SetPlane(1000.0f);
 
-	Entity const& milia = world->CreateEntity();
-	milia.GetComponent<TransformComponent>().SetWorldTransform(Translate(Vec3f(0.0f, 0.0f, -500.0f)));
-	milia.AddComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
-	milia.GetComponent<RigidbodyComponent>().SetCapsuleColliderProperties(Vec3f(0.0f, 0.0f, 0.0f),
-																		  Vec3f(0.0f, 150.0f, 0.0f),
-																		  40.0f);
-	//milia.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
-	milia.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\shinokao\\shinokao_mesh.ie_skmesh");
-	/*
-	milia.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource\\shinokao\\T_Shinokao_Body.BMP",
-														   "StandAloneResource\\shinokao\\T_Shinokao_Cloak.BMP" ,
-														   "StandAloneResource\\shinokao\\T_Shinokao_Head.BMP" ,
-														   "StandAloneResource\\shinokao\\T_Shinokao_Weapon.BMP" });*/
-	milia.AddComponent<AnimationComponent>().SetAnimStateMachine<MiliaASM>();
-	milia.AddComponent<NativeScriptComponent>().SetScript<MiliaScript>();
+	Entity const& shinokao = world->CreateEntity();
+	shinokao.GetComponent<TransformComponent>().SetWorldTransform(Translate(Vec3f(0.0f, 0.0f, -500.0f)));
+	shinokao.AddComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
+	shinokao.GetComponent<RigidbodyComponent>().SetCapsuleColliderProperties(Vec3f(0.0f, 0.0f, 0.0f),
+																		  Vec3f(0.0f, 150.0f * 1.8f, 0.0f),
+																		  40.0f * 1.8f);
+
+	shinokao.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\shinokao\\shinokao_mesh.ie_skmesh");
+
+	shinokao.AddComponent<AnimationComponent>().SetAnimStateMachine<ShinokaoASM>();
+	shinokao.AddComponent<NativeScriptComponent>().SetScript<ShinokaoScript>();
+	shinokao.GetComponent<TransformComponent>().SetUniformScale(1.8f);
 
 	engine.PlayGame();
 

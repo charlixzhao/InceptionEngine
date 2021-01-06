@@ -26,6 +26,8 @@ public:
 		BindKeyInputCallback(KeyInputTypes::Keyboard_Space, std::bind(&SiceScript::OnSpace, this, std::placeholders::_1));
 
 		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&SiceScript::OnMouse_Left, this, std::placeholders::_1));
+
+		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&SiceScript::OnMouse_Scroll, this, std::placeholders::_1));
 	}
 
 	bool InBattleMode() const { return mInBattleMode; }
@@ -178,7 +180,17 @@ private:
 		}
 	}
 
-
+	void OnMouse_Scroll(bool scrollUp)
+	{
+		if (scrollUp)
+		{
+			GetEntity().GetComponent<CameraComponent>().MoveForward(20.0f);
+		}
+		else
+		{
+			GetEntity().GetComponent<CameraComponent>().MoveForward(-20.0f);
+		}
+	}
 
 	void OnMouse_Left(bool press)
 	{

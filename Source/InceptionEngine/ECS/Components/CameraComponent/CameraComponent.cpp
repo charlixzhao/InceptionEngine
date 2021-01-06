@@ -21,6 +21,18 @@ namespace inceptionengine
 	{
 		mPosition = Vec4f(position.x, position.y, position.z, 1.0f);
 		mForwardPoint = Vec4f(forward.x, forward.y, forward.z, 1.0f);
+		Vec3f a = mPosition;
+		Vec3f b = NormalizeVec(Vec3f(mForwardPoint - mPosition));
+		float t1 = -a[0] / b[0];
+		float t2 = -a[2] / b[2];
+		if (std::isnan(t1) && std::isnan(t2))
+			throw std::runtime_error("impossible math result");
+		float t = std::isnan(t1) ? t2 : t1;
+		//if (std::abs(t1 - t2) > 0.01f)
+			//throw std::runtime_error("not look to the y axis\n");
+		mLookAtPoint = Vec4f(0.0f, a[1] + b[1] * t, 0.0f, 1.0f);
+		std::cout << "look at position is " << VecToString(mLookAtPoint) << std::endl;
+
 	}
 
 	/*
@@ -44,8 +56,8 @@ namespace inceptionengine
 	{
 		auto lookAtDirection = mForwardPoint - mPosition;
 		auto rotateionAxis = CrossProduct(Vec3f(lookAtDirection.x, lookAtDirection.y, lookAtDirection.z), Vec3f(0.0f, 1.0f, 0.0f));
-		mPosition = Rotate(mPosition, degree, rotateionAxis);
-		mForwardPoint = Rotate(mForwardPoint, degree, rotateionAxis);
+		mPosition = mLookAtPoint + Rotate(mPosition - mLookAtPoint, degree, rotateionAxis);
+		mForwardPoint = mLookAtPoint + Rotate(mForwardPoint - mLookAtPoint, degree, rotateionAxis);
 	}
 
 	void CameraComponent::RotateVertical(float degree)
@@ -88,5 +100,43 @@ namespace inceptionengine
 	Vec4f CameraComponent::GetCameraRefPosition() const
 	{
 		return mPosition;
+	}
+
+	Vec4f CameraComponent::GetLootAtDirection() const
+	{
+		return NormalizeVec(mForwardPoint - mPosition);
+	}
+
+	void CameraComponent::MoveForward(float amount)
+	{
+		Vec4f currentPostion = mPosition;
+		Vec4f currentForward = mForwardPoint;
+
+		currentPostion += amount * GetLootAtDirection();
+		currentForward += amount * GetLootAtDirection();
+
+		if (VecLength(currentPostion - mLookAtPoint) <= 80.0f ||
+			VecLength(currentPostion - mLookAtPoint) >= 350.0f)
+		{
+			return;
+		}
+		else
+		{
+			mPosition = currentPostion;
+			mForwardPoint = currentForward;
+		}
+
+
+		//ResetToLootAtDirection();
+	}
+
+	void CameraComponent::ResetToLootAtDirection()
+	{
+		float length = VecLength(Vec3f(mPosition - mForwardPoint));
+
+		Vec4f lootAtDirection = NormalizeVec(mLookAtPoint - mPosition);
+
+		mForwardPoint = mPosition + length * lootAtDirection;
+
 	}
 }
