@@ -17,7 +17,7 @@ namespace inceptionengine
 	}
 
 
-	AudioComponent::~AudioComponent()
+	void AudioComponent::Drop()
 	{
 		if (GetSoundEngine() != nullptr)
 		{
@@ -29,6 +29,11 @@ namespace inceptionengine
 	void AudioComponent::PlaySound2D(std::string const& soundFilePath, bool loop)
 	{
 		GetSoundEngine()->play2D(PathHelper::GetAbsolutePath(soundFilePath).c_str(), loop);
+	}
+
+	void AudioComponent::InitializeSoundEngine()
+	{
+		GetSoundEngine();
 	}
 
 

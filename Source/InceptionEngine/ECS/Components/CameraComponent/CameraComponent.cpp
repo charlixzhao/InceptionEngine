@@ -49,9 +49,7 @@ namespace inceptionengine
 		return LookAt(Vec3f(worldPosition.x, worldPosition.y, worldPosition.z), Vec3f(worldForward.x, worldForward.y, worldForward.z), Vec3f(0.0f, 1.0f, 0.0f));
 	}
 
-	/*
-	not accurate, we should translate to the pivot before rotate and then translate back
-	*/
+
 	void CameraComponent::RotateHorizontal(float degree)
 	{
 		auto lookAtDirection = mForwardPoint - mPosition;

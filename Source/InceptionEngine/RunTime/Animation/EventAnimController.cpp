@@ -72,7 +72,10 @@ namespace inceptionengine
 				}
 				else
 				{
-					mAnimInstance->Notify(mRunningTime);
+					//we can't write the notify method inside AnimInstance, because the Notify function defined
+					//by the user may change the AnimInstance itself. It that case, the AnimInstance become
+					//invalid after some notifies happen.
+					NotifyCurrentAnimInstance();
 					mCurrentPose = mAnimInstance->Sample(mRunningTime);
 				}
 			}
@@ -100,10 +103,28 @@ namespace inceptionengine
 	{
 		assert(mAnimInstance != nullptr);
 		AnimSpeedRange range;
-		range.startRatio = startRatio;
-		range.endRatio = endRatio;
+		range.startRatio = std::clamp(startRatio, 0.0f, 1.0f);
+		range.endRatio = std::clamp(endRatio, 0.0f, 1.0f);
 		range.playSpeed = playSpeed;
 		mAnimInstance->InsertAnimSpeedRange(range);
+	}
+
+	void EventAnimController::NotifyCurrentAnimInstance()
+	{
+		AnimInstance* currentInstance = mAnimInstance.get();
+		float ratio = mRunningTime / mAnimInstance->GetDuration();
+		for (auto it = mAnimInstance->mAnimNotifies.begin(); it != mAnimInstance->mAnimNotifies.end(); it++)
+		{
+			if (ratio >= it->ratio && !it->notified)
+			{
+				it->notify();
+				if (mAnimInstance.get() != currentInstance)
+				{
+					break;
+				}
+				else it->notified = true;
+			}
+		}
 	}
 }
 

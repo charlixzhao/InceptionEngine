@@ -246,6 +246,8 @@ namespace inceptionengine
         /*
         system of entties' components start
         */
+        AudioComponent::InitializeSoundEngine();
+
         mNativeScriptSystem.Start();
         mAnimationSystem.Start();
         mSkeletalMeshRenderSystem.Start();
@@ -261,6 +263,9 @@ namespace inceptionengine
         /*
         system of entties' components end
         */
+
+        AudioComponent::Drop();
+
         mNativeScriptSystem.End();
         mSkeletalMeshRenderSystem.End();
 

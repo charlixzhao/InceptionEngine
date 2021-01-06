@@ -17,90 +17,89 @@ public:
 	}
 
 public:
-	virtual void GetHit() override
+	virtual void GetHit(IHitable* attacker) override
 	{
 		EventAnimPlaySetting setting;
-		setting.animFilePath = attacks[0];
-		AnimSpeedRange range1;
-		range1.startRatio = 0.0f;
-		range1.endRatio = 1.0f;
-		range1.playSpeed = attackSpeed[0];
-		setting.animSpeedRanges = { range1 };
+		setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_gethit_2.ie_anim";
 
-		//GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
-		std::cout << "I'm hit!\n";
+		GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
+
+		GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(0.0f, 0.03f, 0.1f);
+
+		//std::cout << "I'm hit!\n";
 	}
+
+	virtual void BeBlocked() override
+	{
+		EventAnimPlaySetting setting;
+		setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_beblocked.ie_anim";
+		setting.blendOutDuration = 0.3f;
+		GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
+		GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(0.0f, 0.03f, 0.1f);
+	}
+
+	
 
 
 private:
 
-	void OnKey_W(bool press)
+	virtual void OnTick(float dt) override
 	{
-		mPressedW = press;
-		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
-		ControlMovement(press, cameraForward);
-	}
-
-	void OnKey_A(bool press)
-	{
-		mPressedA = press;
-		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
-		Vec3f rotateToVec = RotateVec(cameraForward, 90.0f, Vec3f(0.0f, 1.0f, 0.0f));
-		ControlMovement(press, rotateToVec);
-	}
-
-	void OnKey_S(bool press)
-	{
-		mPressedS = press;
-		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
-		Vec3f rotateToVec = RotateVec(cameraForward, 180.0f, Vec3f(0.0f, 1.0f, 0.0f));
-		ControlMovement(press, rotateToVec);
-	}
-
-	void OnKey_D(bool press)
-	{
-		mPressedD = press;
-		Vec3f cameraForward = GetEntity().GetComponent<CameraComponent>().GetForwardVec();
-		Vec3f rotateToVec = RotateVec(cameraForward, -90.0f, Vec3f(0.0f, 1.0f, 0.0f));
-		ControlMovement(press, rotateToVec);
-	}
-
-	void ControlMovement(bool start, Vec3f const& rotateToVec)
-	{
-		if (start)
+		mAttack3Timer += dt;
+		if (mAttack3Timer >= mAttack3CD)
 		{
-			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed });
-			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
-			GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(rotateToVec, 0.5f);
-		}
-		else if (!mPressedA && !mPressedD && !mPressedS && !mPressedW)
-		{
-			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
-			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
+			mAttack3Timer = std::fmodf(mAttack3Timer, mAttack3CD);
+
+			EventAnimPlaySetting setting;
+			setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_attack_3.ie_anim";;
+
+			AnimNotify attackDetection;
+			attackDetection.ratio = 27.0f / 60.0f;
+			attackDetection.notify = [&]()
+			{
+				Vec3f bottom = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordStart")[3];
+				Vec3f top = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordEnd")[3];
+				std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 15.0f);
+				if (traceRes.size() > 0)
+				{
+					float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
+					GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.15f);
+				}
+				for (SphereTraceResult const& res : traceRes)
+				{
+					EntityID hitEntity = res.entityID;
+					if (GetEntity().GetWorld().GetEntity(hitEntity).HasComponent<NativeScriptComponent>())
+					{
+						IHitable* hitable = dynamic_cast<IHitable*>(GetEntity().GetWorld().GetEntity(hitEntity).GetComponent<NativeScriptComponent>().GetScript());
+						if (hitable != nullptr)
+						{
+							hitable->GetHit(dynamic_cast<IHitable*>(this));
+						}
+						else
+						{
+							std::cout << "hit is nullptr\n";
+						}
+					}
+
+				}
+			};
+
+			setting.animNotifies.push_back(attackDetection);
+			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
 		}
 	}
+
+	
 
 
 
 private:
-	std::array<std::string, 5> attacks =
-	{
-		"StandAloneResource\\milia\\milia_combo_a1.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a2.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a3.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a4.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a5.ie_anim"
-	};
-	std::array<float, 5> attackSpeed = { 0.85, 0.85, 0.65, 0.7, 0.7 };
-
-	int mAttackState = 0;
 
 	float const mMaxWalkSpeed = 150.0f;
 
+	float mAttack3Timer = 0.0f;
+
+	float const mAttack3CD = 5.0f;
 
 
-	bool mPressedW = false;
-	bool mPressedA = false;
-	bool mPressedS = false;
-	bool mPressedD = false;
 };

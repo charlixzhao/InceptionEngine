@@ -34,8 +34,6 @@ namespace inceptionengine
 
 		void Interrupt();
 
-		void Notify(float time);
-
 		float QueryAnimSpeed(float ratio) const;
 
 		float GetBlendOutDuration() const;
@@ -44,6 +42,8 @@ namespace inceptionengine
 
 		
 	private:
+		friend class EventAnimController;
+
 		AnimInterpType mInterpType = AnimInterpType::Linear;
 
 		std::shared_ptr<Animation const> mAnimationResource;

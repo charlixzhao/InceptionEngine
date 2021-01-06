@@ -7,7 +7,7 @@
 
 using namespace inceptionengine;
 
-class SiceScript : public NativeScript
+class SiceScript : public NativeScript, public IHitable
 {
 public:
 	SiceScript(EntityID entityID, std::reference_wrapper<World> world, EntityID swordID)
@@ -27,14 +27,39 @@ public:
 
 		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&SiceScript::OnMouse_Left, this, std::placeholders::_1));
 
+		BindKeyInputCallback(KeyInputTypes::Mouse_Right, std::bind(&SiceScript::OnMouse_Right, this, std::placeholders::_1));
+
 		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&SiceScript::OnMouse_Scroll, this, std::placeholders::_1));
+
 	}
 
 	bool InBattleMode() const { return mInBattleMode; }
 
+	virtual void GetHit(IHitable* attacker) override
+	{
+		if (mIsBlocking && attacker != nullptr)
+		{
+			attacker->BeBlocked();
+			BlockSuccess();
+
+		}
+	}
+
+	virtual void BeBlocked() override
+	{
+		;
+	}
+
 
 private:
-	
+	void BlockSuccess()
+	{
+		mIsBlocking = false;
+		float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
+		GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.15f);
+		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\thinsword\\sword_block2.WAV");
+	}
+
 	virtual void OnBegin() override
 	{
 		GetEntity().GetComponent<AnimationComponent>().SetAimIkChain({ "Bip001 Spine1", "Bip001 Neck", "Bip001 Head" },	
@@ -165,7 +190,7 @@ private:
 	{
 		if (start)
 		{
-			if (mAttackState == 0)
+			if (! GetEntity().GetComponent<AnimationComponent>().IsPlayingEventAnimation())
 			{
 				GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed });
 				GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
@@ -194,12 +219,12 @@ private:
 
 	void OnMouse_Left(bool press)
 	{
-		if (press)
+		if (press && mInBattleMode)
 		{
+			GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(GetEntity().GetComponent<CameraComponent>().GetForwardVec(), 0.15f);
+
 			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
 			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
-
-			//GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\explosion.wav");
 
 			EventAnimPlaySetting setting;
 			setting.animFilePath = attacks[mAttackState];
@@ -220,8 +245,8 @@ private:
 					std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 10.0f);
 					if (traceRes.size() > 0)
 					{
-						float currentRatio = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimRatio();
-						GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRange(currentRatio, currentRatio + 0.04f, 0.1f);
+						float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
+						GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.1f);
 					} 
 					for (SphereTraceResult const& res : traceRes)
 					{
@@ -231,7 +256,7 @@ private:
 							IHitable* hitable = dynamic_cast<IHitable*>(GetEntity().GetWorld().GetEntity(hitEntity).GetComponent<NativeScriptComponent>().GetScript());
 							if (hitable != nullptr)
 							{
-								hitable->GetHit();
+								hitable->GetHit(dynamic_cast<IHitable*>(this));
 							}
 							else
 							{
@@ -258,6 +283,43 @@ private:
 		if (press)
 		{
 			//GetEntity().GetComponent<AnimationComponent>().StopAnimation();
+		}
+	}
+
+	void OnMouse_Right(bool press)
+	{
+		if (press && mInBattleMode)
+		{
+			GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(GetEntity().GetComponent<CameraComponent>().GetForwardVec(), 0.15f);
+			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
+			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
+			mAttackState = 0;
+
+			EventAnimPlaySetting setting;
+			setting.animFilePath = "StandAloneResource\\sice\\sice_block.ie_anim";
+
+			AnimNotify startBlock;
+			startBlock.ratio = 6.0f / 17.0f;
+			startBlock.notify = [&]() {mIsBlocking = true; };
+
+			AnimNotify endBlock;
+			endBlock.ratio = 15.0f / 17.0f;
+			endBlock.notify = [&]() {mIsBlocking = false; };
+
+			setting.animNotifies.push_back(startBlock);
+			setting.animNotifies.push_back(endBlock);
+			setting.blendOutDuration = 0.3f;
+
+			setting.animInterruptCallback = [&]() {mIsBlocking = false; };
+			
+			AnimSpeedRange range;
+			range.startRatio = 0.0f;
+			range.endRatio = 1.0f;
+
+			range.playSpeed = 1.4f;
+			setting.animSpeedRanges.push_back(range);
+
+			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
 		}
 	}
 
@@ -290,4 +352,6 @@ private:
 
 	float mAimIkTimer = 0.0f;
 	float mTestAimIkInterval = 3.0f;
+
+	bool mIsBlocking = false;
 };

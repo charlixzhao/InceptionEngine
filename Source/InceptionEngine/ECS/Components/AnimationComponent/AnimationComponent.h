@@ -63,7 +63,9 @@ namespace inceptionengine
 
 		float GetCurrentEventAnimRatio() const;
 
-		void InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
+		void InsertEventAnimSpeedRangeRatio(float startRatio, float endRatio, float playSpeed);
+
+		void InsertEventAnimSpeedRangeSecond(float startSecond, float endSecond, float playSpeed);
 
 
 		/*

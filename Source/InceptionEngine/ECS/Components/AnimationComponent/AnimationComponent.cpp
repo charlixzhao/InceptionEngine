@@ -118,8 +118,15 @@ namespace inceptionengine
 		return mAnimationController->GetSocketRefTransformation(socketName);
 	}
 
-	void AnimationComponent::InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed)
+	void AnimationComponent::InsertEventAnimSpeedRangeRatio(float startRatio, float endRatio, float playSpeed)
 	{
+		mAnimationController->InsertEventAnimSpeedRange(startRatio, endRatio, playSpeed);
+	}
+
+	void AnimationComponent::InsertEventAnimSpeedRangeSecond(float startSecond, float endSecond, float playSpeed)
+	{
+		float startRatio = startSecond / GetCurrentEventAnimDuration();
+		float endRatio = endSecond / GetCurrentEventAnimDuration();
 		mAnimationController->InsertEventAnimSpeedRange(startRatio, endRatio, playSpeed);
 	}
 

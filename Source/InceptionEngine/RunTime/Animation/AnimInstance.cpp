@@ -37,7 +37,7 @@ namespace inceptionengine
 			mAnimNotifies.push_back(notify);
 		}
 
-		//mAnimNotifies.sort([](AnimNotify const& lhs, AnimNotify const& rhs) -> bool { return lhs.ratio < rhs.ratio; });
+		mAnimNotifies.sort([](AnimNotify const& lhs, AnimNotify const& rhs) -> bool { return lhs.ratio < rhs.ratio; });
 
 		mAnimNotifyStates = setting.animNotifyStates;
 	}
@@ -67,25 +67,6 @@ namespace inceptionengine
 	void AnimInstance::Interrupt()
 	{
 		mAnimInterruptCallback();
-	}
-
-	void AnimInstance::Notify(float time)
-	{
-		float ratio = time / GetDuration();
-		for (auto it = mAnimNotifies.begin(); it != mAnimNotifies.end(); it++)
-		{
-			if (ratio >= it->ratio)
-			{
-				it->notify();
-				mAnimNotifies.erase(it);
-				Notify(time);
-				break;
-			}
-			else
-			{
-				break;
-			}
-		}
 	}
 
 	float AnimInstance::QueryAnimSpeed(float ratio) const

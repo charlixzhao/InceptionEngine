@@ -17,6 +17,7 @@ int main()
 {
 	auto& engine = InceptionEngine::GetInstance();
 
+
 	World* world = engine.CreateWorld();
 
 	std::array<std::string, 6> skyboxTexturePath =
@@ -90,14 +91,16 @@ int main()
 	shinokao.GetComponent<TransformComponent>().SetWorldTransform(Translate(Vec3f(0.0f, 0.0f, -500.0f)));
 	shinokao.AddComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
 	shinokao.GetComponent<RigidbodyComponent>().SetCapsuleColliderProperties(Vec3f(0.0f, 0.0f, 0.0f),
-																		  Vec3f(0.0f, 150.0f * 1.8f, 0.0f),
-																		  40.0f * 1.8f);
+																			 Vec3f(0.0f, 150.0f * 1.8f, 0.0f),
+																			 150.0f);
 
 	shinokao.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\shinokao\\shinokao_mesh.ie_skmesh");
 
 	shinokao.AddComponent<AnimationComponent>().SetAnimStateMachine<ShinokaoASM>();
 	shinokao.AddComponent<NativeScriptComponent>().SetScript<ShinokaoScript>();
-	shinokao.GetComponent<TransformComponent>().SetUniformScale(1.8f);
+	shinokao.GetComponent<TransformComponent>().SetUniformScale(1.3f);
+	shinokao.GetComponent<SkeletalMeshComponent>().CreateSocket("SwordStart", "Sword_joint", Matrix4x4f(1.0f));
+	shinokao.GetComponent<SkeletalMeshComponent>().CreateSocket("SwordEnd", "joint4_R", Matrix4x4f(1.0f));
 
 	engine.PlayGame();
 

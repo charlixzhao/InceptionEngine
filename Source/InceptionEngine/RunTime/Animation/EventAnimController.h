@@ -31,6 +31,9 @@ namespace inceptionengine
 
 		void InsertAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
 
+		
+	private:
+		void NotifyCurrentAnimInstance();
 	private:
 		std::unique_ptr<AnimInstance> mAnimInstance = nullptr;
 		float mRunningTime = 0.0f;
