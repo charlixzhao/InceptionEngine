@@ -69,6 +69,8 @@ namespace inceptionengine
 
 		std::vector<Matrix4x4f> GetLocalRefPose() const;
 
+		Bone const& GetBone(std::string const& boneName) const;
+
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{

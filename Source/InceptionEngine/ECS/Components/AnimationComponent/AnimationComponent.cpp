@@ -14,6 +14,8 @@
 #include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
 #include "ECS/Components/SkeletalMeshComponent/SkeletalMeshComponent.h"
 
+#include "ECS/Components/TransformComponent/TransformComponent.h"
+
 
 
 
@@ -63,6 +65,16 @@ namespace inceptionengine
 		return  mAnimationController->GetCurrentEventAnimDuration();
 	}
 
+	void AnimationComponent::ChainAimToInDuration(Vec3f const& targetPosition, Vec3f const& eyeOffsetInHeadCoord, float duration)
+	{
+		mAnimationController->ChainAimToInDuration(mWorld.get().GetEntity(mEntityID).GetComponent<TransformComponent>().GetWorldTransform(),
+												   targetPosition, 
+												   eyeOffsetInHeadCoord, 
+												   duration);
+	}
+
+
+
 	float AnimationComponent::GetCurrentEventAnimRatio() const
 	{
 		return mAnimationController->GetCurrentEventAnimTime() / mAnimationController->GetCurrentEventAnimDuration();
@@ -77,6 +89,17 @@ namespace inceptionengine
 	void AnimationComponent::StopAnimation()
 	{
 		mAnimationController->StopAnimation();
+	}
+
+	void AnimationComponent::TestAimAxis()
+	{
+		mAnimationController->TestAimAxis();
+	}
+
+	void AnimationComponent::SetAimIkChain(std::vector<std::string> const& chainBoneNames,
+										   std::vector<float> const& weights)
+	{
+		mAnimationController->SetAimIkChain(chainBoneNames, weights);
 	}
 
 	void AnimationComponent::TestAxis()
@@ -100,4 +123,24 @@ namespace inceptionengine
 		mAnimationController->InsertEventAnimSpeedRange(startRatio, endRatio, playSpeed);
 	}
 
+
+	bool AnimationComponent::IsAimIkActive() const
+	{
+		return mAnimationController->IsAimIkActive();
+	}
+
+	void AnimationComponent::DeactivateAimIk(float blendOutDuration)
+	{
+		mAnimationController->DeactivateAimIk(blendOutDuration);
+	}
+
+	int AnimationComponent::GetCurrentAsmActiveState() const
+	{
+		return mAnimationController->GetCurrentAsmActiveState();
+	}
+
+	float AnimationComponent::GetCurrentAsmActiveStateRunningSecond() const
+	{
+		return mAnimationController->GetCurrentAsmActiveStateRunningSecond();
+	}
 }

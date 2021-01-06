@@ -56,7 +56,8 @@ namespace inceptionengine
 
         auto& currentState = mStates[mCurrentState];
         currentState.runningTime += dt;
-        currentState.runningTime = std::fmod(currentState.runningTime, currentState.animInstance->GetDuration());
+        float sampleTime = std::fmodf(currentState.runningTime, currentState.animInstance->GetDuration());
+
         for (auto& link : currentState.links)
         {
             if (link.translationFunc())
@@ -65,7 +66,7 @@ namespace inceptionengine
                 auto& blendToState = mStates[link.toState];
              
                 //start blending
-                mTransitionBlender.StartBlending(currentState.animInstance->Sample(currentState.runningTime),
+                mTransitionBlender.StartBlending(currentState.animInstance->Sample(sampleTime),
                                                  blendToState.animInstance->Sample(0.0f),
                                                  link.translationDuration);
                 mActiveLink = &link;
@@ -73,7 +74,7 @@ namespace inceptionengine
             }
         }
 
-        mFinalPose = currentState.animInstance->Sample(currentState.runningTime);
+        mFinalPose = currentState.animInstance->Sample(sampleTime);
     }
 
     int AnimStateMachine::FindRestartState(int state)

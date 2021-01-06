@@ -180,7 +180,7 @@ namespace inceptionengine
 
     void World::WorldImpl::Simulate(float deltaTime, PeripheralInput keyInputs)
     {
-        mNativeScriptSystem.Update(keyInputs.keyInputs, keyInputs.mouseDeltaPos);
+        mNativeScriptSystem.Update(keyInputs.keyInputs, keyInputs.mouseDeltaPos, deltaTime);
 
         mCameraSystem.Update(deltaTime);
 
@@ -211,7 +211,7 @@ namespace inceptionengine
     }
 
 
-    Matrix4x4f GetBoneGlobalTransform(std::vector<Matrix4x4f> const& lcl, Skeleton const& sk, int boneID)
+    Matrix4x4f GetBoneModelTransform(std::vector<Matrix4x4f> const& lcl, Skeleton const& sk, int boneID)
     {
         Matrix4x4f globalTransform = lcl[boneID];
         auto const& bone = sk.mBones[boneID];
@@ -231,7 +231,7 @@ namespace inceptionengine
         {
             Entity const& ent = CreateEntity();
             ent.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\cube\\cube_mesh.ie_skmesh");
-            ent.GetComponent<TransformComponent>().SetWorldTransform(GetBoneGlobalTransform(anim->mBoneTransforms[10], *anim->mSkeleton, i) * Scale(0.1f, 0.1f, 0.1f));
+            ent.GetComponent<TransformComponent>().SetWorldTransform(GetBoneModelTransform(anim->mBoneTransforms[10], *anim->mSkeleton, i) * Scale(0.1f, 0.1f, 0.1f));
         }
         
     }

@@ -46,7 +46,7 @@ namespace inceptionengine
 
 		virtual void OnBegin() { ; }
 
-		virtual void OnTick() { ; }
+		virtual void OnTick(float dt) { ; }
 
 		virtual void OnDestroy() { ; }
 

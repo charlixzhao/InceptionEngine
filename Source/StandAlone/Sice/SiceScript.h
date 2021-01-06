@@ -3,6 +3,7 @@
 
 #include "InceptionEngine.h"
 #include <iostream>
+#include "Interfaces/IHitable.h"
 
 using namespace inceptionengine;
 
@@ -22,6 +23,8 @@ public:
 		BindKeyInputCallback(KeyInputTypes::Keyboard_2, std::bind(&SiceScript::OnKey_2, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_3, std::bind(&SiceScript::OnKey_3, this, std::placeholders::_1));
 
+		BindKeyInputCallback(KeyInputTypes::Keyboard_Space, std::bind(&SiceScript::OnSpace, this, std::placeholders::_1));
+
 		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&SiceScript::OnMouse_Left, this, std::placeholders::_1));
 	}
 
@@ -29,9 +32,36 @@ public:
 
 
 private:
+	
 	virtual void OnBegin() override
 	{
-		std::cout << "Hello Script!\n";
+		GetEntity().GetComponent<AnimationComponent>().SetAimIkChain({ "Bip001 Spine1", "Bip001 Neck", "Bip001 Head" },	
+																	 { 0.2f, 0.4f, 1.0f });
+	}
+
+	virtual void OnTick(float dt) override
+	{
+		
+		mAimIkTimer += dt;
+		if (mAimIkTimer >= mTestAimIkInterval)
+		{
+			mAimIkTimer = fmodf(mAimIkTimer, mTestAimIkInterval);
+			if (GetEntity().GetComponent<AnimationComponent>().GetCurrentAsmActiveState() == 0 &&
+				GetEntity().GetComponent<AnimationComponent>().GetCurrentAsmActiveStateRunningSecond() > 5.0f)
+			{
+				Vec3f modelForward = NormalizeVec(GetEntity().GetComponent<TransformComponent>().GetGlobalForward());
+				Vec3f cameraForward = -GetEntity().GetComponent<CameraComponent>().GetForwardVec();
+				if (std::abs(RadsBetween(modelForward, cameraForward)) < PI / 3.0f)
+				{
+					AimToCamera();
+				}
+				else
+				{
+					GetEntity().GetComponent<AnimationComponent>().DeactivateAimIk(0.3f);
+				}
+			}
+		}
+
 	}
 
 	virtual void OnMouseDeltaPos(MouseDeltaPos mouseDeltaPos) override
@@ -51,22 +81,38 @@ private:
 		if (press)
 		{
 			mInBattleMode = !mInBattleMode;
+			//GetEntity().GetComponent<AnimationComponent>().TestAimAxis();
 			//GetEntity().GetWorld().GetEntity(mSwordID).GetComponent<SkeletalMeshComponent>().SetVisibility(mInBattleMode);
 		}
 		
 	}
 
+
+	void AimToCamera()
+	{
+		Vec4f cameraPosition = GetEntity().GetComponent<CameraComponent>().GetCameraRefPosition();
+		Matrix4x4f modelTranslate = Translate(GetEntity().GetComponent<TransformComponent>().GetWorldTransform()[3]);
+		GetEntity().GetComponent<AnimationComponent>().ChainAimToInDuration(modelTranslate * cameraPosition, Vec3f(50.0f, 0.0f, 0.0f), 0.3f);
+	}
+
+
 	void OnKey_3(bool press)
 	{
 		if (press)
 		{
-			Vec3f bottom = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordStart")[3];
-			Vec3f top = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordEnd")[3];
-			std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 10.0f);
-			if (traceRes.size() > 0)
+			
+			if (!GetEntity().GetComponent<AnimationComponent>().IsAimIkActive())
 			{
-				std::cout << "Hit!" << std::endl;
+				Vec4f cameraPosition = GetEntity().GetComponent<CameraComponent>().GetCameraRefPosition();
+				//GetEntity().GetComponent<AnimationComponent>().TestAimAxis();
+				Matrix4x4f modelTranslate = Translate(GetEntity().GetComponent<TransformComponent>().GetWorldTransform()[3]);
+				GetEntity().GetComponent<AnimationComponent>().ChainAimToInDuration(modelTranslate * cameraPosition, Vec3f(50.0f, 0.0f, 0.0f), 0.6f);
 			}
+			else
+			{
+				GetEntity().GetComponent<AnimationComponent>().DeactivateAimIk();
+			}
+			
 		}
 
 	}
@@ -165,6 +211,23 @@ private:
 						float currentRatio = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimRatio();
 						GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRange(currentRatio, currentRatio + 0.04f, 0.1f);
 					} 
+					for (SphereTraceResult const& res : traceRes)
+					{
+						EntityID hitEntity = res.entityID;
+						if (GetEntity().GetWorld().GetEntity(hitEntity).HasComponent<NativeScriptComponent>())
+						{
+							IHitable* hitable = dynamic_cast<IHitable*>(GetEntity().GetWorld().GetEntity(hitEntity).GetComponent<NativeScriptComponent>().GetScript());
+							if (hitable != nullptr)
+							{
+								hitable->GetHit();
+							}
+							else
+							{
+								std::cout << "hit is nullptr\n";
+							}
+						}
+
+					}
 				};
 
 				setting.animNotifies.push_back(attackDetection);
@@ -175,6 +238,14 @@ private:
 			setting.animEndCallback = [&]() {mAttackState = 0; GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false); };
 
 			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
+		}
+	}
+
+	void OnSpace(bool press)
+	{
+		if (press)
+		{
+			//GetEntity().GetComponent<AnimationComponent>().StopAnimation();
 		}
 	}
 
@@ -204,4 +275,7 @@ private:
 	bool mInBattleMode = false;
 
 	EntityID mSwordID = InvalidEntityID;
+
+	float mAimIkTimer = 0.0f;
+	float mTestAimIkInterval = 3.0f;
 };

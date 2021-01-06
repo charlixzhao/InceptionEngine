@@ -3,14 +3,17 @@
 #include "InceptionEngine.h"
 #include <iostream>
 
+#include "Interfaces/IHitable.h"
+
 using namespace inceptionengine;
 
-class HornetScript : public NativeScript
+class MiliaScript : public NativeScript, public IHitable
 {
 public:
-	HornetScript(EntityID entityID, std::reference_wrapper<World> world)
+	MiliaScript(EntityID entityID, std::reference_wrapper<World> world)
 		:NativeScript(entityID, world)
 	{
+		/*
 		BindKeyInputCallback(KeyInputTypes::Keyboard_D, std::bind(&HornetScript::OnKey_D, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_A, std::bind(&HornetScript::OnKey_A, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_W, std::bind(&HornetScript::OnKey_W, this, std::placeholders::_1));
@@ -22,25 +25,44 @@ public:
 		BindKeyInputCallback(KeyInputTypes::Keyboard_4, std::bind(&HornetScript::OnKey_4, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_5, std::bind(&HornetScript::OnKey_5, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Keyboard_6, std::bind(&HornetScript::OnKey_6, this, std::placeholders::_1));
-		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&HornetScript::OnMouse_Left, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Mouse_Left, std::bind(&HornetScript::OnMouse_Left, this, std::placeholders::_1));*/
 	}
 
+public:
+	virtual void GetHit()
+	{
+		EventAnimPlaySetting setting;
+		setting.animFilePath = attacks[0];
+		AnimSpeedRange range1;
+		range1.startRatio = 0.0f;
+		range1.endRatio = 1.0f;
+		range1.playSpeed = attackSpeed[0];
+		setting.animSpeedRanges = { range1 };
+
+		GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
+		//std::cout << "i'm hit\n";
+	}
 
 private:
-	virtual void OnBegin() override
-	{
-		std::cout << "Hello Script!\n";
-	}
 
 	virtual void OnMouseDeltaPos(MouseDeltaPos mouseDeltaPos) override
 	{
+		/*
 		if (mUseMouseToControlCamera)
 		{
 			GetEntity().GetComponent<CameraComponent>().RotateVertical(-mouseDeltaPos.deltaXPos * mCameraRotateVerticalSpeed);
 			GetEntity().GetComponent<CameraComponent>().RotateHorizontal(-mouseDeltaPos.deltaYPos * mCameraRotateHoritonzallSpeed);
-		}
+		}*/
 
 	}
+
+	/*
+	virtual void OnBegin()
+	{
+		std::cout << "Hello Script!\n";
+	}*/
+
+
 
 
 

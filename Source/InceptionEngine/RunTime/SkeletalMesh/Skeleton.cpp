@@ -20,6 +20,11 @@ namespace inceptionengine
 		return refPose;
 	}
 
+	Skeleton::Bone const& Skeleton::GetBone(std::string const& boneName) const
+	{
+		return mBones[GetBoneID(boneName)];
+	}
+
 
 
 }

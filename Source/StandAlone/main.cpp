@@ -39,7 +39,7 @@ int main()
 															   "StandAloneResource\\sice\\skin.HDR" ,
 															   "StandAloneResource\\sice\\cloth.BMP" });
 
-	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, 400.0f), Vec3f(0.0f, 125.0f, 0.0f));
+	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, 200.0f), Vec3f(0.0f, 125.0f, 0.0f));
 
 	sice.AddComponent<RigidbodyComponent>();
 	sice.GetComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
@@ -90,8 +90,15 @@ int main()
 	milia.GetComponent<RigidbodyComponent>().SetCapsuleColliderProperties(Vec3f(0.0f, 0.0f, 0.0f),
 																		  Vec3f(0.0f, 150.0f, 0.0f),
 																		  40.0f);
-	milia.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
+	//milia.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
+	milia.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\shinokao\\shinokao_mesh.ie_skmesh");
+	/*
+	milia.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource\\shinokao\\T_Shinokao_Body.BMP",
+														   "StandAloneResource\\shinokao\\T_Shinokao_Cloak.BMP" ,
+														   "StandAloneResource\\shinokao\\T_Shinokao_Head.BMP" ,
+														   "StandAloneResource\\shinokao\\T_Shinokao_Weapon.BMP" });*/
 	milia.AddComponent<AnimationComponent>().SetAnimStateMachine<MiliaASM>();
+	milia.AddComponent<NativeScriptComponent>().SetScript<MiliaScript>();
 
 	engine.PlayGame();
 

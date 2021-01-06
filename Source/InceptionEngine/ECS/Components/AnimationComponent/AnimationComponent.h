@@ -17,27 +17,22 @@ namespace inceptionengine
 	{
 	public:
 		AnimationComponent(EntityID entityID, std::reference_wrapper<World> world);
+
 		~AnimationComponent();
 
 		AnimationComponent(AnimationComponent const&) = delete;
 
 		AnimationComponent(AnimationComponent&&) noexcept;
 
-		void PlayEventAnimation(EventAnimPlaySetting const& setting);
-
-		float GetCurrentEventAnimTime() const;
-
-		float GetCurrentEventAnimRatio() const;
-
-		void HandReachTarget(Matrix4x4f const& EndEffector);
-
-		void TestAxis();
+		/*
+		Overall control
+		*/
 
 		void StopAnimation();
 
-		bool IsPlayingEventAnimation() const;
-
-		Matrix4x4f GetSocketRefTransformation(std::string const& socketName);
+		/*
+		ASM API
+		*/
 
 		template<typename T, typename ... Args>
 		void SetAnimStateMachine(Args&& ... args)
@@ -45,8 +40,52 @@ namespace inceptionengine
 			mAnimationController->SetAnimStateMachine<T>(mEntityID, mWorld, std::forward<Args>(args)...);
 		}
 
-		void InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
+		/*
+		return -1 if ASM is not active, which means either the ASM is blending between state, or
+		EvenAnim is controlling animation. Otherwise, return
+		the current state of ASM
+		*/
+		int GetCurrentAsmActiveState() const;
+
+		float GetCurrentAsmActiveStateRunningSecond() const;
+
+		/*
+		EventAnim API
+		*/
+
+		void PlayEventAnimation(EventAnimPlaySetting const& setting);
+
+		bool IsPlayingEventAnimation() const;
+
 		float GetCurrentEventAnimDuration() const;
+
+		float GetCurrentEventAnimTime() const;
+
+		float GetCurrentEventAnimRatio() const;
+
+		void InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
+
+
+		/*
+		Socket system API
+		*/
+		Matrix4x4f GetSocketRefTransformation(std::string const& socketName);
+		
+
+		/*
+		ik API
+		*/
+		void SetAimIkChain(std::vector<std::string>const& chainBoneNames, std::vector<float> const& weights);
+
+		void ChainAimToInDuration(Vec3f const& targetPosition, Vec3f const& eyeOffsetInHeadCoord, float duration);
+
+		bool IsAimIkActive() const;
+
+		void DeactivateAimIk(float blendOutDuration = 0.5f);
+
+		void HandReachTarget(Matrix4x4f const& EndEffector);
+		void TestAxis();
+		void TestAimAxis();
 
 	private:
 		friend class AnimationSystem;

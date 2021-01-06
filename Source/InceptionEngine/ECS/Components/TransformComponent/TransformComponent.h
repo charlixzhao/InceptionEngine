@@ -31,6 +31,8 @@ namespace inceptionengine
 
 		void DetachFromSocket();
 
+		Vec3f GetGlobalForward() const;
+
 
 	private:
 		friend class TransformSystem;

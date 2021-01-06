@@ -73,7 +73,7 @@ namespace inceptionengine
 
 	Vec3f CameraComponent::GetForwardVec() const
 	{
-		auto temp = Vec3f(mForwardPoint - mPosition);
+		Vec3f temp = Vec3f(mForwardPoint - mPosition);
 		temp.y = 0;
 		return NormalizeVec(temp);
 	}
@@ -84,5 +84,9 @@ namespace inceptionengine
 	bool CameraComponent::GetCameraControlYaw() const
 	{
 		return mCameraControlYaw;
+	}
+	Vec4f CameraComponent::GetCameraRefPosition() const
+	{
+		return mPosition;
 	}
 }

@@ -3,29 +3,53 @@
 
 namespace inceptionengine
 {
-	void AnimBlender::StartBlending(std::vector<Matrix4x4f> const& fromPose, std::vector<Matrix4x4f> const& toPose, float blendingDuration, AnimBlendType blendingType)
+	void AnimBlender::StartBlending(std::vector<Matrix4x4f> const& fromPose, 
+									std::vector<Matrix4x4f> const& toPose, 
+									float blendingDuration, 
+									AnimBlendType blendingType,
+									std::function<void()> blendFinishCallback)
 	{
 		mBlendFromPose = fromPose;
 		mBlendToPose = toPose;
 		mBlendingDuration = blendingDuration;
 		mBlendingType = blendingType;
 		mCurrentBlendingTime = 0.0f;
+		mBlendFinishCallback = blendFinishCallback;
 	}
 
-	std::optional<std::vector<Matrix4x4f>> AnimBlender::Blend(float dt)
+	std::optional<std::vector<Matrix4x4f>> AnimBlender::Blend(float dt, bool indicateStop)
 	{
 		mCurrentBlendingTime += dt;
 
 		if (mCurrentBlendingTime > mBlendingDuration)
 		{
-			mCurrentBlendingTime = mBlendingDuration = 0.0f;
-			return std::nullopt;
+			if (indicateStop)
+			{
+				mCurrentBlendingTime = mBlendingDuration = 0.0f;
+				mBlendFinishCallback();
+				return std::nullopt;
+			}
+			else
+			{
+				return mBlendToPose;
+			}
+
 		}
 		else
 		{
 			float alpha = 1.0f - mCurrentBlendingTime / mBlendingDuration;
 			return BlendPose(alpha);
 		}
+	}
+
+	std::optional<std::vector<Matrix4x4f>> AnimBlender::Blend(std::vector<Matrix4x4f> const& blendToPose, float dt, bool indicateStop)
+	{
+		if (blendToPose.size() != mBlendFromPose.size())
+		{
+			throw std::runtime_error("inconsistent blend pose\n");
+		}
+		mBlendToPose = blendToPose;
+		return Blend(dt, indicateStop);
 	}
 
 	bool AnimBlender::IsBlending() const

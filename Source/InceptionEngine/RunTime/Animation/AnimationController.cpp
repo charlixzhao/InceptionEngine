@@ -9,6 +9,7 @@
 #include "RunTime/Resource/ResourceManager.h"
 #include "ECS/Components/AnimationComponent/AnimStateMachine.h"
 #include "EventAnimController.h"
+#include "IkController.h"
 #include "Animation.h"
 #include "ECS/Components/AnimationComponent/EventAnimPlaySetting.h"
 
@@ -19,6 +20,7 @@ namespace inceptionengine
 	AnimationController::AnimationController()
 	{
 		mEventAnimController = std::make_unique<EventAnimController>(*this);
+		mIkController = std::make_unique<IkController>(*this);
 	}
 
 	AnimationController::~AnimationController()
@@ -34,6 +36,8 @@ namespace inceptionengine
 
 	bool AnimationController::Update(float deltaTime)
 	{
+		if (mStopAnim) return true;
+
 		if (mBlender.IsBlending())
 		{
 			auto blendedPose = mBlender.Blend(deltaTime);
@@ -45,25 +49,55 @@ namespace inceptionengine
 			{
 				//stop blending
 			}
-			return true;
 		}
-
-		if (mEventAnimController->IsPlayingAnimation())
+		else if (mEventAnimController->IsPlayingAnimation())
 		{
 			mEventAnimController->Update(deltaTime);
 			mFinalPose = mEventAnimController->GetCurrentPose();
-			return true;
 		}
-
-		if (mAnimStateMachine != nullptr)
+		else if (mAnimStateMachine != nullptr)
 		{
 			mAnimStateMachine->Update(deltaTime);
 			mFinalPose = mAnimStateMachine->mFinalPose;
-			return true;
 		}
 
+		/*
+		if (mIkController->IsAimIkActive())
+		{
+			std::vector<Matrix4x4f> ikPose = mAimIkBlender.first.Blend(deltaTime, false).value();
+			std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
+			for (int i = 0; i < ikPose.size(); i++)
+			{
+				mFinalPose[aimIkMask[i]] = ikPose[i];
+			}
+		}*/
 
-		return false;
+		if (mAimIkBlender.first.IsBlending())
+		{
+			std::vector<Matrix4x4f> ikPose = mAimIkBlender.first.Blend(deltaTime, false).value();
+			std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
+			for (int i = 0; i < ikPose.size(); i++)
+			{
+				mFinalPose[aimIkMask[i]] = ikPose[i];
+			}
+		}
+		else if (mAimIkBlender.second.IsBlending())
+		{
+			std::vector<Matrix4x4f> currentIkChainPose = mIkController->GetAimIkChainCurrentLclTransform();
+			auto ikPoseOpt = mAimIkBlender.second.Blend(currentIkChainPose, deltaTime);
+			if (ikPoseOpt.has_value())
+			{
+				std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
+				for (int i = 0; i < ikPoseOpt.value().size(); i++)
+				{
+					mFinalPose[aimIkMask[i]] = ikPoseOpt.value()[i];
+				}
+			}
+			//else the blend finish callback will be called to indicate IkController that aim ik is deactivated 
+			
+		}
+
+		return true;
 
 	}
 
@@ -84,7 +118,7 @@ namespace inceptionengine
 
 	void AnimationController::StopAnimation()
 	{
-
+		mStopAnim = true;
 	}
 
 	bool AnimationController::IsPlayingEventAnimation() const
@@ -117,7 +151,7 @@ namespace inceptionengine
 	{
 		int socketID = mSkeleton->mSocketToIndexMap.at(socket);
 		int parentID = mSkeleton->mSockets[socketID].parentID;
-		return GetBoneGlobalTransform(parentID) * mSkeleton->mSockets[socketID].lclTransform;
+		return GetBoneModelTransform(mFinalPose, parentID) * mSkeleton->mSockets[socketID].lclTransform;
 	}
 
 	float AnimationController::GetCurrentEventAnimTime() const
@@ -135,17 +169,124 @@ namespace inceptionengine
 		mEventAnimController->InsertAnimSpeedRange(startRatio, endRatio, playSpeed);
 	}
 
-	Matrix4x4f AnimationController::GetBoneGlobalTransform(int boneID)
+	void AnimationController::TestAimAxis()
 	{
-		Matrix4x4f globalTransform = mFinalPose[boneID];
+		/*
+		int headID = mSkeleton->GetBoneID("Bip001 Head");
+		Matrix4x4f headGlobalTransform = GetBoneModelTransform(headID);
+		Vec3f axis = headGlobalTransform[1];
+		Matrix4x4f rot = Rotate(glm::radians(30.0f), axis);
+
+		Vec4f headPosition = headGlobalTransform[3];
+		headGlobalTransform[3] = { 0.0f,0.0f,0.0f,1.0f };
+		headGlobalTransform = rot * headGlobalTransform;
+		headGlobalTransform[3] = headPosition;
+		Matrix4x4f headLclTransform = Inverse(GetBoneModelTransform(mSkeleton->mBones[headID].parentID)) * headGlobalTransform;
+		mFinalPose[headID] = headLclTransform;*/
+
+		/*
+		int headID = mSkeleton->GetBoneID("Bip001 Head");
+		Matrix4x4f headGlobalTransform = GetBoneModelTransform(headID);
+		Vec4f headToAim = NormalizeVec(mAimPosition - headGlobalTransform[3]);
+		Vec3f poleNormal = CrossProduct(Vec3f(0.0f, 1.0f, 0.0f), headToAim);
+		float dotResult = DotProduct(headGlobalTransform[0], 100.0f * poleNormal);
+		assert(dotResult <= 0.001f);
+		std::cout << "assertion success!\n";
+		std::cout << "Upward vector of head is " << glm::to_string(headGlobalTransform[0]) << std::endl;
+		std::cout<<"Aim direction is " << glm::to_string(headToAim) << std::endl;
+		std::cout<<"Pole normal is " << glm::to_string(poleNormal) << std::endl;
+		std::cout << "dot result is" << dotResult << std::endl;*/
+	}
+
+	
+	void AnimationController::SetAimIkChain(std::vector<std::string> const& boneNames, std::vector<float> const& weights)
+	{
+		std::vector<int> boneIDs;
+		for (auto const& name : boneNames)
+		{
+			boneIDs.push_back(mSkeleton->GetBoneID(name));
+		}
+
+		mIkController->SetAimIkChain(boneNames, boneIDs, weights);
+	}
+
+	void AnimationController::ActivateAimIk()
+	{
+		mIkController->ActivateAimIk();
+	}
+
+	void AnimationController::DeactivateAimIk(float blendOutDuration)
+	{
+		//cancel blending to ik pose if it is occuring
+
+		if (mAimIkBlender.first.IsBlending()) mAimIkBlender.first.InterruptBlending();
+
+		std::vector<Matrix4x4f> fromPose = mIkController->GetAimIkChainCurrentLclTransform();
+		mIkController->DeactivateAimIk();
+		mAimIkBlender.second.StartBlending(fromPose, std::vector<Matrix4x4f>(), blendOutDuration);
+
+	}
+
+	
+
+	void AnimationController::ChainAimToInDuration(Matrix4x4f modelTransform, Vec3f const& targetPosition, Vec3f const& eyeOffsetInHeadCoord, float duration)
+	{
+		if (mAimIkBlender.second.IsBlending()) mAimIkBlender.second.InterruptBlending();
+
+		std::vector<Matrix4x4f> chainCurrentPose = mIkController->GetAimIkChainCurrentLclTransform();
+		std::vector<Matrix4x4f> chainSolvedIkPose = mIkController->ChainAimTo(modelTransform, targetPosition, eyeOffsetInHeadCoord);
+		mIkController->ActivateAimIk();
+		mAimIkBlender.first.StartBlending(chainCurrentPose, chainSolvedIkPose, duration);
+
+
+		/*
+		std::vector<Matrix4x4f> ikPose = mIkController->ChainAimTo(targetPosition, eyeOffsetInHeadCoord);
+		std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
+		for (int i = 0; i < ikPose.size(); i++)
+		{
+			mFinalPose[aimIkMask[i]] = ikPose[i];
+		}*/
+	}
+
+	bool AnimationController::IsAimIkActive() const
+	{
+		return mIkController->IsAimIkActive();
+	}
+
+	int AnimationController::GetCurrentAsmActiveState() const
+	{
+		if (IsPlayingEventAnimation() || mAnimStateMachine->IsTransiting()) return -1;
+		return mAnimStateMachine->mCurrentState;
+	}
+
+	float AnimationController::GetCurrentAsmActiveStateRunningSecond() const
+	{
+		if (GetCurrentAsmActiveState() == -1) return -1.0f;
+		else
+		{
+			return mAnimStateMachine->mStates[GetCurrentAsmActiveState()].runningTime;
+		}
+	}
+
+
+	
+
+	Matrix4x4f AnimationController::GetBoneModelTransform(std::vector<Matrix4x4f> const& lclPose, int boneID) const
+	{
+		Matrix4x4f globalTransform = lclPose[boneID];
 		auto const& bone = mSkeleton->mBones[boneID];
 		int parentID = bone.parentID;
 		while (parentID != -1)
 		{
-			globalTransform = mFinalPose[parentID] * globalTransform;
+			globalTransform = lclPose[parentID] * globalTransform;
 			parentID = mSkeleton->mBones[parentID].parentID;
 		}
 		return globalTransform;
+	}
+
+	Matrix4x4f AnimationController::GetBoneGlobalTransform(Matrix4x4f const& modelTransform, std::vector<Matrix4x4f> const& lclPose, int boneID) const
+	{
+		return modelTransform * GetBoneModelTransform(lclPose, boneID);
 	}
 
 	void AnimationController::TestAxis(IkChain const& ikChain)
@@ -177,7 +318,7 @@ namespace inceptionengine
 			std::vector<Vec4f> currentChainPosition;
 			for (auto boneId : ikChain.BoneIDs)
 			{
-				currentChainPosition.push_back(GetBoneGlobalTransform(boneId)[3]);
+				currentChainPosition.push_back(GetBoneModelTransform(mFinalPose, boneId)[3]);
 			}
 			Vec4f base = currentChainPosition[0];
 			int chainSize = ikChain.Size();
@@ -218,9 +359,9 @@ namespace inceptionengine
 			//align bones
 			for (int i = 0; i < chainSize - 1; i++)
 			{
-				Matrix4x4f currentBoneGlobalTransform = GetBoneGlobalTransform(ikChain.BoneIDs[i]);
+				Matrix4x4f currentBoneGlobalTransform = GetBoneModelTransform(mFinalPose, ikChain.BoneIDs[i]);
 				Vec4f currentBonePosition = currentBoneGlobalTransform[3];
-				Vec4f originalDirection = GetBoneGlobalTransform(ikChain.BoneIDs[i + 1])[3] - currentBonePosition;
+				Vec4f originalDirection = GetBoneModelTransform(mFinalPose, ikChain.BoneIDs[i + 1])[3] - currentBonePosition;
 				Vec4f desiredDirection = desiredPosition[i + 1] - currentBonePosition;
 				Matrix4x4f deltaRotation = FromToRotation(originalDirection, desiredDirection);
 				Matrix4x4f translateToOrigin = Translate(-currentBonePosition);
@@ -228,7 +369,7 @@ namespace inceptionengine
 				Matrix4x4f newCurrentboneGlobalTransform = translateBack * deltaRotation * translateToOrigin * currentBoneGlobalTransform;
 				int parentID = mSkeleton->mBones[ikChain.BoneIDs[i]].parentID;
 				if (parentID == -1) mFinalPose[ikChain.BoneIDs[i]] = newCurrentboneGlobalTransform;
-				else mFinalPose[ikChain.BoneIDs[i]] = Inverse(GetBoneGlobalTransform(parentID)) * newCurrentboneGlobalTransform;
+				else mFinalPose[ikChain.BoneIDs[i]] = Inverse(GetBoneModelTransform(mFinalPose, parentID)) * newCurrentboneGlobalTransform;
 			}
 
 			//apply joint constraint for shoulder bone, which is at index 0 in the ikChain
@@ -239,7 +380,7 @@ namespace inceptionengine
 			Vec3f rotationAxis = RotationAxis(shoulderRotation);
 			float rotationAngle = RotationAngle(shoulderRotation);
 
-			rotationAngle = std::fmod(rotationAngle, 2 * PI);
+			rotationAngle = std::fmodf(rotationAngle, 2 * PI);
 			if (rotationAngle > PI)
 				rotationAngle -= 2 * PI;
 			if (rotationAngle < -PI)
@@ -257,7 +398,7 @@ namespace inceptionengine
 			glm::extractEulerAngleXYZ(Translate(-mFinalPose[ikChain.BoneIDs[1]][3]) * mFinalPose[ikChain.BoneIDs[1]],
 									  rotX, rotY, rotZ);
 
-			rotY = std::fmod(rotY, 2 * PI);
+			rotY = std::fmodf(rotY, 2 * PI);
 			if (rotY > PI)
 				rotY -= 2 * PI;
 			if (rotY < -PI)

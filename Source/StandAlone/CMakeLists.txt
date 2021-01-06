@@ -7,14 +7,15 @@ set(SRC_BUILD_FILES
 "Sice/SiceScript.h"
 "Sice/SiceScript.cpp"
 "Sice/SiceASM.h"
-"Sice/SiceASM.cpp")
+"Sice/SiceASM.cpp"
+"Interfaces/IHitable.h")
 
 add_executable(StandAlone ${SRC_BUILD_FILES})
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
          FILES ${SRC_BUILD_FILES})
 
-target_include_directories(StandAlone PUBLIC ${PROJECT_SOURCE_DIR}/Source/InceptionEngine)
+target_include_directories(StandAlone PUBLIC ${PROJECT_SOURCE_DIR}/Source/InceptionEngine ${PROJECT_SOURCE_DIR}/Source/StandAlone)
 
 target_link_libraries(StandAlone InceptionEngine)
 

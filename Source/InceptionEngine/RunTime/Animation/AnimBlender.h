@@ -15,13 +15,20 @@ namespace inceptionengine
 		void StartBlending(std::vector<Matrix4x4f> const& fromPose,
 						   std::vector<Matrix4x4f> const& toPose,
 						   float blendingDuration,
-						   AnimBlendType blendingType = AnimBlendType::Linear);
+						   AnimBlendType blendingType = AnimBlendType::Linear,
+						   std::function<void()> blendFinishCallback = []() {});
 
-		std::optional<std::vector<Matrix4x4f>> Blend(float dt);
+		std::optional<std::vector<Matrix4x4f>> Blend(float dt, bool indicateStop = true);
+
+		std::optional<std::vector<Matrix4x4f>> Blend(std::vector<Matrix4x4f> const& blendToPose, float dt, bool indicateStop = true);
 
 		bool IsBlending() const;
 
 		void InterruptBlending();
+
+	public:
+		//For testing
+		//std::vector<Matrix4x4f> GetToPose() const { return mBlendToPose; }
 
 	private:
 		std::vector<Matrix4x4f> BlendPose(float alpha) const;
@@ -32,6 +39,7 @@ namespace inceptionengine
 		float mBlendingDuration = 0.0f;
 		float mCurrentBlendingTime = 0.0f;
 		AnimBlendType mBlendingType = AnimBlendType::Linear;
+		std::function<void()> mBlendFinishCallback = []() {};
 
 	};
 }

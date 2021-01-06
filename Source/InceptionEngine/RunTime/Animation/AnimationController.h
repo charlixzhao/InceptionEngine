@@ -14,6 +14,8 @@ namespace inceptionengine
 	class AnimStateMachine;
 	struct EventAnimPlaySetting;
 	class EventAnimController;
+	class IkController;
+
 
 	class AnimationController
 	{
@@ -51,7 +53,6 @@ namespace inceptionengine
 
 		void EventAnimFinish(float blendOutDuration);
 
-
 		Matrix4x4f GetSocketRefTransformation(std::string const& socket);
 
 		float GetCurrentEventAnimTime() const;
@@ -60,9 +61,31 @@ namespace inceptionengine
 
 		void InsertEventAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
 
-	private:
-		Matrix4x4f GetBoneGlobalTransform(int boneID);
+		//position should be model space
+		
+		void TestAimAxis();
 
+		void SetAimIkChain(std::vector<std::string> const& boneNames, std::vector<float> const& weights);
+
+		void ActivateAimIk();
+
+		void DeactivateAimIk(float blendOutDuration);
+
+		void ChainAimToInDuration(Matrix4x4f modelTransform, Vec3f const& targetPosition, Vec3f const& eyeOffsetInHeadCoord, float duration);
+
+		bool IsAimIkActive() const;
+
+		int GetCurrentAsmActiveState() const;
+
+		float GetCurrentAsmActiveStateRunningSecond() const;
+
+	private:
+		friend class IkController;
+
+		Matrix4x4f GetBoneModelTransform(std::vector<Matrix4x4f> const& lclPose, int boneID) const;
+		Matrix4x4f GetBoneGlobalTransform(Matrix4x4f const& modelTransform, std::vector<Matrix4x4f> const& lclPose, int boneID) const;
+
+	private:
 		float mCurrentTime = 0.0f;
 
 		std::shared_ptr<Skeleton const> mSkeleton = nullptr;
@@ -77,6 +100,14 @@ namespace inceptionengine
 		std::unique_ptr<EventAnimController> mEventAnimController = nullptr;
 
 		AnimBlender mBlender;
+
+		bool mStopAnim = false;
+
+		std::unique_ptr<IkController> mIkController = nullptr;
+
+		//first one is used to blend to the ik pose when aim ik occur
+		//second one is uesed to blend to normal pose (ASM or EventAnim) when aim ik is inactivated
+		std::pair<AnimBlender, AnimBlender> mAimIkBlender;
 
 	};
 }

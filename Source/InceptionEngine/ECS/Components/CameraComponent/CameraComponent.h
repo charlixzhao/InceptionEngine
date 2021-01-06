@@ -32,6 +32,8 @@ namespace inceptionengine
 
 		bool GetCameraControlYaw() const;
 
+		Vec4f GetCameraRefPosition() const;
+
 	private:
 
 		Vec4f mPosition = { 0.0f,0.0f,1.0f,1.0f };

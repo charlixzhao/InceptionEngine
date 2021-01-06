@@ -140,5 +140,10 @@ namespace inceptionengine
 		mAttachedToSocketName = "";
 	}
 
+	Vec3f TransformComponent::GetGlobalForward() const
+	{
+		return GetWorldTransform()[2];
+	}
+
 }
 

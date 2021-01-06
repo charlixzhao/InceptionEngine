@@ -22,6 +22,7 @@ positive-y is to the up, and positive-z goes out of the screen.
 #include "External/glm/gtx/quaternion.hpp"
 #include "External/glm/gtx/rotate_vector.hpp"
 #include "External/glm/gtx/matrix_decompose.hpp"
+#include "External/glm/gtc/matrix_inverse.hpp"
 
 #include "External/glm/gtx/euler_angles.hpp"
 
@@ -52,6 +53,11 @@ namespace inceptionengine
 	inline Matrix4x4f Inverse(Matrix4x4f const& mat)
 	{
 		return glm::inverse(mat);
+	}
+
+	inline Matrix4x4f AffineInverse(Matrix4x4f const& mat)
+	{
+		return glm::affineInverse(mat);
 	}
 
 	inline Vec3f NormalizeVec(Vec3f const& vec)
@@ -105,6 +111,7 @@ namespace inceptionengine
 	{
 		return glm::translate(vec);
 	}
+	
 
 	inline float Sign(float x)
 	{
@@ -124,12 +131,28 @@ namespace inceptionengine
 
 	inline float RotationAngle(Quaternion4f const& quat)
 	{
-		return 2 * glm::acos(quat.w);
+		float rads = 2 * std::acosf(quat.w);
+		assert(! std::isnan(rads));
+		return rads;
 	}
 
 	inline Quaternion4f RotToQuat(Matrix4x4f const& mat)
 	{
 		return glm::quat_cast(mat);
+	}
+
+	inline void NormalizeRotation(float& rads, Vec3f& axis)
+	{
+		rads = std::fmodf(rads, 2 * PI);
+		if (rads < 0.0f)
+			rads = rads + 2 * PI;
+
+		if (rads > PI)
+		{
+			rads = 2 * PI - rads;
+			axis = -axis;
+		}
+			
 	}
 
 
@@ -154,15 +177,17 @@ namespace inceptionengine
 		y = NormalizeVec(y);			
 		auto axis = CrossProduct(x, y);
 		float cosAngle = DotProduct(x, y);
-		float angle = glm::acos(cosAngle);
+		float angle = std::acosf(cosAngle);
+		assert(!std::isnan(angle));
+		/*
 		if (std::isnan(angle))
 		{
 			if (cosAngle > 0)
 				return Matrix4x4f(1.0f);
 			else
 				return -Matrix4x4f(1.0f);
-		}
-		else return glm::rotate(angle, axis);		
+		}*/
+		return glm::rotate(angle, axis);		
 	}
 
 
@@ -193,6 +218,12 @@ namespace inceptionengine
 	{
 		x = NormalizeVec(x);
 		y = NormalizeVec(y);
+		float cosAngle = DotProduct(x, y);
+		cosAngle = std::clamp(cosAngle, -1.0f, 1.0f);
+		float angle = std::acosf(cosAngle);
+		assert(!std::isnan(angle));
+		return angle;
+		/*
 		if (VecLength(x - y) < 0.001f)
 		{
 			return 0.0f;
@@ -203,11 +234,8 @@ namespace inceptionengine
 		}
 		else
 		{
-			float cosAngle = DotProduct(x, y);
-			float angle = glm::acos(cosAngle);
-			assert(!std::isnan(angle));
-			return angle;
-		}
+			
+		}*/
 	}
 	
 	inline Matrix4x4f Translate(Vec4f const& vec)

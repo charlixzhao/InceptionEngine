@@ -11,7 +11,9 @@ public:
 	SiceASM(EntityID entityID, std::reference_wrapper<World> world, EntityID swordID)
 		:AnimStateMachine(entityID, world), mSwordID(swordID)
 	{
-		int idle = CreateState("StandAloneResource\\sice\\sice_idle.ie_anim");
+		int idle = CreateState("StandAloneResource\\sice\\sice_idle.ie_anim", []() {}, 
+							   [&]() {GetEntity().GetComponent<AnimationComponent>().DeactivateAimIk(); });
+
 		int run = CreateState("StandAloneResource\\sice\\sice_run.ie_anim");
 	
 		int idle_battle = CreateState("StandAloneResource\\sice\\sice_idle_battle.ie_anim");
@@ -55,7 +57,7 @@ public:
 
 		CreateLink(idle, idle_to_battle, [&]() -> bool 
 				   {
-					    SiceScript* script = reinterpret_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
+					    SiceScript* script = dynamic_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
 						return script->InBattleMode();
 				   }, 0.01f);
 
@@ -66,7 +68,7 @@ public:
 
 		CreateLink(idle_battle, battle_to_idle, [&]() -> bool
 				   {
-					   SiceScript* script = reinterpret_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
+					   SiceScript* script = dynamic_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript());
 					   return !script->InBattleMode();
 				   }, 0.01f);
 
