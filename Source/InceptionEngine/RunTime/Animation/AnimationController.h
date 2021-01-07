@@ -51,7 +51,7 @@ namespace inceptionengine
 
 		void StartAnimStateMachine();
 
-		void EventAnimFinish(float blendOutDuration);
+		void EventAnimFinish(float blendOutDuration, std::function<void()> blendFinishCallback);
 
 		Matrix4x4f GetSocketRefTransformation(std::string const& socket);
 

@@ -52,9 +52,10 @@ namespace inceptionengine
 
 		bool mRootMotion = false;
 		AnimSpeedBar mAnimSpeedBar;
-		std::function<void()> mAnimStartCallback;
-		std::function<void()> mAnimInterruptCallback;
-		std::function<void()> mAnimEndCallback;
+		std::function<void()> mAnimStartCallback = []() {};
+		std::function<void()> mAnimInterruptCallback = []() {};
+		std::function<void()> mAnimEndCallback = []() {};
+		std::function<void()> mAnimBlendOutFinishCallback = []() {};
 		std::list<AnimNotify> mAnimNotifies;
 		std::vector<AnimNotifyState> mAnimNotifyStates;
 

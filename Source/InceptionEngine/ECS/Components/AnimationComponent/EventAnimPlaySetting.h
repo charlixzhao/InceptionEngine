@@ -17,6 +17,7 @@ namespace inceptionengine
 		std::function<void()> animStartCallback = []() {; };
 		std::function<void()> animInterruptCallback = []() {; };
 		std::function<void()> animEndCallback = []() {; };
+		std::function<void()> animBlendOutFinishCallback = []() {; };
 		std::vector<AnimNotify> animNotifies;
 		std::vector<AnimNotifyState> animNotifyStates;
 	};

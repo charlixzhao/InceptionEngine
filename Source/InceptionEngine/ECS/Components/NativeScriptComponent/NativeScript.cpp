@@ -90,6 +90,16 @@ namespace inceptionengine
 		return mWorld.get().GetEntity(mEntityID);
 	}
 
+	/*
+	void NativeScript::SetTimerEvent(float interval, float duration, std::function<void()> func)
+	{
+		NativeScript::TimerEvent timerEvent;
+		timerEvent.interval = interval;
+		timerEvent.duration = duration;
+		timerEvent.func = func;
+		mTimerEvent.push_back(timerEvent);
+	}*/
+
 
 
 

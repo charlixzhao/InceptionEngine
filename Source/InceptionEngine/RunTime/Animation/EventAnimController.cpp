@@ -17,20 +17,25 @@ namespace inceptionengine
 
 	void EventAnimController::PlayEventAnimation(EventAnimPlaySetting const& setting)
 	{
-		if (mEventAnimBlender.IsBlending()) return;
+		/*
+		if (mEventAnimBlender.IsBlending())
+		{
+			return;
+		}*/
 
 		if (mAnimInstance != nullptr)
 		{
-			std::vector<Matrix4x4f> currentPose = mAnimInstance->Sample(mRunningTime);
+			//std::vector<Matrix4x4f> currentPose = mAnimInstance->Sample(mRunningTime);
 			mAnimInstance->Interrupt();
-			mAnimInstance = std::make_unique<AnimInstance>(setting);
-			std::vector<Matrix4x4f> blendToPose = mAnimInstance->Sample(0.0f);
-			mEventAnimBlender.StartBlending(currentPose, blendToPose, setting.blendInDuration);
+			//mAnimInstance = std::make_unique<AnimInstance>(setting);
+			//std::vector<Matrix4x4f> blendToPose = mAnimInstance->Sample(0.0f);
+			//mEventAnimBlender.StartBlending(currentPose, blendToPose, setting.blendInDuration);
 		}
-		else
-		{
-			mAnimInstance = std::make_unique<AnimInstance>(setting);
-		}
+		//else
+		//{
+			//mAnimInstance = std::make_unique<AnimInstance>(setting);
+		//}
+		mAnimInstance = std::make_unique<AnimInstance>(setting);
 
 		
 		mRunningTime = 0.0f;
@@ -59,16 +64,23 @@ namespace inceptionengine
 			}
 			else
 			{
-				float currentAnimSpeend = mAnimInstance->QueryAnimSpeed(mRunningTime / mAnimInstance->GetDuration());
-				mRunningTime += dt * currentAnimSpeend;
+				float currentAnimSpeed = mAnimInstance->QueryAnimSpeed(mRunningTime / mAnimInstance->GetDuration());
+				mRunningTime += dt * currentAnimSpeed;
 				if (mRunningTime > mAnimInstance->GetDuration())
 				{
 					//stop animation
-					mAnimInstance->End();
-					mRunningTime = 0.0f;
-					mAnimationController.get().EventAnimFinish(mAnimInstance->GetBlendOutDuration());
+					std::unique_ptr<AnimInstance> prevAnim = std::move(mAnimInstance);
 					mAnimInstance = nullptr;
+					prevAnim->End();
+					mRunningTime = 0.0f;
 					
+
+					//we add this conditional check because prevAnim->End() might play new event animation, in that case,
+					//we don't blend back to ASM
+					//mAnimInstance == nullptr means there is no EventAnim anymore, so we can blend back
+					//to ASM
+					if(mAnimInstance == nullptr)
+						mAnimationController.get().EventAnimFinish(prevAnim->GetBlendOutDuration(), prevAnim->mAnimBlendOutFinishCallback);
 				}
 				else
 				{

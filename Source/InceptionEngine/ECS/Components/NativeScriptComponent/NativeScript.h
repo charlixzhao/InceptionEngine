@@ -21,6 +21,8 @@ namespace inceptionengine
 	class World;
 	class WindowHandler;
 
+
+
 	class IE_API NativeScript
 	{
 	public:
@@ -33,6 +35,22 @@ namespace inceptionengine
 	protected:
 		Entity const& GetEntity();
 
+		//void SetTimerEvent(float interval, float duration, std::function<void()> func);
+
+
+	private:
+		/*
+		struct TimerEvent
+		{
+			//if set to 0.0f, then func will be called every tick
+			float interval = 0.0f;
+			//after these second the timer will be canceled
+			float duration = -1.0f;
+
+			std::function<void()> func = []() {; };
+
+			bool canceled = false;
+		};*/
 	private:
 		/*
 		System actually calls OnBegin and callback in KeyInputCallbackRegistry
@@ -57,6 +75,8 @@ namespace inceptionengine
 		EntityID mEntityID;
 
 		std::reference_wrapper<World> mWorld;
+
+		//std::vector<TimerEvent> mTimerEvent;
 
 
 	};

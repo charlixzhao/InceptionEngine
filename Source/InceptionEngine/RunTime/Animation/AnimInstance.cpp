@@ -31,6 +31,7 @@ namespace inceptionengine
 		mAnimStartCallback = setting.animStartCallback;
 		mAnimInterruptCallback = setting.animInterruptCallback;
 		mAnimEndCallback = setting.animEndCallback;
+		mAnimBlendOutFinishCallback = setting.animBlendOutFinishCallback;
 
 		for (AnimNotify const& notify : setting.animNotifies)
 		{

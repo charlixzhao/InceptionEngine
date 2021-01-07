@@ -103,6 +103,7 @@ namespace inceptionengine
 
 	void AnimationController::PlayEventAnimation(EventAnimPlaySetting const& setting)
 	{
+		/*
 		if (!mEventAnimController->IsPlayingAnimation())
 		{
 			mAnimStateMachine->BlendOutOfASM();
@@ -111,7 +112,17 @@ namespace inceptionengine
 			mBlender.StartBlending(mAnimStateMachine->mFinalPose,
 								   gResourceMgr.GetResource<Animation>(setting.animFilePath)->Interpolate(0.0f),
 								   setting.blendInDuration);
-		}
+		}*/
+
+		//if (mBlender.IsBlending()) mBlender.InterruptBlending();
+
+		mAnimStateMachine->BlendOutOfASM();
+
+		if (mBlender.IsBlending()) mBlender.InterruptBlending();
+
+		mBlender.StartBlending(mFinalPose,
+							   gResourceMgr.GetResource<Animation>(setting.animFilePath)->Interpolate(0.0f),
+							   setting.blendInDuration);
 
 		mEventAnimController->PlayEventAnimation(setting);
 	}
@@ -135,15 +146,15 @@ namespace inceptionengine
 		}
 	}
 
-
-
-	void AnimationController::EventAnimFinish(float blendOutDuration)
+	void AnimationController::EventAnimFinish(float blendOutDuration, std::function<void()> blendFinishCallback)
 	{
 		mAnimStateMachine->Restart();
 		//start a blending from EventAnim to ASM
-		mBlender.StartBlending(mEventAnimController->GetCurrentPose(),
+		mBlender.StartBlending(mFinalPose,
 							   mAnimStateMachine->mFinalPose,
-							   blendOutDuration);
+							   blendOutDuration,
+							   AnimBlendType::Linear,
+							   blendFinishCallback);
 	}
 
 	//in the coordinate of the model, not parent bone
