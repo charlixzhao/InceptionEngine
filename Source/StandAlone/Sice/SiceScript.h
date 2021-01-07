@@ -76,13 +76,45 @@ public:
 
 	bool InBattleMode() const { return mInBattleMode; }
 
-	virtual void GetHit(IHitable* attacker) override
+	virtual void GetHit(IHitable* attacker, float damage) override
 	{
 		if (mIsPerfectBlocking && attacker != nullptr)
 		{
 			attacker->BeBlocked();
 			BlockSuccess();
+		}
+		else
+		{
+			mCanBlockAttack = mSiceActionState.isAttacking = mSiceActionState.isEquipping = mSiceActionState.isInComboCritical = mSiceActionState.isRolling = mSiceActionState.isBlocking = false;
+			mAttackState = 0;
+			EventAnimPlaySetting gethit;
+			gethit.animFilePath = "StandAloneResource\\sice\\sice_hurt.ie_anim";
+			gethit.animStartCallback = [&]()
+			{
+				StartAction(false);
+				mSiceActionState.isBeingAttacked = true;
+			};
+			gethit.animEndCallback = [&]()
+			{
+				GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
+				mSiceActionState.isBeingAttacked = false;
+				RestoreMovement();
+			};
 
+			AnimNotify startMove;
+			startMove.ratio = 1.0f / 20.0f;
+			startMove.notify = [&, damage]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, -30.0f * damage }); };
+			gethit.animNotifies.push_back(startMove);
+			
+			AnimNotify endMove;
+			endMove.ratio = 6.0f / 20.0f;
+			endMove.notify = [&]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f }); };
+			gethit.animNotifies.push_back(endMove);
+
+			GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(gethit);
+			GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(0.0f, 0.03f, 0.1f);
+
+			
 		}
 	}
 
@@ -96,8 +128,9 @@ private:
 	void BlockSuccess()
 	{
 		mIsPerfectBlocking = false;
+		mCanBlockAttack = true;
 		float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
-		GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.15f);
+		GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.08f);
 		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\thinsword\\sword_block2.WAV");
 	}
 
@@ -266,32 +299,44 @@ private:
 		GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
 	}
 
-	void AttackDetection()
+	void AttackDetection(float damage)
 	{
-		Vec3f bottom = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordStart")[3];
-		Vec3f top = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordEnd")[3];
-		std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 10.0f);
-		if (traceRes.size() > 0)
-		{
-			float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
-			GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.1f);
-		}
+		//Vec3f bottom = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordStart")[3];
+		//Vec3f top = GetEntity().GetComponent<SkeletalMeshComponent>().GetSocketGlobalTransform("SwordEnd")[3];
+		float capsuleRadius = GetEntity().GetComponent<RigidbodyComponent>().GetCapsuleRadius();
+		Vec3f bottom = GetEntity().GetComponent<TransformComponent>().GetWorldPosition() + capsuleRadius * 2.5f * NormalizeVec(GetEntity().GetComponent<TransformComponent>().GetGlobalForward());
+		Vec3f top = bottom;
+		top.y = 200.0f;
+		std::vector<SphereTraceResult> traceRes = GetEntity().GetWorld().SphereTrace(bottom, top, 50.0f);
+
 		for (SphereTraceResult const& res : traceRes)
 		{
 			EntityID hitEntity = res.entityID;
-			if (GetEntity().GetWorld().GetEntity(hitEntity).HasComponent<NativeScriptComponent>())
+			//ignore self
+			if (hitEntity != GetEntity().GetID())
 			{
-				IHitable* hitable = dynamic_cast<IHitable*>(GetEntity().GetWorld().GetEntity(hitEntity).GetComponent<NativeScriptComponent>().GetScript());
-				if (hitable != nullptr)
-				{
-					hitable->GetHit(dynamic_cast<IHitable*>(this));
-				}
-				else
-				{
-					std::cout << "hit is nullptr\n";
-				}
+				float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
+				GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f * damage, 0.1f / damage);
+				break;
 			}
 
+		}
+
+		for (SphereTraceResult const& res : traceRes)
+		{
+			EntityID hitEntity = res.entityID;
+			//ignore self
+			if (hitEntity != GetEntity().GetID())
+			{
+				if (GetEntity().GetWorld().GetEntity(hitEntity).HasComponent<NativeScriptComponent>())
+				{
+					IHitable* hitable = dynamic_cast<IHitable*>(GetEntity().GetWorld().GetEntity(hitEntity).GetComponent<NativeScriptComponent>().GetScript());
+					if (hitable != nullptr)
+					{
+						hitable->GetHit(dynamic_cast<IHitable*>(this), damage);
+					}
+				}
+			}
 		}
 	}
 
@@ -321,8 +366,45 @@ private:
 		}
 	}
 
+	void BlockAttack()
+	{
+		mSiceActionState.isAttacking = true;
+
+		EventAnimPlaySetting setting;
+		setting.animFilePath = "StandAloneResource\\sice\\sice_block_attack.ie_anim";
+		AnimSpeedRange range1;
+		range1.startRatio = 0.0f;
+		range1.endRatio = 0.25f;
+		range1.playSpeed = 0.6f;
+		//setting.animSpeedRanges = { range1 };
+
+		AnimNotify attackDetection;
+		attackDetection.ratio = 7.5f / 43.0f;
+		attackDetection.notify = std::bind(&SiceScript::AttackDetection, this, 1.2f);
+		setting.animNotifies.push_back(attackDetection);
+
+
+		setting.animEndCallback = [&]() 
+		{			
+			GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
+			mSiceActionState.isAttacking = false;
+			RestoreMovement(); 
+		};
+
+
+		GetEntity().GetComponent<AnimationComponent>().PlayEventAnimation(setting);
+
+	}
+
 	void OnMouse_Left(bool press)
 	{
+		if (press && mCanBlockAttack)
+		{
+			mCanBlockAttack = false;
+			mSiceActionState.isBlocking = false;
+			BlockAttack();
+		}
+
 		if (press && mInBattleMode && mSiceActionState.CanAttack())
 		{
 			
@@ -338,8 +420,8 @@ private:
 			setting.animSpeedRanges = { range1 };
 	
 			AnimNotify attackDetection;
-			attackDetection.ratio = 8.0f / 14.0f;
-			attackDetection.notify = std::bind(&SiceScript::AttackDetection, this);
+			attackDetection.ratio = mAttackDetectionRatio[mAttackState];
+			attackDetection.notify = std::bind(&SiceScript::AttackDetection, this, 1.0f);
 			setting.animNotifies.push_back(attackDetection);
 
 
@@ -467,7 +549,9 @@ private:
 			setting.animNotifies.push_back(endBlock);
 			setting.blendOutDuration = 0.2f;
 
-			setting.animInterruptCallback = [&]() {mIsPerfectBlocking = false; GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false); };
+			//setting.animInterruptCallback = [&]() {mIsPerfectBlocking = false; GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false); };
+			
+			setting.animEndCallback = [&]() {mCanBlockAttack = false; };
 			setting.animBlendOutFinishCallback = [&]() {mSiceActionState.isBlocking = false; };
 
 			AnimSpeedRange range;
@@ -501,6 +585,8 @@ private:
 	std::array<float, 4> mComboStartRatio = { 12.0f / 14.0f, 8.0f / 10.0f,  12.0f / 16.0f, 1.0f };
 	std::array<float, 4> mComboEndRatio = { 3.0f / 20.0f, 3.0f / 20.0f, 1.0f / 20.0f, 0.0f };
 
+	std::array<float, 4> mAttackDetectionRatio = { 8.0f / 14.0f, 4.0f / 10.0f, 5.0f / 16.0f, 11.5f / 24.0f };
+
 	int mAttackState = 0;
 
 	float const mMaxWalkSpeed = 300.0f;
@@ -530,4 +616,6 @@ private:
 	std::function<void()> StopDoingAction = [&]() {std::cout<<"animfinish\n"; mIsDoingAction = false; };
 
 	ActionStates mSiceActionState;
+
+	bool mCanBlockAttack = false;
 };

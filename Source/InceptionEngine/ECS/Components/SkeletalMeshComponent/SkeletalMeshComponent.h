@@ -53,6 +53,8 @@ namespace inceptionengine
 
 		void SetVisibility(bool visible);
 
+		void SetShaderPath(int submeshID, std::string const& vertexShader, std::string const& fragShader);
+
 	private:
 		friend class SkeletalMeshRenderSystem;
 		friend class AnimationSystem;

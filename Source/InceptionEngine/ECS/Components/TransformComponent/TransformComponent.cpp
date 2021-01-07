@@ -150,5 +150,10 @@ namespace inceptionengine
 		mUniformScale = scale;
 	}
 
+	Vec3f TransformComponent::GetWorldPosition() const
+	{
+		return GetWorldTransform()[3];
+	}
+
 }
 

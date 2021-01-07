@@ -42,6 +42,10 @@ int main()
 															   "StandAloneResource\\sice\\skin.HDR" ,
 															   "StandAloneResource\\sice\\cloth.BMP" });
 
+	sice.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource\\shader\\spv\\vertex.spv",
+															 "EngineResource\\shader\\spv\\highlight.spv");
+
+
 	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, 200.0f), Vec3f(0.0f, 125.0f, 0.0f));
 
 	sice.AddComponent<RigidbodyComponent>();
@@ -80,6 +84,8 @@ int main()
 	sword.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\thinsword\\thinsword_mesh.ie_skmesh");
 	sword.GetComponent<SkeletalMeshComponent>().SetVisibility(false);
 	sword.GetComponent<TransformComponent>().AttachToSocket(siceID, "SwordSocket");
+	sword.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource\\shader\\spv\\vertex.spv",
+															  "EngineResource\\shader\\spv\\highlight.spv");
 
 	world->GetEntity(siceID).AddComponent<NativeScriptComponent>().SetScript<SiceScript>(swordID);
 	world->GetEntity(siceID).AddComponent<AnimationComponent>().SetAnimStateMachine<SiceASM>(swordID);

@@ -35,6 +35,9 @@ namespace inceptionengine
 
 		void SetUniformScale(float scale);
 
+		Vec3f GetWorldPosition() const;
+
+
 
 	private:
 		friend class TransformSystem;
@@ -56,6 +59,9 @@ namespace inceptionengine
 		Vec4f mFowardVecBeginRotation;
 		Vec4f mRightwardVecBeginRotation;
 		Vec3f mRotationAxis;
+
+
+
 
 		std::reference_wrapper<World> mWorld;
 		EntityID mEntityID = InvalidEntityID;

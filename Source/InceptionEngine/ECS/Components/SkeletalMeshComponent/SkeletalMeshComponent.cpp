@@ -122,6 +122,23 @@ namespace inceptionengine
 		mVisible = visible;
 	}
 
+	void SkeletalMeshComponent::SetShaderPath(int submeshID, std::string const& vertexShader, std::string const& fragShader)
+	{
+		assert(mSkeletalMeshInstance->mSkeletalMesh != nullptr);
+		if (submeshID == -1)
+		{
+			for (int i = 0; i < mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.size(); i++)
+			{
+				mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[i].shaderPath = { vertexShader, fragShader };
+			}
+		}
+		else
+		{
+			mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes[submeshID].shaderPath = { vertexShader, fragShader };
+		}
+	
+	}
+
 	void SkeletalMeshComponent::SetMesh(std::string const& filePath)
 	{
 		std::shared_ptr<SkeletalMesh> pMesh = gResourceMgr.GetResource<SkeletalMesh>(filePath);

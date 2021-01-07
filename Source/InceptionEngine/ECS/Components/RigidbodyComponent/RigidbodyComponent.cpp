@@ -79,4 +79,9 @@ namespace inceptionengine
 		assert(mCapsuleCollider != nullptr);
 		mCapsuleCollider->blocking = blocking;
 	}
+
+	float RigidbodyComponent::GetCapsuleRadius() const
+	{
+		return mCapsuleCollider->radius;
+	}
 }

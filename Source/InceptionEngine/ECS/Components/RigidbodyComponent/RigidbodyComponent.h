@@ -45,6 +45,8 @@ namespace inceptionengine
 
 		void SetCapsuleColliderBlocking(bool blocking);
 
+		float GetCapsuleRadius() const;
+
 	
 
 	private:
