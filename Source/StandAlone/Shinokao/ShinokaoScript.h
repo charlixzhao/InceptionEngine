@@ -26,7 +26,7 @@ public:
 
 		AnimNotify startMove;
 		startMove.ratio = 1.5f / 13.0f;
-		startMove.notify = [&, damage]() { GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, -30.0f * damage }); };
+		startMove.notify = [&, damage]() { GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, -10.0f * damage }); };
 		setting.animNotifies.push_back(startMove);
 
 		AnimNotify endMove;

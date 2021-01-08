@@ -74,6 +74,36 @@ public:
 
 	}
 
+
+	void StartEquip()
+	{
+		mSiceActionState.isEquipping = true;
+	}
+
+	void EndEquip()
+	{
+		GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
+		mSiceActionState.isEquipping = false;
+		//mInBattleMode = true;
+		GetEntity().GetWorld().GetEntity(mSwordID).GetComponent<SkeletalMeshComponent>().SetVisibility(true);
+		RestoreMovement();
+	}
+
+	void StartUnequip()
+	{
+		mSiceActionState.isEquipping = true;
+	}
+
+	void EndUnequip()
+	{
+		GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
+		mSiceActionState.isEquipping = false;
+		//mInBattleMode = false;
+		GetEntity().GetWorld().GetEntity(mSwordID).GetComponent<SkeletalMeshComponent>().SetVisibility(false);
+		RestoreMovement();
+	}
+
+
 	bool InBattleMode() const { return mInBattleMode; }
 
 	virtual void GetHit(IHitable* attacker, float damage) override
@@ -179,11 +209,10 @@ private:
 
 	void OnKey_1(bool press)
 	{
-		if (press)
+		if (press && mSiceActionState.CanEquip())
 		{
+			StartAction(false);
 			mInBattleMode = !mInBattleMode;
-			//GetEntity().GetComponent<AnimationComponent>().TestAimAxis();
-			//GetEntity().GetWorld().GetEntity(mSwordID).GetComponent<SkeletalMeshComponent>().SetVisibility(mInBattleMode);
 		}
 		
 	}
@@ -565,7 +594,11 @@ private:
 		}
 	}
 
+
 private:
+
+	//friend class SiceASM;
+
 	std::array<std::string, 4> const mAttackAnims =
 	{
 		"StandAloneResource\\sice\\sice_combo_a1.ie_anim",
@@ -581,7 +614,7 @@ private:
 		"StandAloneResource\\sice\\sice_return_a4.ie_anim",
 	};
 
-	std::array<float, 4> mAttackSpeed = { 0.6, 0.4, 0.7, 0.7 };
+	std::array<float, 4> mAttackSpeed = { 0.8, 0.7, 0.7, 0.9 };
 	std::array<float, 4> mComboStartRatio = { 12.0f / 14.0f, 8.0f / 10.0f,  12.0f / 16.0f, 1.0f };
 	std::array<float, 4> mComboEndRatio = { 3.0f / 20.0f, 3.0f / 20.0f, 1.0f / 20.0f, 0.0f };
 
