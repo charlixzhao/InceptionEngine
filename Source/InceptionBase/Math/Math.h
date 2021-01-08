@@ -143,6 +143,7 @@ namespace inceptionengine
 
 	inline void NormalizeRotation(float& rads, Vec3f& axis)
 	{
+
 		rads = std::fmodf(rads, 2 * PI);
 		if (rads < 0.0f)
 			rads = rads + 2 * PI;
@@ -306,6 +307,11 @@ namespace inceptionengine
 	inline int RandInt(int min, int max)
 	{
 		return 0;
+	}
+
+	inline bool RandTest(float probability)
+	{
+		return (static_cast<float>(rand()) / static_cast<float>((RAND_MAX + 1.0f))) < probability;
 	}
 
 	inline float Distance2(Matrix4x4f const& mat1, Matrix4x4f const& mat2)

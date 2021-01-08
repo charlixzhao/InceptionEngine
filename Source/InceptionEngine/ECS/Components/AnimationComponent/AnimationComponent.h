@@ -67,6 +67,7 @@ namespace inceptionengine
 
 		void InsertEventAnimSpeedRangeSecond(float startSecond, float endSecond, float playSpeed);
 
+		void InsertAnimNotify(AnimNotify const& notify);
 
 		/*
 		Socket system API

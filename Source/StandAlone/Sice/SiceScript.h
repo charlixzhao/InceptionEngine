@@ -72,6 +72,15 @@ public:
 
 		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&SiceScript::OnMouse_Scroll, this, std::placeholders::_1));
 
+		BindKeyInputCallback(KeyInputTypes::Keyboard_L, [&](bool press) 
+							 {
+								 if (press)
+								 {
+									 GetEntity().GetComponent<CameraComponent>().LiftUp(5.0f);
+									 GetEntity().GetComponent<CameraComponent>().PrintCameraPramameter();
+								 }
+							 });
+
 	}
 
 
@@ -84,6 +93,7 @@ public:
 	{
 		GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
 		mSiceActionState.isEquipping = false;
+		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\uneath.wav");
 		//mInBattleMode = true;
 		GetEntity().GetWorld().GetEntity(mSwordID).GetComponent<SkeletalMeshComponent>().SetVisibility(true);
 		RestoreMovement();
@@ -115,8 +125,16 @@ public:
 		}
 		else
 		{
+			HP -= 1.0f;
+			if (HP < 0)
+			{
+				std::cout << "ÄãÊäÁË£¡£¡£¡\n";
+				exit(0);
+			}
+
 			mCanBlockAttack = mSiceActionState.isAttacking = mSiceActionState.isEquipping = mSiceActionState.isInComboCritical = mSiceActionState.isRolling = mSiceActionState.isBlocking = false;
 			mAttackState = 0;
+			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\gethit1.wav");
 			EventAnimPlaySetting gethit;
 			gethit.animFilePath = "StandAloneResource\\sice\\sice_hurt.ie_anim";
 			gethit.animStartCallback = [&]()
@@ -157,11 +175,17 @@ public:
 private:
 	void BlockSuccess()
 	{
-		mIsPerfectBlocking = false;
+		//mIsPerfectBlocking = false;
 		mCanBlockAttack = true;
+		
+		AnimNotify enableBlockAttack;
+		enableBlockAttack.ratio = 14.5f / 17.0f;
+		enableBlockAttack.notify = [&]() {mCanBlockAttack = true;};
+		//GetEntity().GetComponent<AnimationComponent>().InsertAnimNotify(enableBlockAttack);
+
 		float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
 		GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.08f);
-		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\thinsword\\sword_block2.WAV");
+		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\thinsword\\sword_block3.WAV");
 	}
 
 	virtual void OnBegin() override
@@ -211,7 +235,7 @@ private:
 	{
 		if (press && mSiceActionState.CanEquip())
 		{
-			StartAction(false);
+			GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f });
 			mInBattleMode = !mInBattleMode;
 		}
 		
@@ -222,7 +246,7 @@ private:
 	{
 		Vec4f cameraPosition = GetEntity().GetComponent<CameraComponent>().GetCameraRefPosition();
 		Matrix4x4f modelTranslate = Translate(GetEntity().GetComponent<TransformComponent>().GetWorldTransform()[3]);
-		GetEntity().GetComponent<AnimationComponent>().ChainAimToInDuration(modelTranslate * cameraPosition, Vec3f(50.0f, 0.0f, 0.0f), 0.3f);
+		GetEntity().GetComponent<AnimationComponent>().ChainAimToInDuration(modelTranslate * cameraPosition, Vec3f(30.0f, 0.0f, 0.0f), 0.3f);
 	}
 
 
@@ -296,9 +320,15 @@ private:
 		{
 			if (mSiceActionState.CanMove())
 			{
-				GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed });
+				if(GetEntity().GetComponent<RigidbodyComponent>().GetSpeed() == 0.0f)
+					GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed / 1.5f });
 				GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(true);
-				GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(rotateToVec, 0.25f);
+				GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(rotateToVec, 0.15f,
+																							[&]() 
+																							{
+																								if (GetEntity().GetComponent<RigidbodyComponent>().GetSpeed() > 0.0f)
+																									GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, mMaxWalkSpeed });
+																							});
 			}
 			
 		}
@@ -397,6 +427,8 @@ private:
 
 	void BlockAttack()
 	{
+		mCanBlockAttack = false;
+		mSiceActionState.isBlocking = false;
 		mSiceActionState.isAttacking = true;
 
 		EventAnimPlaySetting setting;
@@ -404,12 +436,24 @@ private:
 		AnimSpeedRange range1;
 		range1.startRatio = 0.0f;
 		range1.endRatio = 0.25f;
-		range1.playSpeed = 0.6f;
-		//setting.animSpeedRanges = { range1 };
+		range1.playSpeed = 0.7f;
+		setting.animSpeedRanges = { range1 };
+
+		AnimNotify startMove;
+		startMove.ratio = 3.0f / 43.0f;
+		startMove.notify = [&]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 2000.0f }); };
+		setting.animNotifies.push_back(startMove);
+
+		AnimNotify endMove;
+		endMove.ratio = 6.0f / 43.0f;
+		endMove.notify = [&]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f }); };
+		setting.animNotifies.push_back(endMove);
+
+		
 
 		AnimNotify attackDetection;
 		attackDetection.ratio = 7.5f / 43.0f;
-		attackDetection.notify = std::bind(&SiceScript::AttackDetection, this, 1.2f);
+		attackDetection.notify = std::bind(&SiceScript::AttackDetection, this, 1.5f);
 		setting.animNotifies.push_back(attackDetection);
 
 
@@ -427,12 +471,11 @@ private:
 
 	void OnMouse_Left(bool press)
 	{
+		/*
 		if (press && mCanBlockAttack)
 		{
-			mCanBlockAttack = false;
-			mSiceActionState.isBlocking = false;
 			BlockAttack();
-		}
+		}*/
 
 		if (press && mInBattleMode && mSiceActionState.CanAttack())
 		{
@@ -452,6 +495,20 @@ private:
 			attackDetection.ratio = mAttackDetectionRatio[mAttackState];
 			attackDetection.notify = std::bind(&SiceScript::AttackDetection, this, 1.0f);
 			setting.animNotifies.push_back(attackDetection);
+
+			if (mAttackState == 0)
+			{
+				AnimNotify startMove;
+				startMove.ratio = 3.0f / 14.0f;
+				startMove.notify = [&]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 1200.0f }); };
+				setting.animNotifies.push_back(startMove);
+
+				AnimNotify endMove;
+				endMove.ratio = 8.0f / 14.0f;
+				endMove.notify = [&]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 0.0f }); };
+				setting.animNotifies.push_back(endMove);
+			}
+
 
 
 			if (mAttackState <= mAttackAnims.size() - 2)
@@ -541,6 +598,12 @@ private:
 			movePoint3.ratio = 12.0f / 15.0f;
 			movePoint3.notify = [&]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 300.0f }); };
 			rollSetting.animNotifies.push_back(movePoint3);
+			
+			AnimNotify playSound;
+			playSound.ratio = 5.0f / 15.0f;
+			playSound.notify = [&]() {GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\roll2.wav"); };
+			rollSetting.animNotifies.push_back(playSound);
+
 			rollSetting.blendOutDuration = 0.08f;
 
 
@@ -571,7 +634,7 @@ private:
 			startBlock.notify = [&]() {mIsPerfectBlocking = true; };
 
 			AnimNotify endBlock;
-			endBlock.ratio = 15.0f / 17.0f;
+			endBlock.ratio = 14.0f / 17.0f;
 			endBlock.notify = [&]() {mIsPerfectBlocking = false; GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false); };
 
 			setting.animNotifies.push_back(startBlock);
@@ -580,8 +643,8 @@ private:
 
 			//setting.animInterruptCallback = [&]() {mIsPerfectBlocking = false; GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false); };
 			
-			setting.animEndCallback = [&]() {mCanBlockAttack = false; };
-			setting.animBlendOutFinishCallback = [&]() {mSiceActionState.isBlocking = false; };
+			setting.animEndCallback = [&]() {if (mCanBlockAttack) BlockAttack(); };
+			setting.animBlendOutFinishCallback = [&]() { mSiceActionState.isBlocking = false; };
 
 			AnimSpeedRange range;
 			range.startRatio = 0.0f;
@@ -614,11 +677,11 @@ private:
 		"StandAloneResource\\sice\\sice_return_a4.ie_anim",
 	};
 
-	std::array<float, 4> mAttackSpeed = { 0.8, 0.7, 0.7, 0.9 };
+	std::array<float, 4> mAttackSpeed = { 0.8, 0.8, 0.85, 0.9 };
 	std::array<float, 4> mComboStartRatio = { 12.0f / 14.0f, 8.0f / 10.0f,  12.0f / 16.0f, 1.0f };
 	std::array<float, 4> mComboEndRatio = { 3.0f / 20.0f, 3.0f / 20.0f, 1.0f / 20.0f, 0.0f };
 
-	std::array<float, 4> mAttackDetectionRatio = { 8.0f / 14.0f, 4.0f / 10.0f, 5.0f / 16.0f, 11.5f / 24.0f };
+	std::array<float, 4> mAttackDetectionRatio = { 8.0f / 14.0f, 4.0f / 10.0f, 5.5f / 16.0f, 11.5f / 24.0f };
 
 	int mAttackState = 0;
 
@@ -638,7 +701,7 @@ private:
 	EntityID mSwordID = InvalidEntityID;
 
 	float mAimIkTimer = 0.0f;
-	float mTestAimIkInterval = 3.0f;
+	float mTestAimIkInterval = 1.0f;
 
 	bool mIsPerfectBlocking = false;
 
@@ -651,4 +714,6 @@ private:
 	ActionStates mSiceActionState;
 
 	bool mCanBlockAttack = false;
+
+	float HP = 20.0f;
 };

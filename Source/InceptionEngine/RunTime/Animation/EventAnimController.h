@@ -8,6 +8,8 @@ namespace inceptionengine
 	struct EventAnimPlaySetting;
 	class AnimationController;
 
+	struct AnimNotify;
+
 	class EventAnimController
 	{
 	public:
@@ -31,9 +33,12 @@ namespace inceptionengine
 
 		void InsertAnimSpeedRange(float startRatio, float endRatio, float playSpeed);
 
+		void InsertAnimNotify(AnimNotify const& notify);
+
 		
 	private:
-		void NotifyCurrentAnimInstance();
+		bool NotifyCurrentAnimInstance();
+
 	private:
 		std::unique_ptr<AnimInstance> mAnimInstance = nullptr;
 		float mRunningTime = 0.0f;

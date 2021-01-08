@@ -279,6 +279,11 @@ namespace inceptionengine
 		}
 	}
 
+	void AnimationController::InsertAnimNotify(AnimNotify const& notify)
+	{
+		mEventAnimController->InsertAnimNotify(notify);
+	}
+
 
 	
 

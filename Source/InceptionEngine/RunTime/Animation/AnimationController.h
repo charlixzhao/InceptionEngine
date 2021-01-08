@@ -15,6 +15,7 @@ namespace inceptionengine
 	struct EventAnimPlaySetting;
 	class EventAnimController;
 	class IkController;
+	struct AnimNotify;
 
 
 	class AnimationController
@@ -78,6 +79,8 @@ namespace inceptionengine
 		int GetCurrentAsmActiveState() const;
 
 		float GetCurrentAsmActiveStateRunningSecond() const;
+
+		void InsertAnimNotify(AnimNotify const& notify);
 
 	private:
 		friend class IkController;

@@ -212,11 +212,11 @@ mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBo
 		plane->mSubMeshes.resize(1);
 		plane->mSubMeshes[0].vertices = planeVertices;
 		plane->mSubMeshes[0].indices = planeIndices;
-		plane->mSubMeshes[0].texturePath = "StandAloneResource\\T_Grass.BMP";
+		plane->mSubMeshes[0].texturePath = "StandAloneResource\\T_Ground.jpg";
 		plane->mSubMeshes[0].shaderPath = 
 		{ 
 			"EngineResource\\shader\\spv\\vertex.spv",
-			"EngineResource\\shader\\spv\\fragment.spv" 
+			"EngineResource\\shader\\spv\\highlight1.spv" 
 		};
 		plane->mSkeleton = std::make_shared<Skeleton>();
 		mSkeletalMeshInstance->mSkeletalMesh = plane;

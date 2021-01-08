@@ -25,7 +25,7 @@ namespace inceptionengine
 
 		void RotateForwardVecTo(Vec3f const& direction);
 
-		void RotateForwardVecToInDuration(Vec3f const& direction, float duration);
+		void RotateForwardVecToInDuration(Vec3f const& direction, float duration, std::function<void()> finishCallback = []() {; });
 		
 		void AttachToSocket(EntityID attachedToEntityID, std::string const& socketName);
 
@@ -59,6 +59,7 @@ namespace inceptionengine
 		Vec4f mFowardVecBeginRotation;
 		Vec4f mRightwardVecBeginRotation;
 		Vec3f mRotationAxis;
+		std::function<void()> mRotateFinishCallback = []() {; };
 
 
 

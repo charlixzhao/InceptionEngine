@@ -66,15 +66,18 @@ namespace inceptionengine
 			{
 				float currentAnimSpeed = mAnimInstance->QueryAnimSpeed(mRunningTime / mAnimInstance->GetDuration());
 				mRunningTime += dt * currentAnimSpeed;
+
+				if (! NotifyCurrentAnimInstance()) return;
+
 				if (mRunningTime > mAnimInstance->GetDuration())
 				{
 					//stop animation
 					std::unique_ptr<AnimInstance> prevAnim = std::move(mAnimInstance);
 					mAnimInstance = nullptr;
-					prevAnim->End();
 					mRunningTime = 0.0f;
-					
 
+					prevAnim->End();
+					
 					//we add this conditional check because prevAnim->End() might play new event animation, in that case,
 					//we don't blend back to ASM
 					//mAnimInstance == nullptr means there is no EventAnim anymore, so we can blend back
@@ -87,7 +90,7 @@ namespace inceptionengine
 					//we can't write the notify method inside AnimInstance, because the Notify function defined
 					//by the user may change the AnimInstance itself. It that case, the AnimInstance become
 					//invalid after some notifies happen.
-					NotifyCurrentAnimInstance();
+					
 					mCurrentPose = mAnimInstance->Sample(mRunningTime);
 				}
 			}
@@ -121,7 +124,16 @@ namespace inceptionengine
 		mAnimInstance->InsertAnimSpeedRange(range);
 	}
 
-	void EventAnimController::NotifyCurrentAnimInstance()
+	void EventAnimController::InsertAnimNotify(AnimNotify const& notify)
+	{
+		if (mAnimInstance == nullptr) return;
+		else
+		{
+			mAnimInstance->mAnimNotifies.push_back(notify);
+		}
+	}
+
+	bool EventAnimController::NotifyCurrentAnimInstance()
 	{
 		AnimInstance* currentInstance = mAnimInstance.get();
 		float ratio = mRunningTime / mAnimInstance->GetDuration();
@@ -132,11 +144,12 @@ namespace inceptionengine
 				it->notify();
 				if (mAnimInstance.get() != currentInstance)
 				{
-					break;
+					return false;
 				}
 				else it->notified = true;
 			}
 		}
+		return true;
 	}
 }
 

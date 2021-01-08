@@ -33,7 +33,7 @@ namespace inceptionengine
 
 	void AudioComponent::InitializeSoundEngine()
 	{
-		GetSoundEngine();
+		GetSoundEngine()->play2D(PathHelper::GetAbsolutePath("StandAloneResource\\sice\\uneath.wav").c_str());
 	}
 
 

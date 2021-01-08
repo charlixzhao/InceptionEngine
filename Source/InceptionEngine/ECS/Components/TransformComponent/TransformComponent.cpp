@@ -73,14 +73,16 @@ namespace inceptionengine
 		{
 			Matrix4x4f rot(1.0f);
 			
+			bool rotateFinish = false;
 			if (mRotationCountDown - dt < 0.0f)
 			{
 				//stop rotate
 				rot = inceptionengine::Rotate(mRotationCountDown, mRotationAxis);
 				mRotationDuration = 0.0f;
 				mRotationCountDown = 0.0f;
-
+				rotateFinish = true;
 			}
+
 			else
 			{
 				//continue to rotate
@@ -92,6 +94,8 @@ namespace inceptionengine
 			mLocalXAxis = rot * mLocalXAxis;
 			assert(!std::isnan(mLocalXAxis[0]));
 			mLocalZAxis = rot * mLocalZAxis;
+
+			if (rotateFinish) 	mRotateFinishCallback();
 		}
 
 	}
@@ -99,33 +103,23 @@ namespace inceptionengine
 	/*
 	Assume the rotation axis is local y
 	*/
-	void TransformComponent::RotateForwardVecToInDuration(Vec3f const& direction, float duration)
+	void TransformComponent::RotateForwardVecToInDuration(Vec3f const& direction, float duration, std::function<void()> finishCallback)
 	{
 		assert(DotProduct(mLocalYAxis, direction) < 0.0001f);
+		mRotateFinishCallback = finishCallback;
 		mRotatationRads = RadsBetween(mLocalZAxis, direction);
-		if (mRotatationRads < 0)
-			mRotatationRads += 2 * PI;
-		if (mRotatationRads > PI) 
-			mRotatationRads =  2*PI - mRotatationRads;
+		mRotationAxis = CrossProduct(mLocalZAxis, direction);
+		NormalizeRotation(mRotatationRads, mRotationAxis);
+		if (std::abs(mRotatationRads) <= 0.001f || std::abs(mRotatationRads - PI / 2.0f) <= 0.001f)
+			mRotationAxis = mLocalYAxis;
+
+
 		mRotationDuration = duration;
 		mRotationCountDown = duration;
 		mRotationToDirection = direction;
 		mFowardVecBeginRotation = mLocalZAxis;
 		mRightwardVecBeginRotation = mLocalXAxis;
 
-		if (VecLength(direction - Vec3f(mLocalZAxis)) < 0.001f)
-		{
-			mRotationAxis = mLocalYAxis;
-		}
-		else if (VecLength(direction + Vec3f(mLocalZAxis)) < 0.001f)
-		{
-			mRotationAxis = -mLocalYAxis;
-		}
-		else
-		{
-			mRotationAxis = CrossProduct(NormalizeVec(Vec3f(mLocalZAxis)), NormalizeVec(direction));
-
-		}
 	}
 
 	void TransformComponent::AttachToSocket(EntityID attachedToEntityID, std::string const& socketName)

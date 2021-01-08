@@ -130,6 +130,11 @@ namespace inceptionengine
 		mAnimationController->InsertEventAnimSpeedRange(startRatio, endRatio, playSpeed);
 	}
 
+	void AnimationComponent::InsertAnimNotify(AnimNotify const& notify)
+	{
+		mAnimationController->InsertAnimNotify(notify);
+	}
+
 
 	bool AnimationComponent::IsAimIkActive() const
 	{

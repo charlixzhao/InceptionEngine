@@ -46,7 +46,7 @@ int main()
 															 "EngineResource\\shader\\spv\\highlight.spv");
 
 
-	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 180.0f, 200.0f), Vec3f(0.0f, 125.0f, 0.0f));
+	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 200.0f, 200.0f), Vec3f(0.0f, 145.0f, 0.0f));
 
 	sice.AddComponent<RigidbodyComponent>();
 	sice.GetComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
@@ -91,7 +91,7 @@ int main()
 	world->GetEntity(siceID).AddComponent<AnimationComponent>().SetAnimStateMachine<SiceASM>(swordID);
 
 	Entity const& plane = world->CreateEntity();
-	plane.AddComponent<SkeletalMeshComponent>().SetPlane(1000.0f);
+	plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f);
 
 	Entity const& shinokao = world->CreateEntity();
 	shinokao.GetComponent<TransformComponent>().SetWorldTransform(Translate(Vec3f(0.0f, 0.0f, -500.0f)));
@@ -107,6 +107,7 @@ int main()
 	shinokao.GetComponent<TransformComponent>().SetUniformScale(1.3f);
 	shinokao.GetComponent<SkeletalMeshComponent>().CreateSocket("SwordStart", "Sword_joint", Matrix4x4f(1.0f));
 	shinokao.GetComponent<SkeletalMeshComponent>().CreateSocket("SwordEnd", "joint4_R", Matrix4x4f(1.0f));
+	shinokao.AddComponent<AudioComponent>();
 
 	engine.PlayGame();
 
