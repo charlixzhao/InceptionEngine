@@ -92,8 +92,10 @@ public:
 		else
 		{
 			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\shinokao\\gethit_goldbody.wav");
-			HP -= 0.4f;
+			HP -= 0.5f;
 		}
+
+		std::cout << "Shinokao HP is now " << HP << std::endl;
 
 		if (HP < 0)
 		{
@@ -456,6 +458,6 @@ private:
 	bool mIsInGoldBody = false;
 
 
-	float HP = 15.0f;
+	float HP = 30.0f;
 
 };

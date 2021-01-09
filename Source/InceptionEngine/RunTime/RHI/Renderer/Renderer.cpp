@@ -1717,7 +1717,7 @@ namespace inceptionengine
 		arr[2].location = 2;
 		arr[2].offset = offsetof(Vertex, texCoord);
 		arr[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-
+		
 		arr[3].binding = 0;
 		arr[3].location = 3;
 		arr[3].offset = offsetof(Vertex, normal);

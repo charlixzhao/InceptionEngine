@@ -126,6 +126,7 @@ public:
 		else
 		{
 			HP -= 1.0f;
+			std::cout << "Your HP is now " << HP << std::endl;
 			if (HP < 0)
 			{
 				std::cout << "ÄãÊäÁË£¡£¡£¡\n";
@@ -701,7 +702,7 @@ private:
 	EntityID mSwordID = InvalidEntityID;
 
 	float mAimIkTimer = 0.0f;
-	float mTestAimIkInterval = 1.0f;
+	float mTestAimIkInterval = 0.2f;
 
 	bool mIsPerfectBlocking = false;
 
