@@ -15,9 +15,11 @@
 #include <fbxsdk.h>
 
 #include <vector>
+#include <set>
 #include <cassert>
 #include <iostream>
 #include <fstream>
+
 
 namespace inceptionengine::fbximport
 {
@@ -38,8 +40,28 @@ namespace inceptionengine::fbximport
     void ImportSkeletonHierachy(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton& skeleton);
     void ImportSkeletonBindPose(FbxScene* pFbxScene, std::vector<FbxNode*> const& meshNodes, Skeleton& skeleton);
     void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations);
+    std::vector<std::string> GetFileLines(std::string const& fileName);
 
 
+    std::vector<std::string> GetFileLines(std::string const& fileName)
+    {
+        std::ifstream in(fileName.c_str());
+        if (!in)
+        {
+            throw std::runtime_error("Can't open file\n");
+        }
+        std::vector<std::string> result;
+        std::string str;
+        while (std::getline(in, str))
+        {
+            if (str.size() > 0)
+            {
+                result.push_back(str);
+            }
+        }
+        in.close();
+        return result;
+    }
 
     Matrix4x4f ConvertMatrix(FbxAMatrix const& mat)
     {
@@ -133,7 +155,19 @@ namespace inceptionengine::fbximport
                 else
                 {
                     //reorder animation
-                    std::cout << "Inconsistency found, try to reorder animation to match skeleton\n";
+            
+                    std::cout << "Inconsistency found. Inter bone pair config if want to reorder animation to match skeleton: ";
+
+                    std::string bonePairConfig;
+                    std::getline(std::cin, bonePairConfig);
+                    std::vector<std::string> bonePairFile = GetFileLines(PathHelper::GetAbsolutePath(bonePairConfig));
+                    assert(bonePairFile.size() % 2 == 0);
+                    std::unordered_map<std::string, std::string> bonePairs;
+                    for (int i = 0; i < bonePairFile.size(); i += 2)
+                    {
+                        bonePairs.insert({ bonePairFile[i], bonePairFile[i + 1] });
+                    }
+
                     std::set<std::string> unmatchedBones;
                     for (auto& anim : animations)
                     {
@@ -149,9 +183,16 @@ namespace inceptionengine::fbximport
                             for (int j = 0; j < existingSkeleton->GetBoneNumber(); j++)
                             {
                                 std::string boneName = existingSkeleton->mBones[j].name;
-                                std::string removePrefix = boneName.substr(6, boneName.size());
-                                std::string constructedBoneName = "BVH:" + removePrefix;
-                                int correspondBoneID = skeleton.GetBoneID(constructedBoneName);
+                                int correspondBoneID = -1;
+                                if (bonePairs.find(boneName) != bonePairs.end())
+                                {
+                                    correspondBoneID = skeleton.GetBoneID(bonePairs.at(boneName));
+                                    if (correspondBoneID == -1)
+                                    {
+                                        throw std::runtime_error("Error in pair config\n");
+                                    }
+                                }
+
                                 if (correspondBoneID != -1)
                                 {
                                     reordered_anim.mBoneTransforms[i][j] = anim.mBoneTransforms[i][correspondBoneID];
