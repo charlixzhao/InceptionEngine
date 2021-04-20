@@ -124,17 +124,66 @@ namespace inceptionengine::fbximport
                 std::getline(std::cin, pathToSkeleton);
                 pathToSkeleton += ".ie_skeleton";
                 std::shared_ptr<Skeleton> existingSkeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(pathToSkeleton));
-                if (skeleton != *existingSkeleton)
-                {
-                    std::cout << "This skeleton is not equal to the skeleton in the new fbx file!" << std::endl;
-                    return;
-                }
-                else
+                if (skeleton <= *existingSkeleton)
                 {
                     std::cout << "Successfully use an existing skeleton\n";
                     skmesh.mPathToSkeleton = pathToSkeleton;
                     for (auto& anim : animations) anim.mPathToSkeleton = pathToSkeleton;
+                }
+                else
+                {
+                    //reorder animation
+                    std::cout << "Inconsistency found, try to reorder animation to match skeleton\n";
+                    std::set<std::string> unmatchedBones;
+                    for (auto& anim : animations)
+                    {
+                        Animation reordered_anim;
+                        reordered_anim.mDuration = anim.mDuration;
+                        reordered_anim.mName = anim.mName;
+                        reordered_anim.mPathToSkeleton = pathToSkeleton;
+                        reordered_anim.mBoneTransforms.resize(anim.mBoneTransforms.size());
+                        for (int i = 0; i < reordered_anim.mBoneTransforms.size(); i++)
+                        {
+                            reordered_anim.mBoneTransforms[i].resize(existingSkeleton->GetBoneNumber());
 
+                            for (int j = 0; j < existingSkeleton->GetBoneNumber(); j++)
+                            {
+                                std::string boneName = existingSkeleton->mBones[j].name;
+                                std::string removePrefix = boneName.substr(6, boneName.size());
+                                std::string constructedBoneName = "BVH:" + removePrefix;
+                                int correspondBoneID = skeleton.GetBoneID(constructedBoneName);
+                                if (correspondBoneID != -1)
+                                {
+                                    reordered_anim.mBoneTransforms[i][j] = anim.mBoneTransforms[i][correspondBoneID];
+                                }
+                                else
+                                {
+                                    unmatchedBones.insert(boneName);
+                                    reordered_anim.mBoneTransforms[i][j] = existingSkeleton->mBones[j].lclRefPose;
+                                }
+                            }
+                        }
+
+                        anim = std::move(reordered_anim);
+                    }
+                    for (auto& boneName : unmatchedBones)
+                    {
+                        std::cout << "Bone " << boneName << " does not find a correpondent\n";
+                    }
+
+
+                    /*
+                    std::cout << "This skeleton is not equal to the skeleton in the new fbx file!" << std::endl;
+                    std::cout << "Current skeleton has bones\n";
+                    for (auto const& bone : skeleton.mBones)
+                    {
+                        std::cout << bone.name << std::endl;
+                    }
+                    std::cout << "Existing skeleton has bones\n";
+                    for (auto const& bone : existingSkeleton->mBones)
+                    {
+                        std::cout << bone.name << std::endl;
+                    }*/
                 }
             }
             else
@@ -489,6 +538,10 @@ namespace inceptionengine::fbximport
                     std::cout << "Find submesh in the fbx. The name of the submesh is " << pFbxMesh->GetName() << std::endl;
                     std::cout << "Enter a texture path for the submesh, empty to use default texture: ";
                     std::getline(std::cin, mesh.mSubMeshes.back().texturePath);
+                    if (mesh.mSubMeshes.back().texturePath == "")
+                    {
+                        mesh.mSubMeshes.back().texturePath = "EngineResource\\texture\\DefaultTexture.png";
+                    }
                 }
             }
 

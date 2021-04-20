@@ -12,6 +12,145 @@
 using namespace inceptionengine;
 
 
+#pragma once
+
+
+#include "InceptionEngine.h"
+#include <iostream>
+#include "Interfaces/IHitable.h"
+
+using namespace inceptionengine;
+
+
+
+class HumanoidScript : public NativeScript
+{
+public:
+	HumanoidScript(EntityID entityID, std::reference_wrapper<World> world)
+		:NativeScript(entityID, world)
+	{
+		BindKeyInputCallback(KeyInputTypes::Keyboard_2, std::bind(&HumanoidScript::OnKey_2, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&HumanoidScript::OnMouse_Scroll, this, std::placeholders::_1));
+	}
+
+
+private:
+	
+
+	virtual void OnMouseDeltaPos(MouseDeltaPos mouseDeltaPos) override
+	{
+		if (mUseMouseToControlCamera)
+		{
+			GetEntity().GetComponent<CameraComponent>().RotateVertical(-mouseDeltaPos.deltaXPos * mCameraRotateVerticalSpeed);
+			GetEntity().GetComponent<CameraComponent>().RotateHorizontal(-mouseDeltaPos.deltaYPos * mCameraRotateHoritonzallSpeed);
+		}
+
+	}
+
+	void OnKey_2(bool press)
+	{
+		if (press)
+		{
+			mUseMouseToControlCamera = !mUseMouseToControlCamera;
+			InceptionEngine::GetInstance().SetMouseVisibility(!mUseMouseToControlCamera);
+		}
+	}
+
+	void OnMouse_Scroll(bool scrollUp)
+	{
+		if (scrollUp)
+		{
+			GetEntity().GetComponent<CameraComponent>().MoveForward(20.0f);
+		}
+		else
+		{
+			GetEntity().GetComponent<CameraComponent>().MoveForward(-20.0f);
+		}
+	}
+
+	
+
+private:
+	bool mUseMouseToControlCamera = false;
+	float const mCameraRotateVerticalSpeed = 0.03f;
+	float const mCameraRotateHoritonzallSpeed = 0.03f;
+
+};
+
+
+class HumanoidASM : public AnimStateMachine
+{
+public:
+	HumanoidASM(EntityID entityID, std::reference_wrapper<World> world)
+		:AnimStateMachine(entityID, world)
+	{
+		CreateState("StandAloneResource\\humanoid\\obstacles1_subject1.ie_anim");
+
+		SetEntryState(0);
+	}
+
+private:
+};
+
+//Scene 3, motion matching
+int main()
+{
+	auto& engine = InceptionEngine::GetInstance();
+
+
+	World* world = engine.CreateWorld();
+
+	std::array<std::string, 6> skyboxTexturePath =
+	{
+		"StandAloneResource\\skybox\\front.png",
+		"StandAloneResource\\skybox\\back.png",
+		"StandAloneResource\\skybox\\top.png",
+		"StandAloneResource\\skybox\\bottom.png",
+		"StandAloneResource\\skybox\\right.png",
+		"StandAloneResource\\skybox\\left.png"
+	};
+
+
+	world->SetSkybox(skyboxTexturePath);
+
+
+	Entity const& humanoid = world->CreateEntity();
+	EntityID humanoidID = humanoid.GetID();
+	humanoid.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\humanoid\\humanoid_mesh.ie_skmesh");
+
+	humanoid.GetComponent<SkeletalMeshComponent>().SetTexture({ "EngineResource\\texture\\brown.png",
+															  "EngineResource\\texture\\grey.png" ,
+															  "EngineResource\\texture\\brown.png" ,
+															  "EngineResource\\texture\\grey.png" ,
+															  "EngineResource\\texture\\brown.png" });
+
+	//humanoid.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource\\shader\\spv\\vertex.spv",
+	//															 "EngineResource\\shader\\spv\\highlight.spv");
+
+
+	humanoid.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 200.0f, 200.0f), Vec3f(0.0f, 145.0f, 0.0f));
+	world->SetGameCamera(humanoid.GetComponent<CameraComponent>());
+
+	humanoid.AddComponent<RigidbodyComponent>();
+	humanoid.GetComponent<RigidbodyComponent>().SetCollider(ColliderType::Capsule);
+	humanoid.GetComponent<RigidbodyComponent>().SetCapsuleColliderProperties(Vec3f(0.0f, 0.0f, 0.0f),
+																		 Vec3f(0.0f, 150.0f, 0.0f),
+																		 40.0f);
+
+
+	world->GetEntity(humanoidID).AddComponent<NativeScriptComponent>().SetScript<HumanoidScript>();
+	world->GetEntity(humanoidID).AddComponent<AnimationComponent>().SetAnimStateMachine<HumanoidASM>();
+
+	Entity const& plane = world->CreateEntity();
+	plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f);
+
+	engine.PlayGame();
+
+	return 0;
+
+}
+
+/*
 //Scene two: sice locomotion and attack
 int main()
 {
@@ -113,7 +252,7 @@ int main()
 
 	return 0;
 
-}
+}*/
 
 
 

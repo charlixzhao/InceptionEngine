@@ -65,6 +65,18 @@ namespace inceptionengine
 			return true;
 		}
 
+		bool operator <= (Skeleton const& other) const
+		{
+			for (int i = 0; i < mBones.size(); i++)
+			{
+				if (mBones[i] != other.mBones[i])
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
 		std::vector<Matrix4x4f> GetGlobalBindPose() const;
 
 		std::vector<Matrix4x4f> GetLocalRefPose() const;
