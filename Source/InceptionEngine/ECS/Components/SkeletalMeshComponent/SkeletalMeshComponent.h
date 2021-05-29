@@ -56,7 +56,7 @@ namespace inceptionengine
 	private:
 		friend class SkeletalMeshRenderSystem;
 		friend class AnimationSystem;
-#ifdef __MSVCRT__
+#ifdef WIN32
 		friend class SkeletalMeshComponent;
 #endif
 		friend class AnimationComponent;

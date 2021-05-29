@@ -31,7 +31,7 @@ positive-y is to the up, and positive-z goes out of the screen.
 
 //Patch by fhh to compile on Linux.
 
-#ifdef __MSVCRT__
+#ifdef WIN32
 #define ambigious_acosf(x) std::acosf(x)
 #define ambigious_fmodf(x,y) std::fmodf(x,y)
 #else

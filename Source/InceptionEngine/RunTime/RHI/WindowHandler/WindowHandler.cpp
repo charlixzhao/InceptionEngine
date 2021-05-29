@@ -2,7 +2,7 @@
 
 #include "ThirdPartyLibraries/glfw/include/GLFW/glfw3.h"
 
-#ifndef __MSVCRT__
+#ifndef WIN32
 #include <cstring>
 #define ambigious_memset(x,y,z) memset(x,y,z)
 #else

@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "InceptionEngine.h"
-#ifndef __MSVCRT__
+#ifndef WIN32
 #include "RunTime/RHI/WindowHandler/WindowHandler.h"
 #endif
 

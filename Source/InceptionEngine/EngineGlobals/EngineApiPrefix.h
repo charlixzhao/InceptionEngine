@@ -1,5 +1,5 @@
 #pragma once
-#ifdef __MSVCRT__
+#ifdef WIN32
 #ifdef InceptionEngine_EXPORTS
 #define IE_API __declspec(dllexport)
 #else

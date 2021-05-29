@@ -18,7 +18,7 @@ namespace inceptionengine
 	NativeScript::~NativeScript()
 	{
 	}
-#ifdef __MSVCRT__
+#ifdef WIN32
 #define RegisterKeyInputCallback(X, Y) mKeyInputCallbackRegistry->OnPeripheralInput_##X = ##Y
 #else
 #define RegisterKeyInputCallback(X, Y) mKeyInputCallbackRegistry->OnPeripheralInput_##X = Y

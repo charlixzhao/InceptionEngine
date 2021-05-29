@@ -3,7 +3,7 @@
 #include "EngineGlobals/EngineApiPrefix.h"
 #include "NativeScript.h"
 #include "ECS/Entity/EntityID.h"
-#ifndef __MSVCRT__
+#ifndef WIN32
 #include <memory>
 #endif
 

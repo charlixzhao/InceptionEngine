@@ -9,7 +9,7 @@
 
 #include "ECS/Components/RigidbodyComponent/SphereTraceResult.h"
 //Patch by fhh.
-#ifndef __MSVCRT__
+#ifndef WIN32
 #include "../RunTime/Collision/CapsuleCollider.h"
 #include "../RunTime/Animation/AnimInstance.h"
 #include "../RunTime/Animation/EventAnimController.h"
