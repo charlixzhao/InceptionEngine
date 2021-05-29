@@ -2,6 +2,12 @@
 
 #include "ThirdPartyLibraries/glfw/include/GLFW/glfw3.h"
 
+#ifndef __MSVCRT__
+#include <cstring>
+#define ambigious_memset(x,y,z) memset(x,y,z)
+#else
+#define ambigious_memset(x,y,z) std::memset(x,y,z)
+#endif
 
 namespace inceptionengine
 {
@@ -30,7 +36,7 @@ namespace inceptionengine
 		SetMouseVisibility(true);
 
 		unsigned char pixels[16 * 16 * 4];
-		std::memset(pixels, 0xff, sizeof(pixels));
+		ambigious_memset(pixels, 0xff, sizeof(pixels));
 		GLFWimage image;
 		image.width = 16;
 		image.height = 16;

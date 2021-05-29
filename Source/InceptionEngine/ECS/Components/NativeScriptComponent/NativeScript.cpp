@@ -18,9 +18,11 @@ namespace inceptionengine
 	NativeScript::~NativeScript()
 	{
 	}
-
+#ifdef __MSVCRT__
 #define RegisterKeyInputCallback(X, Y) mKeyInputCallbackRegistry->OnPeripheralInput_##X = ##Y
-
+#else
+#define RegisterKeyInputCallback(X, Y) mKeyInputCallbackRegistry->OnPeripheralInput_##X = Y
+#endif
 	void NativeScript::BindKeyInputCallback(KeyInputTypes keyType, std::function<void(bool)> callback)
 	{
 		switch (keyType)

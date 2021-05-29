@@ -56,7 +56,7 @@ namespace inceptionengine
 
         auto& currentState = mStates[mCurrentState];
         currentState.runningTime += dt;
-        float sampleTime = std::fmodf(currentState.runningTime, currentState.animInstance->GetDuration());
+        float sampleTime = ambigious_fmodf(currentState.runningTime, currentState.animInstance->GetDuration());
 
         for (auto& link : currentState.links)
         {

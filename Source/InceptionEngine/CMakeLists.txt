@@ -115,7 +115,8 @@ target_include_directories(InceptionEngine PUBLIC
 ${PROJECT_SOURCE_DIR}/Source/InceptionEngine 
 ${PROJECT_SOURCE_DIR}/Source/InceptionBase 
 ${PROJECT_SOURCE_DIR}/ThirdParty)
-
+target_precompile_headers(InceptionEngine PRIVATE "IE_PCH.h")
+IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 target_link_libraries(InceptionEngine 
 InceptionBase 
 ${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/glfw/lib/glfw3.lib 
@@ -123,8 +124,6 @@ ${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/vulkan/Lib/vulkan-1.lib
 ${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/lib/Winx64-visualStudio/irrKlang.lib)
 
 target_compile_options(InceptionEngine PUBLIC /wd26812 /wd26451 /wd26495)
-
-target_precompile_headers(InceptionEngine PRIVATE "IE_PCH.h")
 
 add_custom_command(TARGET InceptionEngine POST_BUILD 
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
@@ -145,4 +144,11 @@ add_custom_command(TARGET InceptionEngine POST_BUILD
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/winx64-visualStudio/irrKlang.dll"
         "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+target_link_libraries(InceptionEngine
+InceptionBase
+glfw
+vulkan
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/linux-gcc-64/libIrrKlang.so)
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 

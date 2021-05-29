@@ -380,7 +380,7 @@ namespace inceptionengine
 			Vec3f rotationAxis = RotationAxis(shoulderRotation);
 			float rotationAngle = RotationAngle(shoulderRotation);
 
-			rotationAngle = std::fmodf(rotationAngle, 2 * PI);
+			rotationAngle = ambigious_fmodf(rotationAngle, 2 * PI);
 			if (rotationAngle > PI)
 				rotationAngle -= 2 * PI;
 			if (rotationAngle < -PI)
@@ -398,7 +398,7 @@ namespace inceptionengine
 			glm::extractEulerAngleXYZ(Translate(-mFinalPose[ikChain.BoneIDs[1]][3]) * mFinalPose[ikChain.BoneIDs[1]],
 									  rotX, rotY, rotZ);
 
-			rotY = std::fmodf(rotY, 2 * PI);
+			rotY = ambigious_fmodf(rotY, 2 * PI);
 			if (rotY > PI)
 				rotY -= 2 * PI;
 			if (rotY < -PI)

@@ -1,6 +1,11 @@
-
+#include <queue>
+#include <memory>
+#include <iostream>
 
 #include "InceptionEngine.h"
+#ifndef __MSVCRT__
+#include "RunTime/RHI/WindowHandler/WindowHandler.h"
+#endif
 
 #include "Milia/MiliaScript.h"
 #include "Milia/MiliaASM.h"
