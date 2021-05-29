@@ -5,6 +5,16 @@
 
 #include "AnimBlender.h"
 
+//Patch by fhh.
+#ifndef WIN32
+#include "RunTime/Collision/CapsuleCollider.h"
+#include "RunTime/Animation/AnimInstance.h"
+#include "RunTime/Animation/EventAnimController.h"
+#include "RunTime/Animation/IkController.h"
+#include "RunTime/SkeletalMesh/SkeletalMeshInstance.h"
+#include "ECS/Components/AnimationComponent/AnimStateMachine.h"
+#endif
+
 namespace inceptionengine
 {
 	struct Animation;

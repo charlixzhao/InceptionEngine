@@ -8,6 +8,32 @@
 #include "ECS/ComponentSystemTypeTraits.h"
 
 #include "ECS/Components/RigidbodyComponent/SphereTraceResult.h"
+//Patch by fhh.
+#ifndef WIN32
+#include "../RunTime/Collision/CapsuleCollider.h"
+#include "../RunTime/Animation/AnimInstance.h"
+#include "../RunTime/Animation/EventAnimController.h"
+#include "../RunTime/Animation/IkController.h"
+#include "../RunTime/SkeletalMesh/SkeletalMeshInstance.h"
+
+#endif
+
+/*
+include entity and component storage
+*/
+#include "Entity/Entity.h"
+#include "Entity/EntityComponentPool.hpp"
+
+/*
+include component of the world
+*/
+#include "ECS/Components/SkyboxComponent/SkyboxComponent.h"
+
+/*
+include all systems
+*/
+#include "ECS/Systems/Systems.h"
+
 
 
 namespace inceptionengine
@@ -57,33 +83,110 @@ namespace inceptionengine
 		/*
 		PIMPL idiom
 		*/
-		class WorldImpl;
+        class WorldImpl
+            {
+            public:
+                WorldImpl(Renderer& renderer, World& world, EntityFriend const& entityFriend);
 
-		std::unique_ptr<WorldImpl> mWorldImpl = nullptr;
+                Entity const& CreateEntity();
 
-		EntityFriend const mEntityFriend = {};
+                Entity const& GetEntity(EntityID entityID);
 
-	private:
-		/*
-		For engine to run the world
-		*/
-		friend class InceptionEngine;
+                void DeleteEntity(EntityID entityID);
 
-		void WorldStart();
+                bool CheckValidEntityID(EntityID entityID);
 
-		void Simulate(float deltaTime, PeripheralInput keyInputs);
+                void WorldStart();
 
-		void WorldEnd();
+                void Simulate(float deltaTime, PeripheralInput keyInputs);
 
-	private:
-		/*
-		For entity to get system and components pool
-		*/
-		friend class Entity;
+                void WorldEnd();
 
-		ComponentsPool& GetComponentsPools();
+                void SetSkybox(std::array<std::string, 6> const& texturePaths);
 
-	};
+                void SetGameCamera(CameraComponent const& camera);
+
+                void DrawAnimationTest();
+
+                ComponentsPool& GetComponentsPool();
+
+                std::vector<SphereTraceResult> SphereTrace(Vec3f const& bottom, Vec3f const& top, float radius);
+
+
+            private:
+                void SystemsStart();
+
+                void SystemsEnd();
+
+            private:
+                std::reference_wrapper<EntityFriend const> mEntityFriend;
+
+            private:
+                std::reference_wrapper<World> mWorld;
+
+            private:
+                friend class Entity;
+
+                std::vector<Entity> mEntities;
+
+                std::queue<EntityID> mDeletedEntities;
+
+                /*
+                Storage for all components of entities
+                */
+                ComponentsPool mEntityComponentPool;
+
+            private:
+                /*
+                All components of the world. These are components unique in world. Other example includes sunlight, world fog,
+                and others
+                */
+                SkyboxComponent mSkybox;
+
+            private:
+                /*
+                Systems controlling components of entites
+                */
+                TransformSystem mTransformSystem;
+                CameraSystem mCameraSystem;
+                SkeletalMeshRenderSystem mSkeletalMeshRenderSystem;
+                AnimationSystem mAnimationSystem;
+                NativeScriptSystem mNativeScriptSystem;
+                RigidbodySystem mRigidbodySystem;
+
+
+            private:
+                /*
+                Systems controlling components of world
+                */
+                SkyboxSystem mSkyboxSystem;
+            };
+
+                std::unique_ptr<WorldImpl> mWorldImpl = nullptr;
+
+                EntityFriend const mEntityFriend = {};
+
+            private:
+                /*
+                For engine to run the world
+                */
+                friend class InceptionEngine;
+
+                void WorldStart();
+
+                void Simulate(float deltaTime, PeripheralInput keyInputs);
+
+                void WorldEnd();
+
+            private:
+                /*
+                For entity to get system and components pool
+                */
+                friend class Entity;
+
+                ComponentsPool& GetComponentsPools();
+
+            };
 
 
 

@@ -25,9 +25,19 @@ positive-y is to the up, and positive-z goes out of the screen.
 #include "External/glm/gtc/matrix_inverse.hpp"
 
 #include "External/glm/gtx/euler_angles.hpp"
-
+#include <cmath>
 #include <vector>
 #include <random>
+
+//Patch by fhh to compile on Linux.
+
+#ifdef WIN32
+#define ambigious_acosf(x) std::acosf(x)
+#define ambigious_fmodf(x,y) std::fmodf(x,y)
+#else
+#define ambigious_acosf(x) acosf(x)
+#define ambigious_fmodf(x,y) fmodf(x,y)
+#endif
 
 namespace inceptionengine
 {
@@ -131,7 +141,7 @@ namespace inceptionengine
 
 	inline float RotationAngle(Quaternion4f const& quat)
 	{
-		float rads = 2 * std::acosf(quat.w);
+		float rads = 2 * ambigious_acosf(quat.w);
 		assert(! std::isnan(rads));
 		return rads;
 	}
@@ -143,7 +153,7 @@ namespace inceptionengine
 
 	inline void NormalizeRotation(float& rads, Vec3f& axis)
 	{
-		rads = std::fmodf(rads, 2 * PI);
+		rads = ambigious_fmodf(rads, 2 * PI);
 		if (rads < 0.0f)
 			rads = rads + 2 * PI;
 
@@ -177,7 +187,7 @@ namespace inceptionengine
 		y = NormalizeVec(y);			
 		auto axis = CrossProduct(x, y);
 		float cosAngle = DotProduct(x, y);
-		float angle = std::acosf(cosAngle);
+		float angle = ambigious_acosf(cosAngle);
 		assert(!std::isnan(angle));
 		/*
 		if (std::isnan(angle))
@@ -220,7 +230,7 @@ namespace inceptionengine
 		y = NormalizeVec(y);
 		float cosAngle = DotProduct(x, y);
 		cosAngle = std::clamp(cosAngle, -1.0f, 1.0f);
-		float angle = std::acosf(cosAngle);
+		float angle = ambigious_acosf(cosAngle);
 		assert(!std::isnan(angle));
 		return angle;
 		/*

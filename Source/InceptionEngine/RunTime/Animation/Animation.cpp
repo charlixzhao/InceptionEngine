@@ -14,7 +14,7 @@ namespace inceptionengine
 			return mBoneTransforms[0];
 		}
 
-		time = std::fmodf(time, mDuration);
+		time = ambigious_fmodf(time, mDuration);
 
 		int count = static_cast<int>((time * 30.0f));
 

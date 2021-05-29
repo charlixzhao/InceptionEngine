@@ -1,5 +1,6 @@
 
 #pragma once
+#include <list>
 #include "ECS/Components/AnimationComponent/AnimSpeedRange.h"
 
 namespace inceptionengine
