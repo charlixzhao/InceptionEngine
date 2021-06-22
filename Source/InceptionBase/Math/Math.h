@@ -31,8 +31,10 @@ positive-y is to the up, and positive-z goes out of the screen.
 
 namespace inceptionengine
 {
-	using Vec4f = glm::vec4;
+
+	using Vec2f = glm::vec2;
 	using Vec3f = glm::vec3;
+	using Vec4f = glm::vec4;
 	using Vec4ui = glm::uvec4;
 
 	using Matrix4x4f = glm::mat4x4;
@@ -327,6 +329,11 @@ namespace inceptionengine
 	inline float Distance(Vec3f const& p1, Vec3f const& p2)
 	{
 		return glm::distance(p1, p2);
+	}
+
+	inline float Distance2(Vec3f const& p1, Vec3f const& p2)
+	{
+		return glm::distance2(p1, p2);
 	}
 
 }

@@ -84,6 +84,8 @@ set(SRC_BUILD_FILES
 "Runtime/Animation/AnimMask.cpp"
 "Runtime/Animation/IkController.h"
 "Runtime/Animation/IkController.cpp"
+"Runtime/Animation/MotionMatching.h"
+"Runtime/Animation/MotionMatching.cpp"
 "Runtime/SkeletalMesh/SkeletalMesh.h"
 "Runtime/SkeletalMesh/SkeletalMesh.cpp"
 "Runtime/SkeletalMesh/SkeletalMeshInstance.h"

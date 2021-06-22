@@ -66,19 +66,19 @@ namespace inceptionengine
 				if (mComponentsPool.get().EntityHasComponent<AnimationComponent>(component.mEntityID))
 				{
 					std::vector<Matrix4x4f> const& localFinalPose = mComponentsPool.get().GetComponent<AnimationComponent>(component.mEntityID).mAnimationController->GetFinalPose();
-						std::vector<Matrix4x4f> globalFinalPose;
-						globalFinalPose.resize(localFinalPose.size());
-						for (auto const& bone : component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones)
+					std::vector<Matrix4x4f> globalFinalPose;
+					globalFinalPose.resize(localFinalPose.size());
+					for (auto const& bone : component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones)
+					{
+						Matrix4x4f globalTransform = localFinalPose[bone.ID];
+						int parentID = bone.parentID;
+						while (parentID != -1)
 						{
-							Matrix4x4f globalTransform = localFinalPose[bone.ID];
-								int parentID = bone.parentID;
-								while (parentID != -1)
-								{
-									globalTransform = localFinalPose[parentID] * globalTransform;
-									parentID = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[parentID].parentID;
-								}
-							globalFinalPose[bone.ID] = globalTransform;
+							globalTransform = localFinalPose[parentID] * globalTransform;
+							parentID = component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones[parentID].parentID;
 						}
+						globalFinalPose[bone.ID] = globalTransform;
+					}
 
 					for (int bone = 0; bone < globalFinalPose.size(); bone++)
 					{
