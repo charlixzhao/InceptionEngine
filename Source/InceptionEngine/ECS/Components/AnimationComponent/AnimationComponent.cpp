@@ -96,6 +96,11 @@ namespace inceptionengine
 		mAnimationController->TestAimAxis();
 	}
 
+	void AnimationComponent::SetMatchingDatabase(std::string const& animFile)
+	{
+		mAnimationController->SetMatchingDatabase(animFile);
+	}
+
 	void AnimationComponent::SetAimIkChain(std::vector<std::string> const& chainBoneNames,
 										   std::vector<float> const& weights)
 	{

@@ -5,6 +5,8 @@
 
 #include "AnimBlender.h"
 
+#include "MotionMatching.h"
+
 namespace inceptionengine
 {
 	struct Animation;
@@ -82,6 +84,8 @@ namespace inceptionengine
 
 		void InsertAnimNotify(AnimNotify const& notify);
 
+		void SetMatchingDatabase(std::string const& animFile);
+
 	private:
 		friend class IkController;
 
@@ -111,6 +115,12 @@ namespace inceptionengine
 		//first one is used to blend to the ik pose when aim ik occur
 		//second one is uesed to blend to normal pose (ASM or EventAnim) when aim ik is inactivated
 		std::pair<AnimBlender, AnimBlender> mAimIkBlender;
+
+
+	private:
+		motionmatching::MotionMatchingController mMotionMatchingController;
+		float mFeatureQueryTimer = 0.0f;
+		float const mFeatureQueryInterval = 1.0f / 3.0f;
 
 	};
 }

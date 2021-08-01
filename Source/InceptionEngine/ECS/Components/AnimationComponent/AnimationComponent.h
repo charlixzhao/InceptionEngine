@@ -90,6 +90,11 @@ namespace inceptionengine
 		void TestAxis();
 		void TestAimAxis();
 
+		/*
+		* Motion Matching API
+		*/
+		void SetMatchingDatabase(std::string const& animFile);
+
 	private:
 		friend class AnimationSystem;
 		friend class SkeletalMeshComponent;

@@ -336,4 +336,8 @@ namespace inceptionengine
 		return glm::distance2(p1, p2);
 	}
 
+	inline Vec3f ProjectToXZ(Vec3f pos)
+	{
+		return { pos.x, 0.0f, pos.z };
+	}
 }

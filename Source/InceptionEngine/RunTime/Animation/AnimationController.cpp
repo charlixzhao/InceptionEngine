@@ -34,10 +34,61 @@ namespace inceptionengine
 		mFinalPose = skeleton->GetLocalRefPose();
 	}
 
+	motionmatching::Feature GenerateFeature()
+	{
+		//float speed = 1.0f;
+		//float time = 1.0f / 30.0f;
+		motionmatching::Feature f;
+		f.trajectory[0] = { 0.0f, 0.0f, 40.0f };
+		f.trajectory[1] = { 0.0f, 0.0f, 80.0f };
+		f.trajectory[2] = { 0.0f, 0.0f, 120.0f };
+		f.facingDirection[0] = { 0.0f,0.0f,1.0f };
+		f.facingDirection[1] = { 0.0f,0.0f,1.0f };
+		f.facingDirection[2] = { 0.0f,0.0f,1.0f };
+
+		
+		
+		//f.leftFootPosition;
+		//f.rightFootPosition;
+
+		//f.hipVelocity;
+		//f.leftFootVelocity;
+		//f.rightFootVelocity;
+
+		return f;
+	}
+
+#define USE_MOTIONMATCHING 1
+
 	bool AnimationController::Update(float deltaTime)
 	{
 		if (mStopAnim) return true;
 
+#if USE_MOTIONMATCHING
+		mFeatureQueryTimer += deltaTime;
+		if (mFeatureQueryTimer >= mFeatureQueryInterval)
+		{
+			mFeatureQueryTimer = 0.0f;
+			motionmatching::Feature f = GenerateFeature();
+			std::vector<Matrix4x4f> globalTransform = motionmatching::GetBoneGlobalTransforms(mFinalPose, mSkeleton);
+			Vec3f currentPosition = globalTransform[0][3];
+			f.leftFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:LeftFoot")][3]) - currentPosition;
+			f.rightFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:RightFoot")][3]) - currentPosition;
+			/*NEED VEL: in generating feature, need current vel*/
+
+			mMotionMatchingController.Update(deltaTime, f);
+			mFinalPose = mMotionMatchingController.GetCurrentPose();
+			mFinalPose[0][3].x = mFinalPose[0][3].z = 0.0f;
+		}
+		else
+		{
+			mMotionMatchingController.Update(deltaTime);
+			mFinalPose = mMotionMatchingController.GetCurrentPose();
+			mFinalPose[0][3].x = mFinalPose[0][3].z = 0.0f;
+		}
+
+		return true;
+#else
 		if (mBlender.IsBlending())
 		{
 			auto blendedPose = mBlender.Blend(deltaTime);
@@ -61,16 +112,6 @@ namespace inceptionengine
 			mFinalPose = mAnimStateMachine->mFinalPose;
 		}
 
-		/*
-		if (mIkController->IsAimIkActive())
-		{
-			std::vector<Matrix4x4f> ikPose = mAimIkBlender.first.Blend(deltaTime, false).value();
-			std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
-			for (int i = 0; i < ikPose.size(); i++)
-			{
-				mFinalPose[aimIkMask[i]] = ikPose[i];
-			}
-		}*/
 
 		if (mAimIkBlender.first.IsBlending())
 		{
@@ -98,6 +139,7 @@ namespace inceptionengine
 		}
 
 		return true;
+#endif
 
 	}
 
@@ -282,6 +324,13 @@ namespace inceptionengine
 	void AnimationController::InsertAnimNotify(AnimNotify const& notify)
 	{
 		mEventAnimController->InsertAnimNotify(notify);
+	}
+
+	void AnimationController::SetMatchingDatabase(std::string const& animFile)
+	{
+
+		mMotionMatchingController.LoadMatchingDB(animFile); 
+		
 	}
 
 

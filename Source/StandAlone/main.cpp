@@ -140,6 +140,7 @@ int main()
 
 	world->GetEntity(humanoidID).AddComponent<NativeScriptComponent>().SetScript<HumanoidScript>();
 	world->GetEntity(humanoidID).AddComponent<AnimationComponent>().SetAnimStateMachine<HumanoidASM>();
+	world->GetEntity(humanoidID).GetComponent<AnimationComponent>().SetMatchingDatabase("StandAloneResource\\humanoid\\obstacles1_subject1.ie_anim");
 
 	Entity const& plane = world->CreateEntity();
 	plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f);
