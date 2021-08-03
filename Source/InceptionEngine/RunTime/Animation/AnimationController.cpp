@@ -8,10 +8,11 @@
 
 #include "RunTime/Resource/ResourceManager.h"
 #include "ECS/Components/AnimationComponent/AnimStateMachine.h"
+#include "ECS/Components/AnimationComponent/EventAnimPlaySetting.h"
+#include "Animation.h"
 #include "EventAnimController.h"
 #include "IkController.h"
-#include "Animation.h"
-#include "ECS/Components/AnimationComponent/EventAnimPlaySetting.h"
+#include "MotionMatching/MotionMatchingController.h"
 
 
 namespace inceptionengine
@@ -21,6 +22,7 @@ namespace inceptionengine
 	{
 		mEventAnimController = std::make_unique<EventAnimController>(*this);
 		mIkController = std::make_unique<IkController>(*this);
+		mMotionMatchingController = std::make_unique<MotionMatchingController>();
 	}
 
 	AnimationController::~AnimationController()
@@ -34,11 +36,11 @@ namespace inceptionengine
 		mFinalPose = skeleton->GetLocalRefPose();
 	}
 
-	motionmatching::Feature GenerateFeature()
+	MatchingFeature GenerateFeature()
 	{
 		//float speed = 1.0f;
 		//float time = 1.0f / 30.0f;
-		motionmatching::Feature f;
+		MatchingFeature f;
 		f.trajectory[0] = { 0.0f, 0.0f, 40.0f };
 		f.trajectory[1] = { 0.0f, 0.0f, 80.0f };
 		f.trajectory[2] = { 0.0f, 0.0f, 120.0f };
@@ -69,22 +71,27 @@ namespace inceptionengine
 		if (mFeatureQueryTimer >= mFeatureQueryInterval)
 		{
 			mFeatureQueryTimer = 0.0f;
-			motionmatching::Feature f = GenerateFeature();
-			std::vector<Matrix4x4f> globalTransform = motionmatching::GetBoneGlobalTransforms(mFinalPose, mSkeleton);
+			MatchingFeature f = GenerateFeature();
+			std::vector<Matrix4x4f> globalTransform = Animation::GetBonesGlobalTransforms(mFinalPose, mSkeleton);
 			Vec3f currentPosition = globalTransform[0][3];
 			f.leftFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:LeftFoot")][3]) - currentPosition;
 			f.rightFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:RightFoot")][3]) - currentPosition;
+			f.leftFootVelocity = mBoneVelocities[mSkeleton->GetBoneID("Model:LeftFoot")];
+			f.rightFootVelocity = mBoneVelocities[mSkeleton->GetBoneID("Model:RightFoot")];
+			f.hipVelocity = mBoneVelocities[mSkeleton->GetBoneID("Model:Hips")];
 			/*NEED VEL: in generating feature, need current vel*/
 
-			mMotionMatchingController.Update(deltaTime, f);
-			mFinalPose = mMotionMatchingController.GetCurrentPose();
+			mMotionMatchingController->Update(deltaTime, f);
+			mFinalPose = mMotionMatchingController->GetCurrentPose();
 			mFinalPose[0][3].x = mFinalPose[0][3].z = 0.0f;
+			mBoneVelocities = mMotionMatchingController->GetCurrentBoneVelocities();
 		}
 		else
 		{
-			mMotionMatchingController.Update(deltaTime);
-			mFinalPose = mMotionMatchingController.GetCurrentPose();
+			mMotionMatchingController->Update(deltaTime);
+			mFinalPose = mMotionMatchingController->GetCurrentPose();
 			mFinalPose[0][3].x = mFinalPose[0][3].z = 0.0f;
+			mBoneVelocities = mMotionMatchingController->GetCurrentBoneVelocities();
 		}
 
 		return true;
@@ -326,10 +333,10 @@ namespace inceptionengine
 		mEventAnimController->InsertAnimNotify(notify);
 	}
 
-	void AnimationController::SetMatchingDatabase(std::string const& animFile)
+	void AnimationController::SetMatchingDatabase(std::string const& filePath)
 	{
 
-		mMotionMatchingController.LoadMatchingDB(animFile); 
+		mMotionMatchingController->LoadMatchingDatabase(filePath);
 		
 	}
 

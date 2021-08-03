@@ -93,7 +93,7 @@ namespace inceptionengine
 		/*
 		* Motion Matching API
 		*/
-		void SetMatchingDatabase(std::string const& animFile);
+		void SetMatchingDatabase(std::string const& filePath);
 
 	private:
 		friend class AnimationSystem;

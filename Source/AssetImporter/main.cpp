@@ -3,7 +3,6 @@
 
 #include "PathHelper.h"
 #include <iostream>
-#include <filesystem>
 
 using namespace inceptionengine;
 

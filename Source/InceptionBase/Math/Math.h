@@ -28,6 +28,9 @@ positive-y is to the up, and positive-z goes out of the screen.
 
 #include <vector>
 #include <random>
+#include <algorithm>
+#include <numeric>
+#include <cmath>
 
 namespace inceptionengine
 {
@@ -339,5 +342,40 @@ namespace inceptionengine
 	inline Vec3f ProjectToXZ(Vec3f pos)
 	{
 		return { pos.x, 0.0f, pos.z };
+	}
+
+	template<typename T>
+	T ThreePointStencil(T const& n, T const& p, float h)
+	{
+		return (n - p) / (2.0f * h);
+	}
+
+	template<typename T>
+	T FivePointStencil(T const& nn, T const& n, T const& p, T const& pp, float h)
+	{
+		return (-nn + 8.0f * n - 8.0f * p + pp) / (12.0f * h);
+	}
+
+	template<typename T>
+	T Variance(std::vector<T> const& vec)
+	{
+		size_t sz = vec.size();
+		if (sz == 0) { return T(0.0f); }
+
+		// Calculate the mean
+		T mean = std::accumulate(vec.begin(), vec.end(), T(0.0f)) / static_cast<float>(sz);
+
+		// Now calculate the variance
+		auto varianceFunc = [&mean, &sz](T accumulator, T const& val)
+		{
+			return accumulator + (((val - mean) * (val - mean)) / static_cast<float>(sz - 1));
+		};
+
+		return std::accumulate(vec.begin(), vec.end(), T(0.0f), varianceFunc);
+	}
+
+	inline Vec3f ElementSqrt(Vec3f const& v)
+	{
+		return { std::sqrt(v[0]), std::sqrt(v[1]), std::sqrt(v[2]) };
 	}
 }

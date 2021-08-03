@@ -2,11 +2,10 @@
 #include "IE_PCH.h"
 #include "Animation.h"
 #include "AnimPose.h"
+#include "RunTime/SkeletalMesh/Skeleton.h"
 
 namespace inceptionengine
 {
-
-
 	std::vector<Matrix4x4f> Animation::Interpolate(float time) const
 	{
 		if (time <= 0)
@@ -28,5 +27,27 @@ namespace inceptionengine
 
 		return BlendPose(mBoneTransforms[count], mBoneTransforms[count + 1], alpha);
 	}
+
+	std::vector<Matrix4x4f> Animation::GetBonesGlobalTransforms(std::vector<Matrix4x4f> const& localTransforms, std::shared_ptr<Skeleton const> skeleton)
+	{
+		std::vector<Matrix4x4f> globalFinalPose;
+		globalFinalPose.resize(localTransforms.size());
+		for (auto const& bone : skeleton->mBones)
+		{
+			Matrix4x4f globalTransform = localTransforms[bone.ID];
+			int parentID = bone.parentID;
+			while (parentID != -1)
+			{
+				globalTransform = localTransforms[parentID] * globalTransform;
+				parentID = skeleton->mBones[parentID].parentID;
+			}
+			globalFinalPose[bone.ID] = globalTransform;
+		}
+
+		return globalFinalPose;
+	}
+
+
+
 }
 

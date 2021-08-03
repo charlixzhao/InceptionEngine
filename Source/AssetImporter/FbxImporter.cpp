@@ -41,6 +41,8 @@ namespace inceptionengine::fbximport
     void ImportSkeletonBindPose(FbxScene* pFbxScene, std::vector<FbxNode*> const& meshNodes, Skeleton& skeleton);
     void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations);
     std::vector<std::string> GetFileLines(std::string const& fileName);
+    void FillBoneVelocities(Animation& anim, float h);
+    std::vector<Matrix4x4f> GetBonesGlobalTransforms(std::vector<Matrix4x4f> const& localTransforms, std::shared_ptr<Skeleton const> skeleton);
 
 
     std::vector<std::string> GetFileLines(std::string const& fileName)
@@ -111,6 +113,67 @@ namespace inceptionengine::fbximport
     }
 
 
+    void ReorderAnimations(std::vector<Animation>& animations,
+        std::string pathToExistingSkeleton,
+        Skeleton const& importedSkeleton,
+        std::shared_ptr<Skeleton> existingSkeleton)
+    {
+        std::cout << "Inconsistency found. Inter bone pair config if want to reorder animation to match skeleton: ";
+
+        std::string bonePairConfig;
+        std::getline(std::cin, bonePairConfig);
+        std::vector<std::string> bonePairFile = GetFileLines(PathHelper::GetAbsolutePath(bonePairConfig));
+        assert(bonePairFile.size() % 2 == 0);
+        std::unordered_map<std::string, std::string> bonePairs;
+        for (int i = 0; i < bonePairFile.size(); i += 2)
+        {
+            bonePairs.insert({ bonePairFile[i], bonePairFile[i + 1] });
+        }
+
+        std::set<std::string> unmatchedBones;
+        for (auto& anim : animations)
+        {
+            Animation reordered_anim;
+            reordered_anim.mDuration = anim.mDuration;
+            reordered_anim.mName = anim.mName;
+            reordered_anim.mPathToSkeleton = pathToExistingSkeleton;
+            reordered_anim.mBoneTransforms.resize(anim.mBoneTransforms.size());
+            for (int i = 0; i < reordered_anim.mBoneTransforms.size(); i++)
+            {
+                reordered_anim.mBoneTransforms[i].resize(existingSkeleton->GetBoneNumber());
+
+                for (int j = 0; j < existingSkeleton->GetBoneNumber(); j++)
+                {
+                    std::string boneName = existingSkeleton->mBones[j].name;
+                    int correspondBoneID = -1;
+                    if (bonePairs.find(boneName) != bonePairs.end())
+                    {
+                        correspondBoneID = importedSkeleton.GetBoneID(bonePairs.at(boneName));
+                        if (correspondBoneID == -1)
+                        {
+                            throw std::runtime_error("Error in pair config\n");
+                        }
+                    }
+
+                    if (correspondBoneID != -1)
+                    {
+                        reordered_anim.mBoneTransforms[i][j] = anim.mBoneTransforms[i][correspondBoneID];
+                    }
+                    else
+                    {
+                        unmatchedBones.insert(boneName);
+                        reordered_anim.mBoneTransforms[i][j] = existingSkeleton->mBones[j].lclRefPose;
+                    }
+                }
+            }
+
+            anim = std::move(reordered_anim);
+        }
+        for (auto& boneName : unmatchedBones)
+        {
+            std::cout << "Bone " << boneName << " does not find a correpondent\n";
+        }
+    }
 
     void Import(std::string const& filePath, std::string const& outputFolder)
     {
@@ -154,77 +217,7 @@ namespace inceptionengine::fbximport
                 }
                 else
                 {
-                    //reorder animation
-            
-                    std::cout << "Inconsistency found. Inter bone pair config if want to reorder animation to match skeleton: ";
-
-                    std::string bonePairConfig;
-                    std::getline(std::cin, bonePairConfig);
-                    std::vector<std::string> bonePairFile = GetFileLines(PathHelper::GetAbsolutePath(bonePairConfig));
-                    assert(bonePairFile.size() % 2 == 0);
-                    std::unordered_map<std::string, std::string> bonePairs;
-                    for (int i = 0; i < bonePairFile.size(); i += 2)
-                    {
-                        bonePairs.insert({ bonePairFile[i], bonePairFile[i + 1] });
-                    }
-
-                    std::set<std::string> unmatchedBones;
-                    for (auto& anim : animations)
-                    {
-                        Animation reordered_anim;
-                        reordered_anim.mDuration = anim.mDuration;
-                        reordered_anim.mName = anim.mName;
-                        reordered_anim.mPathToSkeleton = pathToSkeleton;
-                        reordered_anim.mBoneTransforms.resize(anim.mBoneTransforms.size());
-                        for (int i = 0; i < reordered_anim.mBoneTransforms.size(); i++)
-                        {
-                            reordered_anim.mBoneTransforms[i].resize(existingSkeleton->GetBoneNumber());
-
-                            for (int j = 0; j < existingSkeleton->GetBoneNumber(); j++)
-                            {
-                                std::string boneName = existingSkeleton->mBones[j].name;
-                                int correspondBoneID = -1;
-                                if (bonePairs.find(boneName) != bonePairs.end())
-                                {
-                                    correspondBoneID = skeleton.GetBoneID(bonePairs.at(boneName));
-                                    if (correspondBoneID == -1)
-                                    {
-                                        throw std::runtime_error("Error in pair config\n");
-                                    }
-                                }
-
-                                if (correspondBoneID != -1)
-                                {
-                                    reordered_anim.mBoneTransforms[i][j] = anim.mBoneTransforms[i][correspondBoneID];
-                                }
-                                else
-                                {
-                                    unmatchedBones.insert(boneName);
-                                    reordered_anim.mBoneTransforms[i][j] = existingSkeleton->mBones[j].lclRefPose;
-                                }
-                            }
-                        }
-
-                        anim = std::move(reordered_anim);
-                    }
-                    for (auto& boneName : unmatchedBones)
-                    {
-                        std::cout << "Bone " << boneName << " does not find a correpondent\n";
-                    }
-
-
-                    /*
-                    std::cout << "This skeleton is not equal to the skeleton in the new fbx file!" << std::endl;
-                    std::cout << "Current skeleton has bones\n";
-                    for (auto const& bone : skeleton.mBones)
-                    {
-                        std::cout << bone.name << std::endl;
-                    }
-                    std::cout << "Existing skeleton has bones\n";
-                    for (auto const& bone : existingSkeleton->mBones)
-                    {
-                        std::cout << bone.name << std::endl;
-                    }*/
+                    ReorderAnimations(animations, pathToSkeleton, skeleton, existingSkeleton);
                 }
             }
             else
@@ -238,12 +231,13 @@ namespace inceptionengine::fbximport
                 skmesh.mPathToSkeleton = pathToSkeleton;
                 for (auto& anim : animations) anim.mPathToSkeleton = pathToSkeleton;
             }
-
         }
         else
         {
             std::cout << "The mesh has no skeleton, so it's static mesh\n";
         }
+
+        for (auto& anim : animations) FillBoneVelocities(anim, 1.0f / SampleRate);
 
        
         std::string meshFileName;
@@ -717,6 +711,59 @@ namespace inceptionengine::fbximport
         }
     }
 
+    template<typename T>
+    std::vector<T> ComputeVelocities(std::vector<T> const& pos, float h)
+    {
+        std::vector<T> vels;
+        vels.reserve(pos.size());
+        vels.push_back((pos[1] - pos[0]) / h);
+        vels.push_back(ThreePointStencil(pos[2], pos[0], h));
+        for (int i = 2; i < pos.size() - 2; i++)
+        {
+            vels.push_back(FivePointStencil(pos[i + 2], pos[i + 1], pos[i - 1], pos[i - 2], h));
+        }
+        vels.push_back(ThreePointStencil(pos[pos.size() - 1], pos[pos.size() - 3], h));
+        vels.push_back((pos[pos.size() - 1] - pos[pos.size() - 2]) / h);
+        assert(pos.size() == vels.size());
+        return vels;
+    }
+
+    void FillBoneVelocities(Animation& anim, float h)
+    {
+        auto skeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(anim.mPathToSkeleton));
+        size_t boneNumber = skeleton->GetBoneNumber();
+
+        //compute global positions of bones
+        std::vector<std::vector<Vec3f>> globalPositions;
+        for (auto const& lclFrame : anim.mBoneTransforms)
+        {
+            std::vector<Vec3f> globalPosition;
+            auto globalFrame = GetBonesGlobalTransforms(lclFrame, skeleton);
+            for (auto const& boneTransform : globalFrame)
+            {
+                globalPosition.push_back(boneTransform[3]);
+            }
+            globalPositions.push_back(globalPosition);
+        }
+
+        //prepare space for velocities
+        anim.mBoneVelocities.resize(anim.mBoneTransforms.size());
+        for (auto& vel : anim.mBoneVelocities) { vel.resize(boneNumber); }
+
+        //compute bone velocities
+        for (int boneIndex = 0; boneIndex < boneNumber; boneIndex++)
+        {
+            std::vector<Vec3f> bonePositions;
+            bonePositions.reserve(anim.mBoneTransforms.size());
+            for (int i = 0; i < anim.mBoneTransforms.size(); i++)
+            {
+                bonePositions.push_back(globalPositions[i][boneIndex]);
+            }
+            std::vector<Vec3f> boneVelocities = ComputeVelocities(bonePositions, h);
+            for (int i = 0; i < boneVelocities.size(); i++) { anim.mBoneVelocities[i][boneIndex] = boneVelocities[i]; }
+        }
+    }
+
     void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations)
     {
         for (int animIndex = 0; animIndex < pFbxScene->GetSrcObjectCount<FbxAnimStack>(); animIndex++)
@@ -730,7 +777,8 @@ namespace inceptionengine::fbximport
 
             double duration = pAnimStack->GetLocalTimeSpan().GetDuration().GetSecondDouble();
             animations.back().mDuration = static_cast<float>(duration);
-            double sampleRate = 30.0;
+            double constexpr sampleRate = static_cast<double>(SampleRate);
+            std::vector<std::vector<Vec3f>> globalPositions;
             for (double time = 0.0; time <= duration; time += (1.0 / sampleRate))
             {
                 FbxTime fbxTime;
@@ -740,6 +788,7 @@ namespace inceptionengine::fbximport
                 {
                     globalFrame.push_back(ConvertMatrix(boneNodes[boneIndex]->EvaluateGlobalTransform(fbxTime)));
                 }
+
                 std::vector<Matrix4x4f> localFrame;
                 localFrame.resize(globalFrame.size());
                 for (auto const& bone : skeleton.mBones)
@@ -755,20 +804,29 @@ namespace inceptionengine::fbximport
                 }
                 animations.back().mBoneTransforms.push_back(std::move(localFrame));
             }
-
-            
-            /*
-            auto socket_translation = animations.back().mBoneTransforms[10][skeleton.GetBoneID("SwordEnd")];
-            std::string s = MatToString(socket_translation);
-            std::ofstream out("C:/Users/Xiaoxiang Zhao/Desktop/socket.txt");
-            out << s;
-            out.close();
-
-
-            auto socket_translation2 = animations.back().mBoneTransforms[10][skeleton.GetBoneID("SwordSocket")];*/
-
         }
     }
 
+
+    std::vector<Matrix4x4f> GetBonesGlobalTransforms(std::vector<Matrix4x4f> const& localTransforms, std::shared_ptr<Skeleton const> skeleton)
+    {
+        std::vector<Matrix4x4f> globalFinalPose;
+        globalFinalPose.resize(localTransforms.size());
+        for (auto const& bone : skeleton->mBones)
+        {
+            Matrix4x4f globalTransform = localTransforms[bone.ID];
+            int parentID = bone.parentID;
+            while (parentID != -1)
+            {
+                globalTransform = localTransforms[parentID] * globalTransform;
+                parentID = skeleton->mBones[parentID].parentID;
+            }
+            globalFinalPose[bone.ID] = globalTransform;
+        }
+
+        return globalFinalPose;
+    }
+    
+ 
 
 }

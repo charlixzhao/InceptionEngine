@@ -4,13 +4,10 @@
 #include "ResourceManager.h"
 
 #include "RunTime/SkeletalMesh/SkeletalMesh.h"
-
 #include "RunTime/Animation/Animation.h"
-
 #include "RunTime/SkeletalMesh/Skeleton.h"
-
+#include "RunTime/Animation/MotionMatching/MatchingDatabase.h"
 #include "Serialization/Serializer.h"
-
 #include "PathHelper.h"
 
 namespace inceptionengine
@@ -30,7 +27,7 @@ namespace inceptionengine
 	{
 		std::string absPath = PathHelper::GetAbsolutePath(filePath);
 
-		static_assert(std::is_same_v<T, Animation> || std::is_same_v<T, SkeletalMesh> || std::is_same_v<T, Skeleton>);
+		static_assert(std::is_same_v<T, Animation> || std::is_same_v<T, SkeletalMesh> || std::is_same_v<T, Skeleton> || std::is_same_v<T, MatchingDatabase>);
 
 
 		if constexpr (std::is_same_v<T, SkeletalMesh>)
@@ -79,7 +76,22 @@ namespace inceptionengine
 				return pSkeleton;
 			}
 		}
+		else if constexpr (std::is_same_v<T, MatchingDatabase>)
+		{
+			assert(PathHelper::GetFileExtension(filePath) == "ie_mmdb");
+			if (filePath == "") return nullptr;
 
+			if (mMatchingDatabaseCache.find(absPath) != mMatchingDatabaseCache.end())
+			{
+				return mMatchingDatabaseCache.at(absPath);
+			}
+			else
+			{
+				std::shared_ptr<MatchingDatabase> pDB = Serializer::Deserailize<MatchingDatabase>(absPath);
+				mMatchingDatabaseCache.insert(std::pair<std::string, std::shared_ptr<MatchingDatabase>>(absPath, pDB));
+				return pDB;
+			}
+		}
 		else
 		{
 			return nullptr;

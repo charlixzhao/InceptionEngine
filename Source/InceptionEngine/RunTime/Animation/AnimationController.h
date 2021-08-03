@@ -5,7 +5,6 @@
 
 #include "AnimBlender.h"
 
-#include "MotionMatching.h"
 
 namespace inceptionengine
 {
@@ -18,6 +17,7 @@ namespace inceptionengine
 	class EventAnimController;
 	class IkController;
 	struct AnimNotify;
+	class MotionMatchingController;
 
 
 	class AnimationController
@@ -84,7 +84,7 @@ namespace inceptionengine
 
 		void InsertAnimNotify(AnimNotify const& notify);
 
-		void SetMatchingDatabase(std::string const& animFile);
+		void SetMatchingDatabase(std::string const& filePath);
 
 	private:
 		friend class IkController;
@@ -102,6 +102,9 @@ namespace inceptionengine
 		//local final pose
 		std::vector<Matrix4x4f> mFinalPose;
 
+		//global bone velocities
+		std::vector<Vec3f> mBoneVelocities;
+
 		std::unique_ptr<AnimStateMachine> mAnimStateMachine = nullptr;
 
 		std::unique_ptr<EventAnimController> mEventAnimController = nullptr;
@@ -118,7 +121,7 @@ namespace inceptionengine
 
 
 	private:
-		motionmatching::MotionMatchingController mMotionMatchingController;
+		std::unique_ptr<MotionMatchingController> mMotionMatchingController = nullptr;
 		float mFeatureQueryTimer = 0.0f;
 		float const mFeatureQueryInterval = 1.0f / 3.0f;
 

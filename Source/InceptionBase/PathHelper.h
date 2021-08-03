@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cassert>
+#include <filesystem>
 
 namespace inceptionengine
 {
@@ -15,6 +16,7 @@ namespace inceptionengine
 			SoftLink,
 			HardLink
 		};
+
 		static std::string Normalize(std::string const& path)
 		{
 			std::string copy = path;
