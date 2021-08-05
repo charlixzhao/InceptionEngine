@@ -41,7 +41,10 @@ namespace inceptionengine::fbximport
     void ImportSkeletonBindPose(FbxScene* pFbxScene, std::vector<FbxNode*> const& meshNodes, Skeleton& skeleton);
     void ImportAnimations(FbxScene* pFbxScene, std::vector<FbxNode*> const& boneNodes, Skeleton const& skeleton, std::vector<Animation>& animations);
     std::vector<std::string> GetFileLines(std::string const& fileName);
-    void FillBoneVelocities(Animation& anim, float h);
+    void FillBoneGlobalAngularVelocities(Animation& anim, float h);
+    void FillBoneGlobalTranslVelocities(Animation& anim, float h);
+    void FillBoneLclAngularVelocities(Animation& anim, float h);
+    void FillBoneLclTranslVelocities(Animation& anim, float h);
     std::vector<Matrix4x4f> GetBonesGlobalTransforms(std::vector<Matrix4x4f> const& localTransforms, std::shared_ptr<Skeleton const> skeleton);
 
 
@@ -237,7 +240,13 @@ namespace inceptionengine::fbximport
             std::cout << "The mesh has no skeleton, so it's static mesh\n";
         }
 
-        for (auto& anim : animations) FillBoneVelocities(anim, 1.0f / SampleRate);
+        for (auto& anim : animations)
+        {
+            FillBoneGlobalAngularVelocities(anim, 1.0f / SampleRate);
+            FillBoneGlobalTranslVelocities(anim, 1.0f / SampleRate);
+            FillBoneLclAngularVelocities(anim, 1.0f / SampleRate);
+            FillBoneLclTranslVelocities(anim, 1.0f / SampleRate);
+        }
 
        
         std::string meshFileName;
@@ -728,7 +737,32 @@ namespace inceptionengine::fbximport
         return vels;
     }
 
-    void FillBoneVelocities(Animation& anim, float h)
+    std::vector<Vec3f> ComputeAngularVelocities(std::vector<Quaternion4f> const& rots, float h)
+    {
+        auto SplitRot = [](Quaternion4f const& q, float& angle, Vec3f& axis) -> void
+        {
+            angle = RotationAngle(q); axis = RotationAxis(q);
+        };
+
+        std::vector<Vec3f> vels;
+        vels.reserve(rots.size());
+        float angle = 0.0f;
+        Vec3f axis(0.0f);
+
+        SplitRot(QuatDiff(rots[0], rots[1]), angle, axis);
+        vels.push_back(axis * (angle / h));
+        for (int i = 1; i < rots.size() - 1; i++)
+        {
+            SplitRot(QuatDiff(rots[i - 1], rots[i + 1]), angle, axis);
+            vels.push_back(axis * (angle / (2 * h)));
+        }
+        SplitRot(QuatDiff(rots[rots.size() - 2], rots[rots.size() - 1]), angle, axis);
+        vels.push_back(axis * (angle / (2 * h)));
+        assert(rots.size() == vels.size());
+        return vels;
+    }
+
+    void FillBoneGlobalTranslVelocities(Animation& anim, float h)
     {
         auto skeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(anim.mPathToSkeleton));
         size_t boneNumber = skeleton->GetBoneNumber();
@@ -747,8 +781,8 @@ namespace inceptionengine::fbximport
         }
 
         //prepare space for velocities
-        anim.mBoneVelocities.resize(anim.mBoneTransforms.size());
-        for (auto& vel : anim.mBoneVelocities) { vel.resize(boneNumber); }
+        anim.mBoneGlobalTranslVelocities.resize(anim.mBoneTransforms.size());
+        for (auto& vel : anim.mBoneGlobalTranslVelocities) { vel.resize(boneNumber); }
 
         //compute bone velocities
         for (int boneIndex = 0; boneIndex < boneNumber; boneIndex++)
@@ -760,7 +794,121 @@ namespace inceptionengine::fbximport
                 bonePositions.push_back(globalPositions[i][boneIndex]);
             }
             std::vector<Vec3f> boneVelocities = ComputeVelocities(bonePositions, h);
-            for (int i = 0; i < boneVelocities.size(); i++) { anim.mBoneVelocities[i][boneIndex] = boneVelocities[i]; }
+            for (int i = 0; i < boneVelocities.size(); i++) { anim.mBoneGlobalTranslVelocities[i][boneIndex] = boneVelocities[i]; }
+        }
+    }
+
+    void FillBoneLclTranslVelocities(Animation& anim, float h)
+    {
+        auto skeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(anim.mPathToSkeleton));
+        size_t boneNumber = skeleton->GetBoneNumber();
+
+        //compute global positions of bones
+        std::vector<std::vector<Vec3f>> lclPositions;
+        for (auto const& lclFrame : anim.mBoneTransforms)
+        {
+            std::vector<Vec3f> lclPosition;
+            for (auto const& boneTransform : lclFrame)
+            {
+                lclPosition.push_back(boneTransform[3]);
+            }
+            lclPositions.push_back(lclPosition);
+        }
+
+        //prepare space for velocities
+        anim.mBoneLclTranslVelocities.resize(anim.mBoneTransforms.size());
+        for (auto& vel : anim.mBoneLclTranslVelocities) { vel.resize(boneNumber); }
+
+        //compute bone velocities
+        for (int boneIndex = 0; boneIndex < boneNumber; boneIndex++)
+        {
+            std::vector<Vec3f> bonePositions;
+            bonePositions.reserve(anim.mBoneTransforms.size());
+            for (int i = 0; i < anim.mBoneTransforms.size(); i++)
+            {
+                bonePositions.push_back(lclPositions[i][boneIndex]);
+            }
+            std::vector<Vec3f> boneVelocities = ComputeVelocities(bonePositions, h);
+            for (int i = 0; i < boneVelocities.size(); i++) { anim.mBoneLclTranslVelocities[i][boneIndex] = boneVelocities[i]; }
+        }
+    }
+
+    void FillBoneGlobalAngularVelocities(Animation& anim, float h)
+    {
+        auto skeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(anim.mPathToSkeleton));
+        size_t boneNumber = skeleton->GetBoneNumber();
+
+        //compute global rots of bones
+        std::vector<std::vector<Quaternion4f>> globalRots;
+        for (auto const& lclFrame : anim.mBoneTransforms)
+        {
+            std::vector<Quaternion4f> globalRot;
+            auto globalFrame = GetBonesGlobalTransforms(lclFrame, skeleton);
+            for (auto const& boneTransform : globalFrame)
+            {
+                Vec4f tempTransl;
+                Quaternion4f quat;
+                Vec4f tempScale;
+                Decompose(boneTransform, tempTransl, quat, tempScale);
+                globalRot.push_back(quat);
+            }
+            globalRots.push_back(globalRot);
+        }
+
+        //prepare space for velocities
+        anim.mBoneGlobalAngularVelocities.resize(anim.mBoneTransforms.size());
+        for (auto& vel : anim.mBoneGlobalAngularVelocities) { vel.resize(boneNumber); }
+
+        //compute bone angular velocities
+        for (int boneIndex = 0; boneIndex < boneNumber; boneIndex++)
+        {
+            std::vector<Quaternion4f> boneGlobalRots;
+            boneGlobalRots.reserve(anim.mBoneTransforms.size());
+            for (int i = 0; i < anim.mBoneTransforms.size(); i++)
+            {
+                boneGlobalRots.push_back(globalRots[i][boneIndex]);
+            }
+            std::vector<Vec3f> boneVelocities = ComputeAngularVelocities(boneGlobalRots, h);
+            for (int i = 0; i < boneVelocities.size(); i++) { anim.mBoneGlobalAngularVelocities[i][boneIndex] = boneVelocities[i]; }
+        }
+    }
+
+    void FillBoneLclAngularVelocities(Animation& anim, float h)
+    {
+        auto skeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(anim.mPathToSkeleton));
+        size_t boneNumber = skeleton->GetBoneNumber();
+
+        //compute global positions of bones
+        std::vector<std::vector<Quaternion4f>> lclRots;
+        for (auto const& lclFrame : anim.mBoneTransforms)
+        {
+            std::vector<Quaternion4f> lclRot;
+            for (auto const& boneTransform : lclFrame)
+            {
+                Vec4f tempTransl;
+                Quaternion4f quat;
+                Vec4f tempScale;
+                Decompose(boneTransform, tempTransl, quat, tempScale);
+                lclRot.push_back(quat);
+            }
+            lclRots.push_back(lclRot);
+        }
+
+        //prepare space for velocities
+        anim.mBoneLclAngularVelocities.resize(anim.mBoneTransforms.size());
+        for (auto& vel : anim.mBoneLclAngularVelocities) { vel.resize(boneNumber); }
+
+        //compute bone velocities
+        for (int boneIndex = 0; boneIndex < boneNumber; boneIndex++)
+        {
+            std::vector<Quaternion4f> boneLclRots;
+            boneLclRots.reserve(anim.mBoneTransforms.size());
+            for (int i = 0; i < anim.mBoneTransforms.size(); i++)
+            {
+                boneLclRots.push_back(lclRots[i][boneIndex]);
+            }
+            std::vector<Vec3f> boneVelocities = ComputeAngularVelocities(boneLclRots, h);
+            for (int i = 0; i < boneVelocities.size(); i++) { anim.mBoneLclAngularVelocities[i][boneIndex] = boneVelocities[i]; }
         }
     }
 

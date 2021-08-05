@@ -131,12 +131,16 @@ namespace inceptionengine
 
 	inline Vec3f RotationAxis(Quaternion4f const& quat)
 	{
+		if (glm::l2Norm(Vec3f(quat.x, quat.y, quat.z)) <= 0.000001f)
+			return { 1.0f, 0.0f, 0.0f };
 		return NormalizeVec(Vec3f(quat.x, quat.y, quat.z));
 	}
 
 	inline float RotationAngle(Quaternion4f const& quat)
 	{
-		float rads = 2 * std::acosf(quat.w);
+		float w = quat.w;
+		if (std::abs(w - 1.0f) <= 0.00001f) w = 1.0f;
+		float rads = 2 * std::acosf(w);
 		assert(! std::isnan(rads));
 		return rads;
 	}
@@ -377,5 +381,10 @@ namespace inceptionengine
 	inline Vec3f ElementSqrt(Vec3f const& v)
 	{
 		return { std::sqrt(v[0]), std::sqrt(v[1]), std::sqrt(v[2]) };
+	}
+
+	inline Quaternion4f QuatDiff(Quaternion4f const& prev, Quaternion4f const& next)
+	{
+		return next * glm::inverse(prev);
 	}
 }

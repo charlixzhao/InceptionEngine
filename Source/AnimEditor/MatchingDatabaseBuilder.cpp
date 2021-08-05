@@ -99,9 +99,9 @@ namespace inceptionengine::animeditor
 			f.rightFootPosition = Vec3f(currentPose[anim->mSkeleton->GetBoneID(rightFootName)][3]) - currentPosition;
 
 			/*NEED VEL: during compute in building matching db*/
-			f.hipVelocity = anim->mBoneVelocities[i][anim->mSkeleton->GetBoneID(hipName)];
-			f.leftFootVelocity = anim->mBoneVelocities[i][anim->mSkeleton->GetBoneID(leftFootName)];
-			f.rightFootVelocity = anim->mBoneVelocities[i][anim->mSkeleton->GetBoneID(rightFootName)];
+			f.hipVelocity = anim->mBoneGlobalTranslVelocities[i][anim->mSkeleton->GetBoneID(hipName)];
+			f.leftFootVelocity = anim->mBoneGlobalTranslVelocities[i][anim->mSkeleton->GetBoneID(leftFootName)];
+			f.rightFootVelocity = anim->mBoneGlobalTranslVelocities[i][anim->mSkeleton->GetBoneID(rightFootName)];
 
 			db.features.push_back(f);
 		}

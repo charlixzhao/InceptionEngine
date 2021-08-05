@@ -68,6 +68,7 @@ set(SRC_BUILD_FILES
 "ECS/Systems/RigidbodySystem/RigidbodySystem.cpp"
 "Runtime/KeyInputCallbackRegistry.h"
 "Runtime/Animation/AnimPose.h"
+"Runtime/Animation/AnimPose.cpp"
 "Runtime/Animation/Animation.h"
 "Runtime/Animation/Animation.cpp"
 "Runtime/Animation/AnimInstance.h"

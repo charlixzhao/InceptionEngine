@@ -1,12 +1,9 @@
 #pragma once
 
-#include "Math/Math.h"
-#include <vector>
 
 namespace inceptionengine
 {
 
-	
 	struct BoneTransform
 	{
 		Vec4f Translation;

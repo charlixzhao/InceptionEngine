@@ -68,7 +68,7 @@ namespace inceptionengine
 			mRunningTime += dt;
 			if (mRunningTime >= mAnimDB->GetDuration()) mRunningTime = 0.0f;
 			mCurrentPose = mAnimDB->Interpolate(mRunningTime);
-			mCurrentBoneVelocities = mAnimDB->mBoneVelocities[static_cast<int>(mRunningTime * 30.0f)];
+			mCurrentBoneVelocities = mAnimDB->mBoneGlobalTranslVelocities[static_cast<int>(mRunningTime * 30.0f)];
 		}
 	}
 

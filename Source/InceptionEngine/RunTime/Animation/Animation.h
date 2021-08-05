@@ -12,8 +12,12 @@ namespace inceptionengine
 		float mDuration = 0.0f;
 		std::string mName;
 		std::string mPathToSkeleton;
-		std::vector<std::vector<Matrix4x4f>> mBoneTransforms;
-		std::vector<std::vector<Vec3f>> mBoneVelocities;
+		std::vector<std::vector<Matrix4x4f>> mBoneTransforms; //in lcl space
+
+		std::vector<std::vector<Vec3f>> mBoneGlobalTranslVelocities;
+		std::vector<std::vector<Vec3f>> mBoneLclTranslVelocities;
+		std::vector<std::vector<Vec3f>> mBoneGlobalAngularVelocities; //represent in rotation vector form
+		std::vector<std::vector<Vec3f>> mBoneLclAngularVelocities;
 
 		std::shared_ptr<Skeleton> mSkeleton;
 
@@ -26,7 +30,8 @@ namespace inceptionengine
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(mDuration, mName, mPathToSkeleton, mBoneTransforms, mBoneVelocities);
+			archive(mDuration, mName, mPathToSkeleton, mBoneTransforms, mBoneGlobalTranslVelocities,
+				mBoneLclTranslVelocities, mBoneGlobalAngularVelocities, mBoneLclAngularVelocities);
 		}
 
 	};
