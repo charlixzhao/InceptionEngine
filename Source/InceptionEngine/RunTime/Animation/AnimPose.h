@@ -4,38 +4,23 @@
 namespace inceptionengine
 {
 
-	struct BoneTransform
+	struct AnimPose
 	{
-		Vec4f Translation;
-		Quaternion4f Rotation;
-		Vec4f Scale;
+		AnimPose() = default;
+
+		AnimPose(std::vector<Matrix4x4f> const& lclTransforms, std::vector<Vec3f> const& lclTransVels,
+			std::vector<Vec3f> const& globalTransVels, std::vector<Vec3f> lclAngularVelocities,
+			std::vector<Vec3f> globalAngularVelocties);
+
+		AnimPose(std::vector<Matrix4x4f> const& lclTransforms);
+
+		size_t Size() const;
+
+		std::vector<Matrix4x4f> boneLclTransforms;
+		std::vector<Vec3f> boneLclTranslVelocities;
+		std::vector<Vec3f> boneGlobalTranslVelocities;
+		std::vector<Vec3f> boneLclAngularVelocities;
+		std::vector<Vec3f> boneGlobalAngularVelocties;
 	};
-
-	using AnimPose = std::vector<BoneTransform>;
-
-	inline std::vector<Matrix4x4f> BlendPose(std::vector<Matrix4x4f> const& pose1, std::vector<Matrix4x4f> const& pose2, float alpha)
-	{
-		std::vector<Matrix4x4f> result;
-		result.resize(pose1.size());
-		for (int i = 0; i < pose1.size(); i++)
-		{
-			Vec4f translation1;
-			Quaternion4f rotation1;
-			Vec4f scale1;
-
-			Vec4f translation2;
-			Quaternion4f rotation2;
-			Vec4f scale2;
-
-			Decompose(pose1[i], translation1, rotation1, scale1);
-			Decompose(pose2[i], translation2, rotation2, scale2);
-			Vec4f translation = LinearInterpolate(translation1, translation2, alpha);
-			Quaternion4f rotation = SLerp(rotation1, rotation2, alpha);
-			Vec4f scale = LinearInterpolate(scale1, scale2, alpha);
-			Matrix4x4f transformation = Compose(translation, rotation, scale);
-			result[i] = transformation;
-		}
-		return result;
-	}
 
 }

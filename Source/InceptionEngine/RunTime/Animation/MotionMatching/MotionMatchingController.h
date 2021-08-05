@@ -1,6 +1,7 @@
 #pragma once
 #include "RunTime/Animation/AnimBlender.h"
 #include "MatchingFeature.h"
+#include "RunTime/Animation/AnimPose.h"
 
 namespace inceptionengine
 {
@@ -15,7 +16,7 @@ namespace inceptionengine
 
 		~MotionMatchingController();
 
-		std::vector<Matrix4x4f> GetCurrentPose() const { return mCurrentPose; }
+		AnimPose GetCurrentPose() const { return mCurrentPose; }
 		std::vector<Vec3f> GetCurrentBoneVelocities() const { return mCurrentBoneVelocities; }
 
 		void LoadMatchingDatabase(std::string const& filePath);
@@ -32,7 +33,7 @@ namespace inceptionengine
 	private:
 		std::shared_ptr<MatchingDatabase> mMatchingDB = nullptr;
 		std::shared_ptr<Animation> mAnimDB = nullptr;
-		std::vector<Matrix4x4f> mCurrentPose;
+		AnimPose mCurrentPose;
 		std::vector<Vec3f> mCurrentBoneVelocities;
 		int mCurrentIndex = -1;
 		float mRunningTime = 530.0f / 30.0f;

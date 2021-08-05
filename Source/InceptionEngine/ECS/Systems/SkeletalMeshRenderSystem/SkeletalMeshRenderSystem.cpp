@@ -65,7 +65,7 @@ namespace inceptionengine
 				//set bones
 				if (mComponentsPool.get().EntityHasComponent<AnimationComponent>(component.mEntityID))
 				{
-					std::vector<Matrix4x4f> const& localFinalPose = mComponentsPool.get().GetComponent<AnimationComponent>(component.mEntityID).mAnimationController->GetFinalPose();
+					std::vector<Matrix4x4f> const& localFinalPose = mComponentsPool.get().GetComponent<AnimationComponent>(component.mEntityID).mAnimationController->GetFinalPose().boneLclTransforms;
 					std::vector<Matrix4x4f> globalFinalPose;
 					globalFinalPose.resize(localFinalPose.size());
 					for (auto const& bone : component.mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones)

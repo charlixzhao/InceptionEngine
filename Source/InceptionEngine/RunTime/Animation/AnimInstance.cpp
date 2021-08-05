@@ -45,7 +45,7 @@ namespace inceptionengine
 
 	AnimInstance::~AnimInstance() = default;
 
-	std::vector<Matrix4x4f> AnimInstance::Sample(float time, AnimInterpType interpType)
+	AnimPose AnimInstance::Sample(float time, AnimInterpType interpType)
 	{
 		return mAnimationResource->Interpolate(time);
 	}

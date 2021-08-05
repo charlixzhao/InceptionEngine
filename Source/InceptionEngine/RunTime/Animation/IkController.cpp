@@ -36,7 +36,7 @@ namespace inceptionengine
 		std::vector<Matrix4x4f> result;
 		for (int boneID : mAimIkChain.boneID)
 		{
-			result.push_back(mAnimationController.get().mFinalPose[boneID]);
+			result.push_back(mAnimationController.get().mFinalPose.boneLclTransforms[boneID]);
 		}
 		return result;
 	}
@@ -60,7 +60,7 @@ namespace inceptionengine
 	std::vector<Matrix4x4f> IkController::ChainAimTo(Matrix4x4f modelTransform, Vec3f const& targetPosition, Vec3f const& eyeOffsetInHeadCoord) const
 	{
 	
-		Matrix4x4f headGlobalTransform = mAnimationController.get().GetBoneGlobalTransform(modelTransform, mAnimationController.get().mFinalPose, mAimIkChain.boneID.back());
+		Matrix4x4f headGlobalTransform = mAnimationController.get().GetBoneGlobalTransform(modelTransform, mAnimationController.get().mFinalPose.boneLclTransforms, mAimIkChain.boneID.back());
 
 		Vec4f eyePosition = headGlobalTransform[3] +
 			eyeOffsetInHeadCoord[0] * NormalizeVec(headGlobalTransform[0]) +
@@ -76,12 +76,12 @@ namespace inceptionengine
 		{
 			for (int boneID : mAimIkChain.boneID)
 			{
-				result.push_back(mAnimationController.get().mFinalPose[boneID]);
+				result.push_back(mAnimationController.get().mFinalPose.boneLclTransforms[boneID]);
 			}
 			return result;
 		}
 
-		std::vector<Matrix4x4f> currentPose = mAnimationController.get().mFinalPose;
+		std::vector<Matrix4x4f> currentPose = mAnimationController.get().mFinalPose.boneLclTransforms;
 
 		int chainSize = mAimIkChain.boneID.size();
 		Vec4f eyeGlobalPosition = mAnimationController.get().GetBoneGlobalTransform(modelTransform, currentPose, mAimIkChain.boneID.back()) * Vec4f(eyeOffsetInHeadCoord, 1.0f);

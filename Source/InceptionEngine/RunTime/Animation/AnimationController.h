@@ -31,7 +31,7 @@ namespace inceptionengine
 
 		bool Update(float deltaTime);
 
-		std::vector<Matrix4x4f> const& GetFinalPose() const { return mFinalPose; }
+		AnimPose const& GetFinalPose() const { return mFinalPose; }
 
 		void PlayEventAnimation(EventAnimPlaySetting const& setting);
 
@@ -100,7 +100,7 @@ namespace inceptionengine
 		std::shared_ptr<Animation const> mCurrentAnimation = nullptr;
 
 		//local final pose
-		std::vector<Matrix4x4f> mFinalPose;
+		AnimPose mFinalPose;
 
 		//global bone velocities
 		std::vector<Vec3f> mBoneVelocities;

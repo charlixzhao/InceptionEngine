@@ -33,7 +33,7 @@ namespace inceptionengine
 	void AnimationController::Initialize(std::shared_ptr<Skeleton const> skeleton)
 	{
 		mSkeleton = skeleton;
-		mFinalPose = skeleton->GetLocalRefPose();
+		mFinalPose.boneLclTransforms = skeleton->GetLocalRefPose();
 	}
 
 	MatchingFeature GenerateFeature()
@@ -72,7 +72,7 @@ namespace inceptionengine
 		{
 			mFeatureQueryTimer = 0.0f;
 			MatchingFeature f = GenerateFeature();
-			std::vector<Matrix4x4f> globalTransform = Animation::GetBonesGlobalTransforms(mFinalPose, mSkeleton);
+			std::vector<Matrix4x4f> globalTransform = Animation::GetBonesGlobalTransforms(mFinalPose.boneLclTransforms, mSkeleton);
 			Vec3f currentPosition = globalTransform[0][3];
 			f.leftFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:LeftFoot")][3]) - currentPosition;
 			f.rightFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:RightFoot")][3]) - currentPosition;
@@ -83,14 +83,14 @@ namespace inceptionengine
 
 			mMotionMatchingController->Update(deltaTime, f);
 			mFinalPose = mMotionMatchingController->GetCurrentPose();
-			mFinalPose[0][3].x = mFinalPose[0][3].z = 0.0f;
+			mFinalPose.boneLclTransforms[0][3].x = mFinalPose.boneLclTransforms[0][3].z = 0.0f;
 			mBoneVelocities = mMotionMatchingController->GetCurrentBoneVelocities();
 		}
 		else
 		{
 			mMotionMatchingController->Update(deltaTime);
 			mFinalPose = mMotionMatchingController->GetCurrentPose();
-			mFinalPose[0][3].x = mFinalPose[0][3].z = 0.0f;
+			mFinalPose.boneLclTransforms[0][3].x = mFinalPose.boneLclTransforms[0][3].z = 0.0f;
 			mBoneVelocities = mMotionMatchingController->GetCurrentBoneVelocities();
 		}
 
@@ -101,7 +101,7 @@ namespace inceptionengine
 			auto blendedPose = mBlender.Blend(deltaTime);
 			if (blendedPose.has_value())
 			{
-				mFinalPose = blendedPose.value();
+				mFinalPose.boneLclTransforms = blendedPose.value();
 			}
 			else
 			{
@@ -111,12 +111,12 @@ namespace inceptionengine
 		else if (mEventAnimController->IsPlayingAnimation())
 		{
 			mEventAnimController->Update(deltaTime);
-			mFinalPose = mEventAnimController->GetCurrentPose();
+			mFinalPose.boneLclTransforms = mEventAnimController->GetCurrentPose();
 		}
 		else if (mAnimStateMachine != nullptr)
 		{
 			mAnimStateMachine->Update(deltaTime);
-			mFinalPose = mAnimStateMachine->mFinalPose;
+			mFinalPose.boneLclTransforms = mAnimStateMachine->mFinalPose.boneLclTransforms;
 		}
 
 
@@ -126,7 +126,7 @@ namespace inceptionengine
 			std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
 			for (int i = 0; i < ikPose.size(); i++)
 			{
-				mFinalPose[aimIkMask[i]] = ikPose[i];
+				mFinalPose.boneLclTransforms[aimIkMask[i]] = ikPose[i];
 			}
 		}
 		else if (mAimIkBlender.second.IsBlending())
@@ -138,7 +138,7 @@ namespace inceptionengine
 				std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
 				for (int i = 0; i < ikPoseOpt.value().size(); i++)
 				{
-					mFinalPose[aimIkMask[i]] = ikPoseOpt.value()[i];
+					mFinalPose.boneLclTransforms[aimIkMask[i]] = ikPoseOpt.value()[i];
 				}
 			}
 			//else the blend finish callback will be called to indicate IkController that aim ik is deactivated 
@@ -158,7 +158,7 @@ namespace inceptionengine
 			mAnimStateMachine->BlendOutOfASM();
 
 			//start a blending from ASM to EventAnim
-			mBlender.StartBlending(mAnimStateMachine->mFinalPose,
+			mBlender.StartBlending(mAnimStateMachine->mFinalPose.boneLclTransforms,
 								   gResourceMgr.GetResource<Animation>(setting.animFilePath)->Interpolate(0.0f),
 								   setting.blendInDuration);
 		}*/
@@ -211,7 +211,7 @@ namespace inceptionengine
 	{
 		int socketID = mSkeleton->mSocketToIndexMap.at(socket);
 		int parentID = mSkeleton->mSockets[socketID].parentID;
-		return GetBoneModelTransform(mFinalPose, parentID) * mSkeleton->mSockets[socketID].lclTransform;
+		return GetBoneModelTransform(mFinalPose.boneLclTransforms, parentID) * mSkeleton->mSockets[socketID].lclTransform;
 	}
 
 	float AnimationController::GetCurrentEventAnimTime() const
@@ -242,7 +242,7 @@ namespace inceptionengine
 		headGlobalTransform = rot * headGlobalTransform;
 		headGlobalTransform[3] = headPosition;
 		Matrix4x4f headLclTransform = Inverse(GetBoneModelTransform(mSkeleton->mBones[headID].parentID)) * headGlobalTransform;
-		mFinalPose[headID] = headLclTransform;*/
+		mFinalPose.boneLclTransforms[headID] = headLclTransform;*/
 
 		/*
 		int headID = mSkeleton->GetBoneID("Bip001 Head");
@@ -296,7 +296,7 @@ namespace inceptionengine
 		std::vector<Matrix4x4f> chainCurrentPose = mIkController->GetAimIkChainCurrentLclTransform();
 		std::vector<Matrix4x4f> chainSolvedIkPose = mIkController->ChainAimTo(modelTransform, targetPosition, eyeOffsetInHeadCoord);
 		mIkController->ActivateAimIk();
-		mAimIkBlender.first.StartBlending(chainCurrentPose, chainSolvedIkPose, duration);
+		mAimIkBlender.first.StartBlending(AnimPose(chainCurrentPose), AnimPose(chainSolvedIkPose), duration);
 
 
 		/*
@@ -304,7 +304,7 @@ namespace inceptionengine
 		std::vector<int> const& aimIkMask = mIkController->GetAimIkChainBoneIDs();
 		for (int i = 0; i < ikPose.size(); i++)
 		{
-			mFinalPose[aimIkMask[i]] = ikPose[i];
+			mFinalPose.boneLclTransforms[aimIkMask[i]] = ikPose[i];
 		}*/
 	}
 
@@ -364,9 +364,9 @@ namespace inceptionengine
 	void AnimationController::TestAxis(IkChain const& ikChain)
 	{
 		int armID = ikChain.BoneIDs[1];
-		mFinalPose[armID] = Translate(mFinalPose[armID][3]) * Rotate(PI / 6.0f, Vec3f(0.0f, 1.0f, 0.0f)) * Translate(-mFinalPose[armID][3]) * mFinalPose[armID];
+		mFinalPose.boneLclTransforms[armID] = Translate(mFinalPose.boneLclTransforms[armID][3]) * Rotate(PI / 6.0f, Vec3f(0.0f, 1.0f, 0.0f)) * Translate(-mFinalPose.boneLclTransforms[armID][3]) * mFinalPose.boneLclTransforms[armID];
 		float x, y, z = 0;
-		glm::extractEulerAngleXYZ(mFinalPose[armID] * Translate(-mFinalPose[armID][3]), x, y, z);
+		glm::extractEulerAngleXYZ(mFinalPose.boneLclTransforms[armID] * Translate(-mFinalPose.boneLclTransforms[armID][3]), x, y, z);
 		std::cout << "x is " << x << " y is " << glm::degrees(y) << "z is " << z << std::endl;
 	}
 
@@ -390,7 +390,7 @@ namespace inceptionengine
 			std::vector<Vec4f> currentChainPosition;
 			for (auto boneId : ikChain.BoneIDs)
 			{
-				currentChainPosition.push_back(GetBoneModelTransform(mFinalPose, boneId)[3]);
+				currentChainPosition.push_back(GetBoneModelTransform(mFinalPose.boneLclTransforms, boneId)[3]);
 			}
 			Vec4f base = currentChainPosition[0];
 			int chainSize = ikChain.Size();
@@ -431,21 +431,21 @@ namespace inceptionengine
 			//align bones
 			for (int i = 0; i < chainSize - 1; i++)
 			{
-				Matrix4x4f currentBoneGlobalTransform = GetBoneModelTransform(mFinalPose, ikChain.BoneIDs[i]);
+				Matrix4x4f currentBoneGlobalTransform = GetBoneModelTransform(mFinalPose.boneLclTransforms, ikChain.BoneIDs[i]);
 				Vec4f currentBonePosition = currentBoneGlobalTransform[3];
-				Vec4f originalDirection = GetBoneModelTransform(mFinalPose, ikChain.BoneIDs[i + 1])[3] - currentBonePosition;
+				Vec4f originalDirection = GetBoneModelTransform(mFinalPose.boneLclTransforms, ikChain.BoneIDs[i + 1])[3] - currentBonePosition;
 				Vec4f desiredDirection = desiredPosition[i + 1] - currentBonePosition;
 				Matrix4x4f deltaRotation = FromToRotation(originalDirection, desiredDirection);
 				Matrix4x4f translateToOrigin = Translate(-currentBonePosition);
 				Matrix4x4f translateBack = Translate(currentBonePosition);
 				Matrix4x4f newCurrentboneGlobalTransform = translateBack * deltaRotation * translateToOrigin * currentBoneGlobalTransform;
 				int parentID = mSkeleton->mBones[ikChain.BoneIDs[i]].parentID;
-				if (parentID == -1) mFinalPose[ikChain.BoneIDs[i]] = newCurrentboneGlobalTransform;
-				else mFinalPose[ikChain.BoneIDs[i]] = Inverse(GetBoneModelTransform(mFinalPose, parentID)) * newCurrentboneGlobalTransform;
+				if (parentID == -1) mFinalPose.boneLclTransforms[ikChain.BoneIDs[i]] = newCurrentboneGlobalTransform;
+				else mFinalPose.boneLclTransforms[ikChain.BoneIDs[i]] = Inverse(GetBoneModelTransform(mFinalPose.boneLclTransforms, parentID)) * newCurrentboneGlobalTransform;
 			}
 
 			//apply joint constraint for shoulder bone, which is at index 0 in the ikChain
-			Matrix4x4f shoulderLocalTransform = mFinalPose[ikChain.BoneIDs[0]];
+			Matrix4x4f shoulderLocalTransform = mFinalPose.boneLclTransforms[ikChain.BoneIDs[0]];
 			Vec4f shoulderTranslation = shoulderLocalTransform[3];
 			shoulderLocalTransform[3] = { 0.0f,0.0f,0.0f,1.0f };
 			Quaternion4f shoulderRotation = RotToQuat(shoulderLocalTransform);
@@ -462,12 +462,12 @@ namespace inceptionengine
 			if (std::abs(rotationAngle) > limit)
 			{
 				Matrix4x4f newRoatiton = Rotate(Sign(rotationAngle) * limit, rotationAxis);
-				mFinalPose[ikChain.BoneIDs[0]] = Translate(Vec3f(shoulderTranslation)) * newRoatiton;
+				mFinalPose.boneLclTransforms[ikChain.BoneIDs[0]] = Translate(Vec3f(shoulderTranslation)) * newRoatiton;
 			}
 
 			//apply hinge constraint for ankle bone, which is at index 1 in the ikChain
 			float rotX, rotY, rotZ = 0;
-			glm::extractEulerAngleXYZ(Translate(-mFinalPose[ikChain.BoneIDs[1]][3]) * mFinalPose[ikChain.BoneIDs[1]],
+			glm::extractEulerAngleXYZ(Translate(-mFinalPose.boneLclTransforms[ikChain.BoneIDs[1]][3]) * mFinalPose.boneLclTransforms[ikChain.BoneIDs[1]],
 									  rotX, rotY, rotZ);
 
 			rotY = std::fmodf(rotY, 2 * PI);
@@ -485,7 +485,7 @@ namespace inceptionengine
 			}*/
 			
 			//std::cout << "x is " << rotX << " y is " << glm::degrees(rotY) << "z is " << rotZ << std::endl;
-			//mFinalPose[ikChain.BoneIDs[1]] =  Translate(mFinalPose[ikChain.BoneIDs[1]][3]) * Rotate(rotY, Vec3f(0.0f, 1.0f, 0.0f));
+			//mFinalPose.boneLclTransforms[ikChain.BoneIDs[1]] =  Translate(mFinalPose.boneLclTransforms[ikChain.BoneIDs[1]][3]) * Rotate(rotY, Vec3f(0.0f, 1.0f, 0.0f));
 
 
 		}

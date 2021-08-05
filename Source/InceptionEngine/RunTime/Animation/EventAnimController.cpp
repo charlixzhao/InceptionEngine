@@ -96,7 +96,7 @@ namespace inceptionengine
 			}
 		}
 	}
-	std::vector<Matrix4x4f> const& EventAnimController::GetCurrentPose() const
+	AnimPose const& EventAnimController::GetCurrentPose() const
 	{
 		return mCurrentPose;
 	}

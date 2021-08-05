@@ -3,11 +3,11 @@
 
 namespace inceptionengine
 {
-	void AnimBlender::StartBlending(std::vector<Matrix4x4f> const& fromPose, 
-									std::vector<Matrix4x4f> const& toPose, 
-									float blendingDuration, 
-									AnimBlendType blendingType,
-									std::function<void()> blendFinishCallback)
+	void AnimBlender::StartBlending(AnimPose const& fromPose,
+		AnimPose const& toPose,
+		float blendingDuration,
+		AnimBlendType blendingType,
+		std::function<void()> blendFinishCallback)
 	{
 		mBlendFromPose = fromPose;
 		mBlendToPose = toPose;
@@ -17,7 +17,7 @@ namespace inceptionengine
 		mBlendFinishCallback = blendFinishCallback;
 	}
 
-	std::optional<std::vector<Matrix4x4f>> AnimBlender::Blend(float dt, bool indicateStop)
+	std::optional<AnimPose> AnimBlender::Blend(float dt, bool indicateStop)
 	{
 		mCurrentBlendingTime += dt;
 
@@ -37,14 +37,26 @@ namespace inceptionengine
 		}
 		else
 		{
-			float alpha = 1.0f - mCurrentBlendingTime / mBlendingDuration;
-			return BlendPose(alpha);
+			switch (mBlendingType)
+			{
+			case AnimBlendType::Linear: 
+			{
+				float alpha = 1.0f - mCurrentBlendingTime / mBlendingDuration;
+				return LinearBlend(alpha);
+			}
+			case AnimBlendType::Inertialization: 
+			{
+				break;
+			}
+			default: throw std::runtime_error("un supported blending type");
+			}
+
 		}
 	}
 
-	std::optional<std::vector<Matrix4x4f>> AnimBlender::Blend(std::vector<Matrix4x4f> const& blendToPose, float dt, bool indicateStop)
+	std::optional<AnimPose> AnimBlender::Blend(AnimPose const& blendToPose, float dt, bool indicateStop)
 	{
-		if (blendToPose.size() != mBlendFromPose.size())
+		if (blendToPose.Size() != mBlendFromPose.Size())
 		{
 			throw std::runtime_error("inconsistent blend pose\n");
 		}
@@ -62,11 +74,11 @@ namespace inceptionengine
 		mCurrentBlendingTime = mBlendingDuration = 0.0f;
 	}
 
-	std::vector<Matrix4x4f> AnimBlender::BlendPose(float alpha) const
+	AnimPose AnimBlender::LinearBlend(float alpha) const
 	{
-		std::vector<Matrix4x4f> result;
-		result.resize(mBlendFromPose.size());
-		for (int i = 0; i < mBlendFromPose.size(); i++)
+		std::vector<Matrix4x4f> boneTransforms;
+		boneTransforms.resize(mBlendFromPose.Size());
+		for (int i = 0; i < mBlendFromPose.Size(); i++)
 		{
 			Vec4f translation1;
 			Quaternion4f rotation1;
@@ -76,14 +88,16 @@ namespace inceptionengine
 			Quaternion4f rotation2;
 			Vec4f scale2;
 
-			Decompose(mBlendFromPose[i], translation1, rotation1, scale1);
-			Decompose(mBlendToPose[i], translation2, rotation2, scale2);
+			Decompose(mBlendFromPose.boneLclTransforms[i], translation1, rotation1, scale1);
+			Decompose(mBlendToPose.boneLclTransforms[i], translation2, rotation2, scale2);
 			Vec4f translation = LinearInterpolate(translation1, translation2, alpha);
 			Quaternion4f rotation = SLerp(rotation1, rotation2, alpha);
 			Vec4f scale = LinearInterpolate(scale1, scale2, alpha);
 			Matrix4x4f transformation = Compose(translation, rotation, scale);
-			result[i] = transformation;
+			boneTransforms[i] = transformation;
 		}
+		AnimPose result = mBlendFromPose;
+		result.boneLclTransforms = boneTransforms;
 		return result;
 	}
 }

@@ -1,6 +1,7 @@
 
 #pragma once
 #include "AnimSpeedBar.h"
+#include "AnimPose.h"
 #include "ECS/Components/AnimationComponent/AnimNotify.h"
 #include "ECS/Components/AnimationComponent/AnimNotifyState.h"
 
@@ -24,7 +25,7 @@ namespace inceptionengine
 
 		~AnimInstance();
 
-		std::vector<Matrix4x4f> Sample(float time, AnimInterpType interpType = AnimInterpType::Linear);
+		AnimPose Sample(float time, AnimInterpType interpType = AnimInterpType::Linear);
 
 		float GetDuration() const;
 

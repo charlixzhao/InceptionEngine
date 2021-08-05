@@ -3,6 +3,7 @@
 
 #include "ECS/Entity/EntityID.h"
 #include "RunTime/Animation/AnimBlender.h"
+#include "RunTime/Animation/AnimPose.h"
 
 namespace inceptionengine
 {
@@ -83,7 +84,7 @@ namespace inceptionengine
 		std::reference_wrapper<World> mWorld;
 		EntityID mEntityID = InvalidEntityID;
 
-		std::vector<Matrix4x4f> mFinalPose;
+		AnimPose mFinalPose;
 
 		Link* mActiveLink = nullptr;
 

@@ -23,7 +23,7 @@ namespace inceptionengine
 
 		void Update(float dt);
 
-		std::vector<Matrix4x4f> const& GetCurrentPose() const;
+		AnimPose const& GetCurrentPose() const;
 
 		bool IsBlending() const;
 
@@ -42,7 +42,7 @@ namespace inceptionengine
 	private:
 		std::unique_ptr<AnimInstance> mAnimInstance = nullptr;
 		float mRunningTime = 0.0f;
-		std::vector<Matrix4x4f> mCurrentPose;
+		AnimPose mCurrentPose;
 		std::reference_wrapper<AnimationController> mAnimationController;
 		AnimBlender mEventAnimBlender;
 

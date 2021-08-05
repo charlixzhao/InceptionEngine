@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "AnimPose.h"
+
 namespace inceptionengine
 {
 	struct Skeleton;
@@ -21,7 +23,7 @@ namespace inceptionengine
 
 		std::shared_ptr<Skeleton> mSkeleton;
 
-		std::vector<Matrix4x4f> Interpolate(float time) const;
+		AnimPose Interpolate(float time) const;
 
 		float GetDuration() const { return mDuration; }
 

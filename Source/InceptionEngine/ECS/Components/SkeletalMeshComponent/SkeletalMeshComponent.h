@@ -35,8 +35,6 @@ namespace inceptionengine
 
 		void SetMesh(std::string const& filePath);
 
-		void SetMeshPose(AnimPose const& pose);
-
 		void SetPlane(float scale);
 
 		void SetTriangle();

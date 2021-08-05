@@ -226,8 +226,5 @@ mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBo
 	}
 
 
-	void SkeletalMeshComponent::SetMeshPose(AnimPose const& pose)
-	{
-	}
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "AnimPose.h"
 
 namespace inceptionengine
 {
@@ -6,36 +7,33 @@ namespace inceptionengine
 	{
 		Linear, 
 		Cubic,
-		Step
+		Step,
+		Inertialization
 	};
 
 	class AnimBlender
 	{
 	public:
-		void StartBlending(std::vector<Matrix4x4f> const& fromPose,
-						   std::vector<Matrix4x4f> const& toPose,
-						   float blendingDuration,
-						   AnimBlendType blendingType = AnimBlendType::Linear,
-						   std::function<void()> blendFinishCallback = []() {});
+		void StartBlending(AnimPose const& fromPose,
+			AnimPose const& toPose,
+			float blendingDuration,
+			AnimBlendType blendingType = AnimBlendType::Linear,
+			std::function<void()> blendFinishCallback = []() {});
 
-		std::optional<std::vector<Matrix4x4f>> Blend(float dt, bool indicateStop = true);
+		std::optional<AnimPose> Blend(float dt, bool indicateStop = true);
 
-		std::optional<std::vector<Matrix4x4f>> Blend(std::vector<Matrix4x4f> const& blendToPose, float dt, bool indicateStop = true);
+		std::optional<AnimPose> Blend(AnimPose const& blendToPose, float dt, bool indicateStop = true);
 
 		bool IsBlending() const;
 
 		void InterruptBlending();
 
-	public:
-		//For testing
-		//std::vector<Matrix4x4f> GetToPose() const { return mBlendToPose; }
+	private:
+		AnimPose LinearBlend(float alpha) const;
 
 	private:
-		std::vector<Matrix4x4f> BlendPose(float alpha) const;
-
-	private:
-		std::vector<Matrix4x4f> mBlendFromPose;
-		std::vector<Matrix4x4f> mBlendToPose;
+		AnimPose mBlendFromPose;
+		AnimPose mBlendToPose;
 		float mBlendingDuration = 0.0f;
 		float mCurrentBlendingTime = 0.0f;
 		AnimBlendType mBlendingType = AnimBlendType::Linear;
