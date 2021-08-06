@@ -40,13 +40,13 @@ namespace inceptionengine
 	{
 		//float speed = 1.0f;
 		//float time = 1.0f / 30.0f;
+		float speed = 40.0f;
 		MatchingFeature f;
-		f.trajectory[0] = { -40.0f, 0.0f, 0.0f };
-		f.trajectory[1] = { -80.0f, 0.0f, 0.0f };
-		f.trajectory[2] = { -120.0f, 0.0f, 0.0f };
-		f.facingDirection[0] = { -1.0f,0.0f,0.0f };
-		f.facingDirection[1] = { -1.0f,0.0f,0.0f };
-		f.facingDirection[2] = { -1.0f,0.0f,0.0f };
+		for (int i = 0; i < MatchingFeature::NPoints; i++)
+		{
+			f.trajectory[i] = { 0.0f, 0.0f, 0.0f };
+			f.facingDirection[i] = { 0.0f,0.0f,1.0f };
+		}
 
 		
 		
@@ -74,12 +74,11 @@ namespace inceptionengine
 			MatchingFeature f = GenerateFeature();
 			std::vector<Matrix4x4f> globalTransform = Animation::GetBonesGlobalTransforms(mFinalPose.boneLclTransforms, mSkeleton);
 			Vec3f currentPosition = globalTransform[0][3];
-			f.leftFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:LeftFoot")][3]) - currentPosition;
-			f.rightFootPosition = Vec3f(globalTransform[mSkeleton->GetBoneID("Model:RightFoot")][3]) - currentPosition;
-			f.leftFootVelocity = mBoneVelocities[mSkeleton->GetBoneID("Model:LeftFoot")];
-			f.rightFootVelocity = mBoneVelocities[mSkeleton->GetBoneID("Model:RightFoot")];
-			f.hipVelocity = mBoneVelocities[mSkeleton->GetBoneID("Model:Hips")];
-			/*NEED VEL: in generating feature, need current vel*/
+			for (auto const& featureBone : mMotionMatchingController->GetFeatureBones())
+			{
+				f.featureBonePos.push_back(Vec3f(globalTransform[mSkeleton->GetBoneID(featureBone)][3]) - currentPosition);
+				f.featureBoneVels.push_back(mBoneVelocities[mSkeleton->GetBoneID(featureBone)]);
+			}
 
 			mMotionMatchingController->Update(deltaTime, f);
 			mFinalPose = mMotionMatchingController->GetCurrentPose();

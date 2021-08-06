@@ -15,8 +15,10 @@ namespace inceptionengine
 	void MotionMatchingController::LoadMatchingDatabase(std::string const& filePath)
 	{
 		mMatchingDB = gResourceMgr.GetResource<MatchingDatabase>(filePath);
-		mAnimDB = gResourceMgr.GetResource<Animation>(mMatchingDB->animPaths[0]);
-
+		for (auto const& animPath : mMatchingDB->animPaths)
+		{
+			mAnimDB.push_back(gResourceMgr.GetResource<Animation>(animPath));
+		}
 
 		/*
 		auto anim = gResourceMgr.GetResource<Animation>(animFile);
@@ -66,20 +68,20 @@ namespace inceptionengine
 		else
 		{
 			mRunningTime += dt;
-			if (mRunningTime >= mAnimDB->GetDuration()) mRunningTime = 0.0f;
-			mCurrentPose = mAnimDB->Interpolate(mRunningTime);
-			mCurrentBoneVelocities = mAnimDB->mBoneGlobalTranslVelocities[static_cast<int>(mRunningTime * 30.0f)];
+			if (mRunningTime >= mAnimDB[mCurrentAnim]->GetDuration()) mRunningTime = 0.0f;
+			mCurrentPose = mAnimDB[mCurrentAnim]->Interpolate(mRunningTime);
+			mCurrentBoneVelocities = mAnimDB[mCurrentAnim]->mBoneGlobalTranslVelocities[static_cast<int>(mRunningTime * 30.0f)];
 		}
 	}
 
 	void MotionMatchingController::Update(float dt, MatchingFeature const& f)
 	{
-		int index = mMatchingDB->Query(f);
+		auto index = mMatchingDB->Query(f);
 
 		float const timePerFrame = (1.0f / 30.0f);
-		float indexTime = index * timePerFrame;
+		float indexTime = index.second * timePerFrame;
 
-		if (std::abs(mRunningTime - indexTime) <= 10.0f * timePerFrame) //check whether need transition
+		if (index.first == mCurrentAnim && std::abs(mRunningTime - indexTime) <= 10.0f * timePerFrame) //check whether need transition
 		{
 			//no need to insert transition, continue to play
 			Update(dt);
@@ -88,9 +90,14 @@ namespace inceptionengine
 		else
 		{
 			//insert a transition
-			mMotionBlender.StartBlending(mCurrentPose, mAnimDB->mBoneTransforms[index], 2.0f * timePerFrame, AnimBlendType::Inertialization);
+			mMotionBlender.StartBlending(mCurrentPose, mAnimDB[index.first]->mBoneTransforms[index.second], 2.0f * timePerFrame, AnimBlendType::Inertialization);
 			mRunningTime = indexTime;
 		}
+	}
+
+	std::vector<std::string> const& MotionMatchingController::GetFeatureBones() const
+	{
+		return mMatchingDB->featureBones;
 	}
 
 	MatchingFeature MotionMatchingController::GenerateFeatureTemp()

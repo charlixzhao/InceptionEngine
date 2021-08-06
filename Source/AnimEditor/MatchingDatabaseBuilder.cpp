@@ -55,66 +55,93 @@ namespace inceptionengine::animeditor
 		return globalFinalPose;
 	}
 
-	void MatchingDatabaseBuilder::ConstructFromAnim(std::string const& animFile, std::string const& dbSavePath)
+	void MatchingDatabaseBuilder::ConstructFromAnim(std::vector<std::string> const& animFiles,
+		std::string const& dbSavePath, std::vector<std::string> const& featureBones)
 	{
-		auto anim = Serializer::Deserailize<Animation>(PathHelper::GetAbsolutePath(animFile + ".ie_anim"));
-		anim->mSkeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(anim->mPathToSkeleton));
-		assert(anim != nullptr);
-
 		MatchingDatabase db;
-		db.animPaths.push_back(animFile + ".ie_anim");
 
-		int constexpr FacingAxis = 1;
-		std::vector<std::vector<Matrix4x4f>> globalTransforms;
-		globalTransforms.reserve(anim->mBoneTransforms.size());
-		for (auto const& frame : anim->mBoneTransforms)
+		db.animPaths.resize(animFiles.size());
+		db.features.resize(animFiles.size());
+		db.featureBones = featureBones;
+		for (int animIndex = 0; animIndex < animFiles.size(); animIndex++)
 		{
-			globalTransforms.push_back(GetBonesGlobalTransforms(frame, anim->mSkeleton));
+			printf("process anim %d\n", animIndex);
+			std::string const& animFile = animFiles[animIndex];
+			auto anim = Serializer::Deserailize<Animation>(PathHelper::GetAbsolutePath(animFile + ".ie_anim"));
+			anim->mSkeleton = Serializer::Deserailize<Skeleton>(PathHelper::GetAbsolutePath(anim->mPathToSkeleton));
+			assert(anim != nullptr);
+
+			db.animPaths[animIndex] = animFile + ".ie_anim";
+
+			int constexpr FacingAxis = 1;
+			std::vector<std::vector<Matrix4x4f>> globalTransforms;
+			globalTransforms.reserve(anim->mBoneTransforms.size());
+			for (auto const& frame : anim->mBoneTransforms)
+			{
+				globalTransforms.push_back(GetBonesGlobalTransforms(frame, anim->mSkeleton));
+			}
+
+			//extract features
+			for (int i = 0; i < anim->mBoneTransforms.size() - 10 * MatchingFeature::NPoints; i++)
+			{
+				MatchingFeature f{};
+
+				std::vector<Matrix4x4f> const& currentPose = globalTransforms[i];
+				Vec3f currentPosition = currentPose[0][3];
+
+				for (int nPoint = 1; nPoint <= MatchingFeature::NPoints; nPoint++)
+				{
+					std::vector<Matrix4x4f> const& nextN0Pose = globalTransforms[i + 10 * nPoint];
+					f.trajectory[nPoint - 1] = Vec3f(nextN0Pose[0][3]) - currentPosition;
+					f.facingDirection[nPoint - 1] = nextN0Pose[0][FacingAxis];
+				}
+
+				float constexpr timeInterval = 10.0f / 30.0f;
+				for (auto const& featureBone : db.featureBones)
+				{
+					f.featureBonePos.push_back(Vec3f(currentPose[anim->mSkeleton->GetBoneID(featureBone)][3]) - currentPosition);
+					f.featureBoneVels.push_back(anim->mBoneGlobalTranslVelocities[i][anim->mSkeleton->GetBoneID(featureBone)]);
+				}
+
+				db.features[animIndex].push_back(f);
+			}
+		}
+		
+
+		for (size_t point = 0; point < MatchingFeature::NPoints; point++)
+		{
+			std::vector<Vec3f> trajTemp;
+			std::vector<Vec3f> facingTemp;
+			for (auto const& anim : db.features)
+			{
+				for (auto const& f : anim)
+				{
+					trajTemp.push_back(f.trajectory[point]);
+					facingTemp.push_back(f.facingDirection[point]);
+				}
+			}
+			db.trajectorySD[point] = ElementSqrt(Variance(trajTemp));
+			db.facingDirectionSD[point] = ElementSqrt(Variance(facingTemp));
 		}
 
-		//extract features
-		for (int i = 0; i < anim->mBoneTransforms.size() - 30; i++)
+		for (int featureBone = 0; featureBone < featureBones.size(); featureBone++)
 		{
-			MatchingFeature f{};
-
-			std::vector<Matrix4x4f> const& currentPose = globalTransforms[i]; 
-			std::vector<Matrix4x4f> const& next10Pose = globalTransforms[i + 10];
-			std::vector<Matrix4x4f> const& next20Pose = globalTransforms[i + 20];
-			std::vector<Matrix4x4f> const& next30Pose = globalTransforms[i + 30];
-
-			Vec3f currentPosition = currentPose[0][3];
-			f.trajectory[0] = Vec3f(next10Pose[0][3]) - currentPosition;
-			f.trajectory[1] = Vec3f(next20Pose[0][3]) - currentPosition;
-			f.trajectory[2] = Vec3f(next30Pose[0][3]) - currentPosition;
-
-			f.facingDirection[0] = next10Pose[0][FacingAxis];
-			f.facingDirection[1] = next20Pose[0][FacingAxis];
-			f.facingDirection[2] = next30Pose[0][FacingAxis];
-
-			std::string leftFootName = "Model:LeftFoot";
-			std::string rightFootName = "Model:RightFoot";
-			std::string hipName = "Model:Hips";
-			float constexpr timeInterval = 10.0f / 30.0f;
-			f.leftFootPosition = Vec3f(currentPose[anim->mSkeleton->GetBoneID(leftFootName)][3]) - currentPosition;
-			f.rightFootPosition = Vec3f(currentPose[anim->mSkeleton->GetBoneID(rightFootName)][3]) - currentPosition;
-
-			/*NEED VEL: during compute in building matching db*/
-			f.hipVelocity = anim->mBoneGlobalTranslVelocities[i][anim->mSkeleton->GetBoneID(hipName)];
-			f.leftFootVelocity = anim->mBoneGlobalTranslVelocities[i][anim->mSkeleton->GetBoneID(leftFootName)];
-			f.rightFootVelocity = anim->mBoneGlobalTranslVelocities[i][anim->mSkeleton->GetBoneID(rightFootName)];
-
-			db.features.push_back(f);
+			std::vector<Vec3f> posTemp;
+			std::vector<Vec3f> velTemp;
+			for (auto const& anim : db.features)
+			{
+				for (auto const& f : anim)
+				{
+					posTemp.push_back(f.featureBonePos[featureBone]);
+					velTemp.push_back(f.featureBoneVels[featureBone]);
+				}
+			}
+			db.featureBonePosSDs.push_back(ElementSqrt(Variance(posTemp)));
+			db.featureBoneVelSDs.push_back(ElementSqrt(Variance(velTemp)));
 		}
 
-		//extract normalize statistics
-		STDDEV_N(trajectory, 0); STDDEV_N(trajectory, 1); STDDEV_N(trajectory, 2);
-		STDDEV_N(facingDirection, 0); STDDEV_N(facingDirection, 1); STDDEV_N(facingDirection, 2);
-		STDDEV(leftFootPosition);
-		STDDEV(rightFootPosition);
-		STDDEV(leftFootVelocity);
-		STDDEV(rightFootVelocity);
-		STDDEV(hipVelocity);
-
+		assert(db.featureBonePosSDs.size() == featureBones.size());
+		assert(db.featureBoneVelSDs.size() == featureBones.size());
 
 		Serializer::Serailize<MatchingDatabase>(db, PathHelper::GetAbsolutePath(dbSavePath));
 
