@@ -101,6 +101,11 @@ namespace inceptionengine
 		mAnimationController->SetMatchingDatabase(filePath);
 	}
 
+	void AnimationComponent::SetInputControl(Vec3f const& input)
+	{
+		mAnimationController->SetInputControl(input);
+	}
+
 	void AnimationComponent::SetAimIkChain(std::vector<std::string> const& chainBoneNames,
 										   std::vector<float> const& weights)
 	{

@@ -31,6 +31,11 @@ public:
 	{
 		BindKeyInputCallback(KeyInputTypes::Keyboard_2, std::bind(&HumanoidScript::OnKey_2, this, std::placeholders::_1));
 		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&HumanoidScript::OnMouse_Scroll, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_W, std::bind(&HumanoidScript::OnKey_W, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_A, std::bind(&HumanoidScript::OnKey_A, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_S, std::bind(&HumanoidScript::OnKey_S, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_D, std::bind(&HumanoidScript::OnKey_D, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_Space, std::bind(&HumanoidScript::OnKey_Space, this, std::placeholders::_1));
 	}
 
 
@@ -65,6 +70,44 @@ private:
 		else
 		{
 			GetEntity().GetComponent<CameraComponent>().MoveForward(-20.0f);
+		}
+	}
+
+	void OnKey_Space(bool press)
+	{
+		if (press)
+		{
+			GetEntity().GetComponent<AnimationComponent>().SetInputControl(Vec3f(0.0f, 0.0f, 0.0f));
+		}
+	}
+
+
+	void OnKey_W(bool press)
+	{
+		if (press)
+		{
+			GetEntity().GetComponent<AnimationComponent>().SetInputControl(Vec3f(0.0f, 0.0f, -1.0f));
+		}
+	}
+	void OnKey_A(bool press)
+	{
+		if (press)
+		{
+			GetEntity().GetComponent<AnimationComponent>().SetInputControl(Vec3f(-1.0f, 0.0f, 0.0f));
+		}
+	}
+	void OnKey_S(bool press)
+	{
+		if (press)
+		{
+			GetEntity().GetComponent<AnimationComponent>().SetInputControl(Vec3f(0.0f, 0.0f, 1.0f));
+		}
+	}
+	void OnKey_D(bool press)
+	{
+		if (press)
+		{
+			GetEntity().GetComponent<AnimationComponent>().SetInputControl(Vec3f(1.0f, 0.0f, 0.0f));
 		}
 	}
 

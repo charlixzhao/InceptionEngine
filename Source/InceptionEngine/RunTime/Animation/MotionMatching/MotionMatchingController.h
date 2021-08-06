@@ -29,7 +29,9 @@ namespace inceptionengine
 
 		std::vector<std::string> const& GetFeatureBones() const;
 		//not impl yet
-		MatchingFeature GenerateFeatureTemp();
+		MatchingFeature GenerateFeatureTemp(Vec3f const& currentFacing);
+
+		void SetInputControl(Vec3f const& input);
 
 	private:
 		std::shared_ptr<MatchingDatabase> mMatchingDB = nullptr;
@@ -40,6 +42,8 @@ namespace inceptionengine
 		float mRunningTime = 530.0f / 30.0f;
 		size_t mCurrentAnim = 0;
 		AnimBlender mMotionBlender;
+
+		Vec3f mInputControl = { 0.0f, 0.0f, 0.0f };
 
 	};
 }

@@ -14,6 +14,7 @@ namespace inceptionengine
 		std::vector<std::vector<MatchingFeature>> features;
 		std::array<Vec3f, MatchingFeature::NPoints> trajectorySD = {};
 		std::array<Vec3f, MatchingFeature::NPoints> facingDirectionSD = {};
+		Vec3f currentFacingSD = { NAN, NAN, NAN };
 		std::vector<Vec3f> featureBonePosSDs;
 		std::vector<Vec3f> featureBoneVelSDs;
 

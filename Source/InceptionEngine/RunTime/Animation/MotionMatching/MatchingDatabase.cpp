@@ -35,17 +35,19 @@ namespace inceptionengine
 	}
 
 
-
+	/*
 	float MatchingDatabase::FeatureDistance(MatchingFeature const& f1, MatchingFeature const& f2, int animIndex)
 	{
 		int boneNumber = featureBones.size();
 		float weight = static_cast<float>(boneNumber) / static_cast<float>(MatchingFeature::NPoints);
 		float sum = 0.0f;
 		
+		sum += Distance(f1.currentFacing / currentFacingSD, f2.currentFacing / currentFacingSD);
+
 		for (int i = 0; i < MatchingFeature::NPoints; i++)
 		{
-			sum += weight * Distance(f1.trajectory[i] / trajectorySD[i], f2.trajectory[i] / trajectorySD[i]);
-			sum += weight * Distance(f1.facingDirection[i] / facingDirectionSD[i], f2.facingDirection[i] / facingDirectionSD[i]);
+			sum += 3.0f * weight * Distance(f1.futureTrajectory[i] / trajectorySD[i], f2.futureTrajectory[i] / trajectorySD[i]);
+			sum += 3.0f * weight * Distance(f1.futureFacing[i] / facingDirectionSD[i], f2.futureFacing[i] / facingDirectionSD[i]);
 		}
 
 		for (int i = 0; i < featureBones.size(); i++)
@@ -60,6 +62,36 @@ namespace inceptionengine
 			sum += Distance(f1.featureBoneVels[i] / featureBoneVelSDs[i], 
 				f2.featureBoneVels[i] / featureBoneVelSDs[i]);
 		}
+		return sum;
+	}*/
+
+	float MatchingDatabase::FeatureDistance(MatchingFeature const& f1, MatchingFeature const& f2, int animIndex)
+	{
+		int boneNumber = featureBones.size();
+		float weight = static_cast<float>(boneNumber) / static_cast<float>(MatchingFeature::NPoints);
+		float sum = 0.0f;
+
+		if (RadsBetween(f1.currentFacing, f2.currentFacing) > (PI / 4.0f))
+		{
+			return std::numeric_limits<float>::max();
+		}
+
+		sum += static_cast<float>(MatchingFeature::NPoints) * RadsBetween(f1.currentFacing, f2.currentFacing);
+		
+		for (int i = 0; i < MatchingFeature::NPoints; i++)
+		{
+			sum += Distance(f1.futureTrajectory[i], f2.futureTrajectory[i]);
+			sum += 60.0f * RadsBetween(f1.futureFacing[i], f2.futureFacing[i]);
+		}
+
+		for (int i = 0; i < featureBones.size(); i++)
+		{
+			sum += Distance(f1.featureBonePos[i], f2.featureBonePos[i]) / 5.0f;
+			sum += Distance(f1.featureBoneVels[i], f2.featureBoneVels[i]) / 5.0f;
+		}
+
+		MatchingFeature& tt = features[0][802];
+
 		return sum;
 	}
 

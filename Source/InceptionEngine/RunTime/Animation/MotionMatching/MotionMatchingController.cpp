@@ -81,7 +81,7 @@ namespace inceptionengine
 		float const timePerFrame = (1.0f / 30.0f);
 		float indexTime = index.second * timePerFrame;
 
-		if (index.first == mCurrentAnim && std::abs(mRunningTime - indexTime) <= 10.0f * timePerFrame) //check whether need transition
+		if (index.first == mCurrentAnim && std::abs(static_cast<int>(mRunningTime * 30.0f) - index.second) <= 3) //check whether need transition
 		{
 			//no need to insert transition, continue to play
 			Update(dt);
@@ -90,8 +90,9 @@ namespace inceptionengine
 		else
 		{
 			//insert a transition
-			mMotionBlender.StartBlending(mCurrentPose, mAnimDB[index.first]->mBoneTransforms[index.second], 2.0f * timePerFrame, AnimBlendType::Inertialization);
+			mMotionBlender.StartBlending(mCurrentPose, mAnimDB[index.first]->mBoneTransforms[index.second], 4.0f * timePerFrame, AnimBlendType::Inertialization);
 			mRunningTime = indexTime;
+			mCurrentAnim = index.first;
 		}
 	}
 
@@ -100,25 +101,41 @@ namespace inceptionengine
 		return mMatchingDB->featureBones;
 	}
 
-	MatchingFeature MotionMatchingController::GenerateFeatureTemp()
+	/*
+	x = v[0] * np.cos(theta) - v[1] * np.sin(theta)
+		y = v[0] * np.sin(theta) + v[1] * np.cos(theta*/
+
+	MatchingFeature MotionMatchingController::GenerateFeatureTemp(Vec3f const& currentFacing)
 	{
 		MatchingFeature f;
-		f.trajectory[0] = { 0.0f, 0.0f, 40.0f };
-		f.trajectory[1] = { 0.0f, 0.0f, 80.0f };
-		f.trajectory[2] = { 0.0f, 0.0f, 120.0f };
-		f.facingDirection[0] = { 0.0f,1.0f,0.0f };
-		f.facingDirection[1] = { 0.0f,1.0f,0.0f };
-		f.facingDirection[2] = { 0.0f,1.0f,0.0f };
+		float rads = 0.0f;
+		if (VecLength(mInputControl) != 0.0f)
+		{
+			rads = RadsBetween(currentFacing, mInputControl);
+			rads *= -Sign(CrossProduct(currentFacing, mInputControl)[1]);
+		}
+		for (int i = 1; i <= MatchingFeature::NPoints; i++)
+		{
+			float theta = static_cast<float>(i) * rads / static_cast<float>(MatchingFeature::NPoints);
+			float x = currentFacing[0] * std::cos(theta) - currentFacing[2] * std::sin(theta);
+			float z = currentFacing[0] * std::sin(theta) + currentFacing[2] * std::cos(theta);
+			f.futureFacing[i - 1] = { x, 0.0f, z };
+		}
 
-		//f.leftFootPosition;
-		//f.rightFootPosition;
-
-		//f.hipVelocity;
-		//f.leftFootVelocity;
-		//f.rightFootVelocity;
+		float speed = 30.0f;
+		
+		f.futureTrajectory[0] = f.futureFacing[0] * speed * DotProduct(f.futureFacing[0], mInputControl);
+		for (int i = 1; i < MatchingFeature::NPoints; i++)
+		{
+			f.futureTrajectory[i] = f.futureTrajectory[i - 1] + f.futureFacing[i] * speed * DotProduct(f.futureFacing[i], mInputControl);
+		}
 
 		return f;
 
+	}
+	void MotionMatchingController::SetInputControl(Vec3f const& input)
+	{
+		mInputControl = input;
 	}
 }
 

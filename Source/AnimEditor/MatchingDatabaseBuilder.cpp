@@ -88,12 +88,12 @@ namespace inceptionengine::animeditor
 
 				std::vector<Matrix4x4f> const& currentPose = globalTransforms[i];
 				Vec3f currentPosition = currentPose[0][3];
-
+				f.currentFacing = currentPose[0][FacingAxis];
 				for (int nPoint = 1; nPoint <= MatchingFeature::NPoints; nPoint++)
 				{
 					std::vector<Matrix4x4f> const& nextN0Pose = globalTransforms[i + 10 * nPoint];
-					f.trajectory[nPoint - 1] = Vec3f(nextN0Pose[0][3]) - currentPosition;
-					f.facingDirection[nPoint - 1] = nextN0Pose[0][FacingAxis];
+					f.futureTrajectory[nPoint - 1] = Vec3f(nextN0Pose[0][3]) - currentPosition;
+					f.futureFacing[nPoint - 1] = nextN0Pose[0][FacingAxis];
 				}
 
 				float constexpr timeInterval = 10.0f / 30.0f;
@@ -116,8 +116,8 @@ namespace inceptionengine::animeditor
 			{
 				for (auto const& f : anim)
 				{
-					trajTemp.push_back(f.trajectory[point]);
-					facingTemp.push_back(f.facingDirection[point]);
+					trajTemp.push_back(f.futureTrajectory[point]);
+					facingTemp.push_back(f.futureFacing[point]);
 				}
 			}
 			db.trajectorySD[point] = ElementSqrt(Variance(trajTemp));
@@ -139,6 +139,16 @@ namespace inceptionengine::animeditor
 			db.featureBonePosSDs.push_back(ElementSqrt(Variance(posTemp)));
 			db.featureBoneVelSDs.push_back(ElementSqrt(Variance(velTemp)));
 		}
+
+		std::vector<Vec3f> facingTemp;
+		for (auto const& anim : db.features)
+		{
+			for (auto const& f : anim)
+			{
+				facingTemp.push_back(f.currentFacing);
+			}
+		}
+		db.currentFacingSD = ElementSqrt(Variance(facingTemp));
 
 		assert(db.featureBonePosSDs.size() == featureBones.size());
 		assert(db.featureBoneVelSDs.size() == featureBones.size());

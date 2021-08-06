@@ -86,6 +86,8 @@ namespace inceptionengine
 
 		void SetMatchingDatabase(std::string const& filePath);
 
+		void SetInputControl(Vec3f const& input);
+
 	private:
 		friend class IkController;
 
@@ -123,7 +125,7 @@ namespace inceptionengine
 	private:
 		std::unique_ptr<MotionMatchingController> mMotionMatchingController = nullptr;
 		float mFeatureQueryTimer = 0.0f;
-		float const mFeatureQueryInterval = 1.0f / 3.0f;
+		float const mFeatureQueryInterval = 4.0f / 30.0f;
 
 	};
 }

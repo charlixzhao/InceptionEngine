@@ -28,16 +28,26 @@ int main()
 	builder.ConstructFromAnim(animPath, dir + "/" + dbName + ".ie_mmdb");
 	std::cout << "Constrution finished\n";*/
 
-	std::vector<std::string> animFiles = { PathHelper::GetAbsolutePath("StandAloneResource/humanoid/walk1") };
+	std::vector<std::string> animFiles = 
+	{ 
+		PathHelper::GetAbsolutePath("StandAloneResource/humanoid/walk1"),
+		PathHelper::GetAbsolutePath("StandAloneResource/humanoid/walk2"),
+		PathHelper::GetAbsolutePath("StandAloneResource/humanoid/walk3"),
+		PathHelper::GetAbsolutePath("StandAloneResource/humanoid/walk4")
+	};
 	std::string saveFile = PathHelper::GetAbsolutePath("StandAloneResource/humanoid/walk.ie_mmdb");
+	
 	/*
 	std::vector<std::string> featureBones =
 	{
 		"Model:LeftFoot",
 		"Model:RightFoot",
+		"Model:RightHand",
+		"Model:LeftHand",
 		"Model:Hips"
 	};*/
 
+	
 	/*
 	std::vector<std::string> featureBones =
 	{
@@ -67,6 +77,7 @@ int main()
 "Model:LeftHand"
 	};*/
 
+	/*
 	std::vector<std::string> featureBones =
 	{
 "Model:Hips",
@@ -77,7 +88,32 @@ int main()
 "Model:LeftLeg",
 "Model:RightFoot",
 "Model:LeftFoot"
-	}; 
+	}; */
+
+	
+	std::vector<std::string> featureBones =
+	{
+"Model:Hips",
+"Model:Spine",
+"Model:RightUpLeg",
+"Model:LeftUpLeg",
+"Model:Spine1",
+"Model:RightLeg",
+"Model:LeftLeg",
+"Model:Spine2",
+"Model:RightFoot",
+"Model:LeftFoot",
+"Model:Neck",
+"Model:RightShoulder",
+"Model:LeftShoulder",
+"Model:Head",
+"Model:RightArm",
+"Model:LeftArm",
+"Model:RightForeArm",
+"Model:LeftForeArm",
+"Model:RightHand",
+"Model:LeftHand"
+	};
 
 
 

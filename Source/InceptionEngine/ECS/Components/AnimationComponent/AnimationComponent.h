@@ -94,6 +94,7 @@ namespace inceptionengine
 		* Motion Matching API
 		*/
 		void SetMatchingDatabase(std::string const& filePath);
+		void SetInputControl(Vec3f const& input);
 
 	private:
 		friend class AnimationSystem;
