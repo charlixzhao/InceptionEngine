@@ -20,6 +20,7 @@ namespace inceptionengine
 			archive(trajectory, facingDirection, leftFootPosition,
 				rightFootPosition, leftFootVelocity, rightFootVelocity, hipVelocity);
 		}
+
 	};
 }
 

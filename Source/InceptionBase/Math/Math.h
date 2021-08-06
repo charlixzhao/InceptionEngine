@@ -131,6 +131,7 @@ namespace inceptionengine
 
 	inline Vec3f RotationAxis(Quaternion4f const& quat)
 	{
+		//auto a = glm::axis(quat);
 		if (glm::l2Norm(Vec3f(quat.x, quat.y, quat.z)) <= 0.000001f)
 			return { 1.0f, 0.0f, 0.0f };
 		return NormalizeVec(Vec3f(quat.x, quat.y, quat.z));
@@ -138,6 +139,7 @@ namespace inceptionengine
 
 	inline float RotationAngle(Quaternion4f const& quat)
 	{
+		//glm::angle(quat);
 		float w = quat.w;
 		if (std::abs(w - 1.0f) <= 0.00001f) w = 1.0f;
 		float rads = 2 * std::acosf(w);
@@ -148,6 +150,13 @@ namespace inceptionengine
 	inline Quaternion4f RotToQuat(Matrix4x4f const& mat)
 	{
 		return glm::quat_cast(mat);
+	}
+
+	inline Quaternion4f QuatFromAxisAngle(Vec3f const& axis, float angle)
+	{
+		if (angle == 0.0f)
+			return glm::angleAxis(0.0f, Vec3f(0.0f,0.0f,1.0f));
+		return glm::angleAxis(angle, axis);
 	}
 
 	inline void NormalizeRotation(float& rads, Vec3f& axis)
@@ -386,5 +395,33 @@ namespace inceptionengine
 	inline Quaternion4f QuatDiff(Quaternion4f const& prev, Quaternion4f const& next)
 	{
 		return next * glm::inverse(prev);
+	}
+
+	//project a onto b
+	inline Vec3f Project(Vec3f const& a, Vec3f const& b)
+	{
+		return (DotProduct(a, b) / DotProduct(b, b)) * b;
+	}
+
+	inline Quaternion4f ExtractRotation(Matrix4x4f const& transform)
+	{
+		Vec4f translation;
+		Quaternion4f rotation;
+		Vec4f scale;
+		Decompose(transform, translation, rotation, scale);
+		return rotation;
+	}
+
+	inline Vec4f ExtractScale(Matrix4x4f const& transform)
+	{
+		float scaleX = VecLength(transform[0]);
+		float scaleY = VecLength(transform[1]);
+		float scaleZ = VecLength(transform[2]);
+		return { scaleX, scaleY, scaleZ, 0.0f };
+	}
+
+	inline Vec4f AppendZero(Vec3f const& v)
+	{
+		return { v.x, v.y, v.z, 0.0f };
 	}
 }

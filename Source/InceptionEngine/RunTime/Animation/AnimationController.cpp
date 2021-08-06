@@ -41,12 +41,12 @@ namespace inceptionengine
 		//float speed = 1.0f;
 		//float time = 1.0f / 30.0f;
 		MatchingFeature f;
-		f.trajectory[0] = { 0.0f, 0.0f, 40.0f };
-		f.trajectory[1] = { 0.0f, 0.0f, 80.0f };
-		f.trajectory[2] = { 0.0f, 0.0f, 120.0f };
-		f.facingDirection[0] = { 0.0f,0.0f,1.0f };
-		f.facingDirection[1] = { 0.0f,0.0f,1.0f };
-		f.facingDirection[2] = { 0.0f,0.0f,1.0f };
+		f.trajectory[0] = { -40.0f, 0.0f, 0.0f };
+		f.trajectory[1] = { -80.0f, 0.0f, 0.0f };
+		f.trajectory[2] = { -120.0f, 0.0f, 0.0f };
+		f.facingDirection[0] = { -1.0f,0.0f,0.0f };
+		f.facingDirection[1] = { -1.0f,0.0f,0.0f };
+		f.facingDirection[2] = { -1.0f,0.0f,0.0f };
 
 		
 		

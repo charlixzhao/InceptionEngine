@@ -88,7 +88,7 @@ namespace inceptionengine
 		else
 		{
 			//insert a transition
-			mMotionBlender.StartBlending(mCurrentPose, mAnimDB->mBoneTransforms[index], 3.0f * timePerFrame);
+			mMotionBlender.StartBlending(mCurrentPose, mAnimDB->mBoneTransforms[index], 2.0f * timePerFrame, AnimBlendType::Inertialization);
 			mRunningTime = indexTime;
 		}
 	}
@@ -99,9 +99,9 @@ namespace inceptionengine
 		f.trajectory[0] = { 0.0f, 0.0f, 40.0f };
 		f.trajectory[1] = { 0.0f, 0.0f, 80.0f };
 		f.trajectory[2] = { 0.0f, 0.0f, 120.0f };
-		f.facingDirection[0] = { 0.0f,0.0f,1.0f };
-		f.facingDirection[1] = { 0.0f,0.0f,1.0f };
-		f.facingDirection[2] = { 0.0f,0.0f,1.0f };
+		f.facingDirection[0] = { 0.0f,1.0f,0.0f };
+		f.facingDirection[1] = { 0.0f,1.0f,0.0f };
+		f.facingDirection[2] = { 0.0f,1.0f,0.0f };
 
 		//f.leftFootPosition;
 		//f.rightFootPosition;
