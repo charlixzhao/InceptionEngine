@@ -3,6 +3,7 @@ Experimental features of motion matching is added to the develop/motion_matching
 The motion matching functionality includes 
 + animation preprocessor that extracts and serializes feature vectors from animation frames 
 + an motion matching controller running matching algroithm at runtime and computing model's pose
+Swich to develop/motion_matching branch to try it out. 
 
 # InceptionEngine
 
