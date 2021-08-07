@@ -31,6 +31,11 @@ namespace inceptionengine
 		for (auto& component : view)
 		{
 			component.mAnimationController->Update(deltaTime);
+			if (component.mRootMotion)
+			{
+				Vec3f v = ProjectToXZ(component.mAnimationController->GetFinalPose().boneGlobalTranslVelocities[0]);
+				mComponentsPool.get().GetComponentPool<RigidbodyComponent>()->GetComponent(component.mEntityID).SetVelocity(v);	 
+			}
 		}
 	}
 

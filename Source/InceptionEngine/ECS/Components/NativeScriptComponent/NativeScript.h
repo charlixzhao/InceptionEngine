@@ -70,6 +70,8 @@ namespace inceptionengine
 
 		virtual void OnMouseDeltaPos(MouseDeltaPos mouseDeltaPos) { ; }
 
+		virtual void OnJoystickInput(JoyStick joystickInput) { ; }
+
 		std::unique_ptr<KeyInputCallbackRegistry> mKeyInputCallbackRegistry;
 
 		EntityID mEntityID;

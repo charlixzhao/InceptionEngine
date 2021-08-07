@@ -52,6 +52,17 @@ private:
 
 	}
 
+	virtual void OnJoystickInput(JoyStick joystickInput) override
+	{
+		Vec3f direction = { joystickInput.horizontal, 0.0f, joystickInput.vertical };
+		if (VecLength(direction) >= 0.01f)
+		{
+			direction = NormalizeVec(direction);
+			GetEntity().GetComponent<AnimationComponent>().SetInputControl(direction);
+		}
+		
+	}
+
 	void OnKey_2(bool press)
 	{
 		if (press)
@@ -184,6 +195,7 @@ int main()
 	world->GetEntity(humanoidID).AddComponent<NativeScriptComponent>().SetScript<HumanoidScript>();
 	world->GetEntity(humanoidID).AddComponent<AnimationComponent>().SetAnimStateMachine<HumanoidASM>();
 	world->GetEntity(humanoidID).GetComponent<AnimationComponent>().SetMatchingDatabase("StandAloneResource/humanoid/walk.ie_mmdb");
+	world->GetEntity(humanoidID).GetComponent<AnimationComponent>().SetRootMotion(true);
 
 	Entity const& plane = world->CreateEntity();
 	plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f);

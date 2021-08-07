@@ -14,7 +14,7 @@ namespace inceptionengine
 
 		void Start();
 
-		void Update(std::queue<KeyInput> keyInputs, MouseDeltaPos mouseDeltaPos, float dt);
+		void Update(std::queue<KeyInput> keyInputs, MouseDeltaPos mouseDeltaPos, JoyStick joystickInput, float dt);
 
 		void End();
 

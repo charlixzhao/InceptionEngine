@@ -44,7 +44,11 @@ namespace inceptionengine
 		if (mStopAnim) return true;
 
 #if USE_MOTIONMATCHING
-		mFeatureQueryTimer += deltaTime;
+		if (! mMotionMatchingController->IsBlending())
+		{
+			mFeatureQueryTimer += deltaTime;
+		}
+
 		if (mFeatureQueryTimer >= mFeatureQueryInterval)
 		{
 			int constexpr FacingAxis = 1;

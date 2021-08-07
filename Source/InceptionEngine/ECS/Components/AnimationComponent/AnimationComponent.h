@@ -30,6 +30,8 @@ namespace inceptionengine
 
 		void StopAnimation();
 
+		void SetRootMotion(bool b);
+
 		/*
 		ASM API
 		*/
@@ -104,6 +106,7 @@ namespace inceptionengine
 		std::unique_ptr<AnimationController> mAnimationController = nullptr;
 		EntityID mEntityID = InvalidEntityID;
 		std::reference_wrapper<World> mWorld;
+		bool mRootMotion = false;
 
 	};
 }

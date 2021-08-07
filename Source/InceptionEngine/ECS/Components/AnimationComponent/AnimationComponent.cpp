@@ -73,6 +73,11 @@ namespace inceptionengine
 												   duration);
 	}
 
+	void AnimationComponent::SetRootMotion(bool b)
+	{
+		mRootMotion = b;
+	}
+
 
 
 	float AnimationComponent::GetCurrentEventAnimRatio() const

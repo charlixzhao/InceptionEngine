@@ -15,41 +15,11 @@ namespace inceptionengine
 	void MotionMatchingController::LoadMatchingDatabase(std::string const& filePath)
 	{
 		mMatchingDB = gResourceMgr.GetResource<MatchingDatabase>(filePath);
+
 		for (auto const& animPath : mMatchingDB->animPaths)
 		{
 			mAnimDB.push_back(gResourceMgr.GetResource<Animation>(animPath));
 		}
-
-		/*
-		auto anim = gResourceMgr.GetResource<Animation>(animFile);
-		mAnimDB = anim;
-		std::cout << "0 frame hip transformation:\n";
-		auto mat = anim->mBoneTransforms[137][0];
-		for (int i = 0; i < 4; i++)
-		{
-			for (int j = 0; j < 4; j++)
-			{
-				std::cout << mat[j][i] << " ";
-			}
-			std::cout << std::endl;
-		}
-
-
-
-		mMatchingDB = std::make_shared<MatchingDatabase>(MatchingDatabase::ConstructFromAnim(*anim));
-
-
-		int frame = 530;
-		std::cout << frame << " frame trajory\n";
-		std::cout << VecToString(mMatchingDB->features[frame - 10].trajectory[0]) << std::endl;
-		std::cout << VecToString(mMatchingDB->features[frame - 10].trajectory[1]) << std::endl;
-		std::cout << VecToString(mMatchingDB->features[frame - 10].trajectory[2]) << std::endl;
-
-		std::cout << frame << " frame fracing\n";
-		std::cout << VecToString(mMatchingDB->features[frame - 10].facingDirection[0]) << std::endl;
-		std::cout << VecToString(mMatchingDB->features[frame - 10].facingDirection[1]) << std::endl;
-		std::cout << VecToString(mMatchingDB->features[frame - 10].facingDirection[2]) << std::endl;*/
-
 
 	}
 
@@ -74,6 +44,7 @@ namespace inceptionengine
 		}
 	}
 
+	
 	void MotionMatchingController::Update(float dt, MatchingFeature const& f)
 	{
 		auto index = mMatchingDB->Query(f);
@@ -81,7 +52,7 @@ namespace inceptionengine
 		float const timePerFrame = (1.0f / 30.0f);
 		float indexTime = index.second * timePerFrame;
 
-		if (index.first == mCurrentAnim && std::abs(static_cast<int>(mRunningTime * 30.0f) - index.second) <= 3) //check whether need transition
+		if (index.first == mCurrentAnim && std::abs(static_cast<int>(mRunningTime * 30.0f) - index.second) <= 10) //check whether need transition
 		{
 			//no need to insert transition, continue to play
 			Update(dt);
@@ -90,7 +61,24 @@ namespace inceptionengine
 		else
 		{
 			//insert a transition
-			mMotionBlender.StartBlending(mCurrentPose, mAnimDB[index.first]->mBoneTransforms[index.second], 4.0f * timePerFrame, AnimBlendType::Inertialization);
+			mMotionBlender.StartBlending(mCurrentPose, mAnimDB[index.first]->mBoneTransforms[index.second], 
+				5.0f * timePerFrame, AnimBlendType::Linear, []() {}, mAnimDB[0]->mSkeleton);
+
+			/*
+			AnimPose fromPose(mAnimDB[0]->mBoneTransforms[10]);
+			AnimPose toPose(mAnimDB[0]->mBoneTransforms[11]);
+			auto fromGlobal = Animation::GetBonesGlobalTransforms(fromPose.boneLclTransforms, mAnimDB[0]->mSkeleton);
+			auto toGlobal = Animation::GetBonesGlobalTransforms(toPose.boneLclTransforms, mAnimDB[0]->mSkeleton);
+			float h = 1.0f / 30.0f;
+			for (int i = 0; i < fromPose.Size(); i++)
+			{
+				fromPose.boneGlobalTranslVelocities.push_back((toGlobal[i][3] - fromGlobal[i][3]) / h);
+			}
+
+			mMotionBlender.StartBlending(fromPose, toPose,
+				5.0f * timePerFrame, AnimBlendType::Linear, []() {}, mAnimDB[0]->mSkeleton);*/
+
+
 			mRunningTime = indexTime;
 			mCurrentAnim = index.first;
 		}
@@ -122,12 +110,12 @@ namespace inceptionengine
 			f.futureFacing[i - 1] = { x, 0.0f, z };
 		}
 
-		float speed = 30.0f;
+		float constexpr speed = 80.0f;
 		
-		f.futureTrajectory[0] = f.futureFacing[0] * speed * DotProduct(f.futureFacing[0], mInputControl);
+		f.futureTrajectory[0] = f.futureFacing[0] * speed * (DotProduct(f.futureFacing[0], mInputControl));
 		for (int i = 1; i < MatchingFeature::NPoints; i++)
 		{
-			f.futureTrajectory[i] = f.futureTrajectory[i - 1] + f.futureFacing[i] * speed * DotProduct(f.futureFacing[i], mInputControl);
+			f.futureTrajectory[i] = f.futureTrajectory[i - 1] + f.futureFacing[i] * speed * (DotProduct(f.futureFacing[i], mInputControl));
 		}
 
 		return f;

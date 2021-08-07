@@ -1,17 +1,54 @@
 #include "IE_PCH.h"
 #include "AnimBlender.h"
+#include "Animation.h"
 
 namespace inceptionengine
 {
+	
+
+	float ComputeBlendingDuretion(AnimPose const& fromPose,
+		AnimPose const& toPose, float duration, std::shared_ptr<Skeleton> skeleton)
+	{
+		auto globalFromPose = Animation::GetBonesGlobalTransforms(fromPose.boneLclTransforms, skeleton);
+		auto globalToPose = Animation::GetBonesGlobalTransforms(toPose.boneLclTransforms, skeleton);
+
+		std::vector<float> total;
+		for (int i = 0; i < fromPose.Size(); i++)
+		{
+			Vec3f fromPos = Vec3f(globalFromPose[i][3])- ProjectToXZ(Vec3f(globalFromPose[0][3]));
+			Vec3f toPos = Vec3f(globalToPose[i][3])- ProjectToXZ( Vec3f(globalToPose[0][3]));
+
+			Vec3f diff = toPos - fromPos;
+			if (VecLength(diff) <= 0.00001f)
+			{
+				total.push_back(0.0f);
+				continue;
+			}
+
+
+			Vec3f vel = fromPose.boneGlobalTranslVelocities[i];
+			//vel = Project(vel, diff);
+			float t = VecLength(diff) / VecLength(vel);
+			total.push_back(std::min(t, duration));
+		}
+		float result = std::accumulate(total.begin(), total.end(), 0.0f) / static_cast<float>(total.size());
+
+		return result;
+	}
+
 	void AnimBlender::StartBlending(AnimPose const& fromPose,
 		AnimPose const& toPose,
 		float blendingDuration,
 		AnimBlendType blendingType,
-		std::function<void()> blendFinishCallback)
+		std::function<void()> blendFinishCallback,
+		std::shared_ptr<Skeleton> skeleton)
 	{
 		mBlendFromPose = fromPose;
 		mBlendToPose = toPose;
 		mBlendingDuration = blendingDuration;
+		if(skeleton != nullptr)
+			mBlendingDuration = ComputeBlendingDuretion(fromPose, toPose, blendingDuration, skeleton);
+		printf("required is %f, compute is %f\n", blendingDuration, mBlendingDuration);
 		mBlendingType = blendingType;
 		mCurrentBlendingTime = 0.0f;
 		mBlendFinishCallback = blendFinishCallback;

@@ -23,6 +23,8 @@ namespace inceptionengine
 
 		MouseDeltaPos mouseDeltaPos;
 
+		JoyStick joystickInput;
+
 		void Clear() 
 		{ 
 			std::queue<KeyInput> empty;

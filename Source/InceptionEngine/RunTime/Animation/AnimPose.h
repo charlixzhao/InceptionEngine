@@ -21,6 +21,7 @@ namespace inceptionengine
 		std::vector<Vec3f> boneGlobalTranslVelocities;
 		std::vector<Vec3f> boneLclAngularVelocities;
 		std::vector<Vec3f> boneGlobalAngularVelocties;
+		Vec3f rootMotion = { 0.0f, 0.0f, 0.0f };
 	};
 
 }

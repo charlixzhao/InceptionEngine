@@ -180,7 +180,7 @@ namespace inceptionengine
 
     void World::WorldImpl::Simulate(float deltaTime, PeripheralInput keyInputs)
     {
-        mNativeScriptSystem.Update(keyInputs.keyInputs, keyInputs.mouseDeltaPos, deltaTime);
+        mNativeScriptSystem.Update(keyInputs.keyInputs, keyInputs.mouseDeltaPos, keyInputs.joystickInput, deltaTime);
 
         mCameraSystem.Update(deltaTime);
 

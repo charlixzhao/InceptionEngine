@@ -70,6 +70,13 @@ namespace inceptionengine
 		glfwPollEvents();
 		glfwGetCursorPos(mWindow, &mMousePos.curXPos, &mMousePos.curYPos);
 		mPeripheralInput.mouseDeltaPos = mMousePos.GetDeltaPos();
+		int count;
+		float const* axes = glfwGetJoystickAxes(0, &count);
+		if (axes != NULL)
+		{
+			mPeripheralInput.joystickInput.horizontal = axes[0];
+			mPeripheralInput.joystickInput.vertical = axes[1];
+		}
 		mMousePos.SyncPosition();
 	}
 

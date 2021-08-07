@@ -3,6 +3,8 @@
 
 namespace inceptionengine
 {
+	struct Skeleton;
+
 	enum class AnimBlendType
 	{
 		Linear, 
@@ -11,6 +13,7 @@ namespace inceptionengine
 		Inertialization
 	};
 
+
 	class AnimBlender
 	{
 	public:
@@ -18,7 +21,8 @@ namespace inceptionengine
 			AnimPose const& toPose,
 			float blendingDuration,
 			AnimBlendType blendingType = AnimBlendType::Linear,
-			std::function<void()> blendFinishCallback = []() {});
+			std::function<void()> blendFinishCallback = []() {},
+			std::shared_ptr<Skeleton> skeleton = nullptr);
 
 		std::optional<AnimPose> Blend(float dt, bool indicateStop = true);
 

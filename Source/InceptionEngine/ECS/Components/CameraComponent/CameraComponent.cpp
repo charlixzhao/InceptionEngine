@@ -114,7 +114,7 @@ namespace inceptionengine
 		currentForward += amount * GetLootAtDirection();
 
 		if (VecLength(currentPostion - mLookAtPoint) <= 80.0f ||
-			VecLength(currentPostion - mLookAtPoint) >= 400.0f)
+			VecLength(currentPostion - mLookAtPoint) >= 500.0f)
 		{
 			return;
 		}

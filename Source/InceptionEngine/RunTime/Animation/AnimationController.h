@@ -121,11 +121,10 @@ namespace inceptionengine
 		//second one is uesed to blend to normal pose (ASM or EventAnim) when aim ik is inactivated
 		std::pair<AnimBlender, AnimBlender> mAimIkBlender;
 
-
 	private:
 		std::unique_ptr<MotionMatchingController> mMotionMatchingController = nullptr;
 		float mFeatureQueryTimer = 0.0f;
-		float const mFeatureQueryInterval = 4.0f / 30.0f;
+		float const mFeatureQueryInterval = 5.0f/30.0f;
 
 	};
 }

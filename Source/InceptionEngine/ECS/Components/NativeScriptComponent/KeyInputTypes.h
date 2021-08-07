@@ -11,6 +11,12 @@ namespace inceptionengine
 		float deltaYPos = 0.0f;
 	};
 
+	struct JoyStick
+	{
+		float horizontal = 0.0f;
+		float vertical = 0.0f;
+	};
+
 	enum class KeyInputTypes
 	{
 		None,

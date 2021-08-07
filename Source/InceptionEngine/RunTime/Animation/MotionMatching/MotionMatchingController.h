@@ -33,6 +33,8 @@ namespace inceptionengine
 
 		void SetInputControl(Vec3f const& input);
 
+		bool IsBlending() const { return mMotionBlender.IsBlending(); }
+
 	private:
 		std::shared_ptr<MatchingDatabase> mMatchingDB = nullptr;
 		std::vector<std::shared_ptr<Animation>> mAnimDB;

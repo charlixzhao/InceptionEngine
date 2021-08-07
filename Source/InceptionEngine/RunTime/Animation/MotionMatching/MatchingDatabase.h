@@ -19,12 +19,12 @@ namespace inceptionengine
 		std::vector<Vec3f> featureBoneVelSDs;
 
 	public:
-		std::pair<int, int> Query(MatchingFeature const& f1);
-		float FeatureDistance(MatchingFeature const& f1, MatchingFeature const& f2, int animIndex);
+		std::pair<int, int> Query(MatchingFeature const& f1) const;
+		float FeatureDistance(MatchingFeature const& f1, MatchingFeature const& f2, int animIndex) const;
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(animPaths, featureBones, features, trajectorySD, facingDirectionSD, featureBonePosSDs, featureBoneVelSDs);
+			archive(animPaths, featureBones, features, trajectorySD, facingDirectionSD, currentFacingSD, featureBonePosSDs, featureBoneVelSDs);
 		}
 	};
 }

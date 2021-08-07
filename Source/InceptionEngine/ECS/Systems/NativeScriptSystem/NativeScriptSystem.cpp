@@ -26,7 +26,7 @@ namespace inceptionengine
 		}
 	}
 
-	void NativeScriptSystem::Update(std::queue<KeyInput> keyInputs, MouseDeltaPos mouseDeltaPos, float dt)
+	void NativeScriptSystem::Update(std::queue<KeyInput> keyInputs, MouseDeltaPos mouseDeltaPos, JoyStick joystickInput, float dt)
 	{
 		ComponentPool<NativeScriptComponent>* pool = mComponentsPool.get().GetComponentPool<NativeScriptComponent>();
 
@@ -36,6 +36,7 @@ namespace inceptionengine
 		{
 			component.mScript->OnTick(dt);
 			component.mScript->OnMouseDeltaPos(mouseDeltaPos);
+			component.mScript->OnJoystickInput(joystickInput);
 		}
 
 		while (!keyInputs.empty())
