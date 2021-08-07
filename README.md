@@ -1,3 +1,9 @@
+#### Update: 8/6/2021
+Experimental features of motion matching is added to the develop/motion_matching branch.
+The motion matching functionality includes 
++ animation preprocessor that extracts and serializes feature vectors from animation frames 
++ an motion matching controller running matching algroithm at runtime and computing model's pose
+
 # InceptionEngine
 
 This project is a independently developed game engine dedicated to character animation. It implements a simple vulkan renderer and explore more on
