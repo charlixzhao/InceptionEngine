@@ -3,11 +3,89 @@
 #include "RunTime/Animation/Animation.h"
 #include "RunTime/SkeletalMesh/Skeleton.h"
 
+#include "Timer.hpp"
+
+#define MULTI_THREAD 1
+
 namespace inceptionengine
 {
+
 	std::pair<int, int> MatchingDatabase::Query(MatchingFeature const& f1) const
 	{
 
+#if MULTI_THREAD
+		//auto nThread = std::thread::hardware_concurrency();
+		////test
+		/*
+		Timer testThread;
+		testThread.Reset();
+		std::vector<std::thread> testThreads;
+		testThreads.reserve(4);
+		for (int i = 0; i < 4; i++)
+		{
+			testThreads.emplace_back([]() {; });
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			testThreads[i].join();
+		}
+		auto testThreadTime = testThread.Count<Timer::Nanosecond>();
+		std::cout << "test Time is " << testThreadTime << std::endl;
+		*/
+		//// 
+
+		Timer timer;
+		timer.Reset();
+		//auto nThreads = std::thread::hardware_concurrency();
+		auto nThreads = 2;
+		int const nAnim = animPaths.size();
+		int const workload = nAnim / nThreads + (nAnim % nThreads != 0);
+		std::vector<std::thread> threads;
+		threads.reserve(nThreads);
+		std::vector<float> minCosts;
+		std::vector<int> argmins;
+		minCosts.resize(nAnim);
+		argmins.resize(nAnim);
+
+		for (int threadIdx = 0; threadIdx < nThreads; threadIdx++)
+		{
+			threads.emplace_back([this, nAnim, workload, &minCosts, &argmins, &f1](int threadIdx)
+			{
+				int animStartPos = threadIdx * workload;
+				for (int anim = animStartPos; anim < workload + animStartPos && anim < nAnim; anim++)
+				{
+					float minCost = std::numeric_limits<float>().max();
+					int argmin = -1;
+					auto const& animFeatures = features[anim];
+					for (int i = 0; i < animFeatures.size(); i++)
+					{
+						float cost = FeatureDistance(animFeatures[i], f1, anim);
+						if (cost < minCost)
+						{
+							minCost = cost;
+							argmin = i;
+						}
+					}
+					minCosts[anim] = minCost;
+					argmins[anim] = argmin;
+				}
+			}, threadIdx);
+		}
+		
+
+		for (auto& thread : threads) { thread.join(); }
+
+		int animIndex = std::min_element(minCosts.begin(), minCosts.end()) - minCosts.begin();
+		auto time = timer.Count<Timer::Nanosecond>();
+		std::cout << "Time is " << time << std::endl;
+		//12264300
+		assert(minCosts[animIndex] != std::numeric_limits<float>::max());
+		printf("argmin is in %d, %d with cost %f\n", animIndex, argmins[animIndex], minCosts[animIndex]);
+
+		return { animIndex, argmins[animIndex] };
+#else
+		Timer timer;
+		timer.Reset();
 		float minCost = std::numeric_limits<float>().max();
 		int animIndex = -1;
 		int argmin = -1;
@@ -28,11 +106,17 @@ namespace inceptionengine
 				i++;
 			}
 		}
-		
+		auto time = timer.Count<Timer::Nanosecond>();
+		std::cout << "Time is " << time << std::endl;
+
 		assert(minCost != std::numeric_limits<float>::max());
 		printf("argmin is in %d, %d with cost %f\n", animIndex, argmin, minCost);
 
+		//7108500
+		//12079000
 		return { animIndex, argmin };
+
+#endif
 	}
 
 
