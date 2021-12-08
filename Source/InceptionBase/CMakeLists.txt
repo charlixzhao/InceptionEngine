@@ -5,6 +5,8 @@ set(SRC_BUILD_FILES
 "EngineBaseGlobals/EngineBaseConcepts.h"
 "Math/Math.h"
 "Math/Math.cpp"
+"Math/Spatial.h"
+"Math/Spatial.cpp"
 "Serialization/Serializer.h"
 "Serialization/Serializer.cpp"
 "Timer.hpp"
@@ -17,6 +19,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
          FILES ${SRC_BUILD_FILES})
 
 target_include_directories(InceptionBase PUBLIC ${PROJECT_SOURCE_DIR}/Source/InceptionBase)
+target_include_directories(InceptionBase PUBLIC ${PROJECT_SOURCE_DIR}/Source/InceptionBase/External/eigen-3.4.0)
 
 #add_custom_command(TARGET InceptionBase POST_BUILD 
  #COMMAND ${CMAKE_COMMAND} -E copy_if_different 

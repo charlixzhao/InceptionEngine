@@ -2,6 +2,7 @@
 
 
 #include "Math/Math.h"
+#include "Math/Spatial.h"
 
 #include <string>
 #include <vector>
@@ -13,6 +14,9 @@
 #include <map>
 #include <optional>
 
+#include <cmath>
+#include <numbers>
+#include <limits>
 
 #include <iostream>
 #include <type_traits>

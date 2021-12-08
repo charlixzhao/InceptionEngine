@@ -9,6 +9,7 @@
 
 #include "ECS/Components/RigidbodyComponent/SphereTraceResult.h"
 
+#include "Math/Spatial.h"
 
 namespace inceptionengine
 {
