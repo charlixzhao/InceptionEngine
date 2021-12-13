@@ -30,7 +30,7 @@ namespace inceptionengine
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(mName, mPathToSkeleton, mSubMeshes, mSkeleton);
+			archive(mName, mPathToSkeleton, mSubMeshes);
 		}
 
 		std::string mName;

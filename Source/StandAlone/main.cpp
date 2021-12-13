@@ -117,6 +117,7 @@ int main()
 	world->SetGameCamera(camera.GetComponent<CameraComponent>());
 	camera.AddComponent<NativeScriptComponent>().SetScript<CameraScript>();
 
+	/*
 	Entity const& pendulum = world->CreateEntity();
 	pendulum.AddComponent<SkeletalMeshComponent>().StartAddCube();
 	pendulum.GetComponent<SkeletalMeshComponent>().AddCube(100.0f, 25.0f, 25.0f, { 0.0f,0.0f,0.0f }, -1, "StandAloneResource/T_Ground.jpg");
@@ -125,7 +126,10 @@ int main()
 
 	pendulum.AddComponent<AnimationComponent>().SetKinematicsTree();
 	pendulum.GetComponent<AnimationComponent>().StopAnimation();
-	pendulum.AddComponent<NativeScriptComponent>().SetScript<PendulumScript>();
+	pendulum.AddComponent<NativeScriptComponent>().SetScript<PendulumScript>();*/
+
+	Entity const& sphere = world->CreateEntity();
+	sphere.AddComponent<SkeletalMeshComponent>().SetSphere(50.0f, "EngineResource/texture/grey.png");
 
 	Entity const& plane = world->CreateEntity();
 	plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f, -100.0f);

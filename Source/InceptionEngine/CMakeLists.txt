@@ -115,6 +115,10 @@ set(SRC_BUILD_FILES
 "Runtime/RHI/WindowHandler/PeripheralInput.h"
 "Runtime/Resource/ResourceManager.h"
 "Runtime/Resource/ResourceManager.cpp"
+"Runtime/Geometry/GeomGen.h"
+"Runtime/Geometry/GeomGen.cpp"
+"Runtime/Geometry/GeomProcessing.h"
+"Runtime/Geometry/GeomProcessing.cpp"
 )
 
 
