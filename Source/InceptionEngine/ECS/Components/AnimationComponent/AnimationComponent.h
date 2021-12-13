@@ -30,6 +30,8 @@ namespace inceptionengine
 
 		void StopAnimation();
 
+		void FlipFlopStopAnimation();
+
 		void SetRootMotion(bool b);
 
 		/*
@@ -97,6 +99,12 @@ namespace inceptionengine
 		*/
 		void SetMatchingDatabase(std::string const& filePath);
 		void SetInputControl(Vec3f const& input);
+
+		/*
+		* rigidbody dynamics API
+		*/
+		void SetKinematicsTree();
+		void ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time);
 
 	private:
 		friend class AnimationSystem;

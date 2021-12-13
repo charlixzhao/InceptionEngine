@@ -392,7 +392,7 @@ namespace inceptionengine
 		std::vector<IRenderObject*> m_actors;
 	};
 
-	
+
 	/*
 struct Image {};
 struct CubeMap {};

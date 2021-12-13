@@ -2,8 +2,9 @@
 
 namespace inceptionengine::dynamics
 {
-	Rigidbody ConstructCuboid(float mass, float x, float y, float z)
+	Rigidbody ConstructCuboid(float x, float y, float z, float density)
 	{
+		float mass = (x * 100.0f) * (y * 100.0f) * (z * 100.0f) * density / 1000.0f;
 		Rigidbody b;
 		b.m = mass;
 		b.Ic <<

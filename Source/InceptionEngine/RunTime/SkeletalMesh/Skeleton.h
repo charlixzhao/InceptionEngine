@@ -10,9 +10,9 @@ namespace inceptionengine
 			std::string name;
 			int ID = -1;
 			int parentID = -1;
-			Matrix4x4f bindPose = {};
-			Matrix4x4f bindPoseInv = {};
-			Matrix4x4f lclRefPose = {};
+			Matrix4x4f bindPose = Matrix4x4f(1.0f);
+			Matrix4x4f bindPoseInv = Matrix4x4f(1.0f);
+			Matrix4x4f lclRefPose = Matrix4x4f(1.0f);
 
 			bool operator == (Bone const& other) const
 			{

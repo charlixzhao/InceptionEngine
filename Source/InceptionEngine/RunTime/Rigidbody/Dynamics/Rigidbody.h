@@ -13,5 +13,5 @@ namespace inceptionengine::dynamics
 	};
 
 	
-	Rigidbody ConstructCuboid(float mass /*kg*/, float x /*meter*/, float y, float z);
+	Rigidbody ConstructCuboid(float x /*meter*/, float y, float z, float density = 1.02f);
 }

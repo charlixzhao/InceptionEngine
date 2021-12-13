@@ -20,11 +20,12 @@
 namespace inceptionengine
 {
 
+	void ComputeNormals(std::vector<Vertex>& vertices, std::vector<uint32_t> const& indices);
+
 	SkeletalMeshComponent::SkeletalMeshComponent(EntityID entityID, std::reference_wrapper<World> world)
 		:mEntityID(entityID), mWorld(world)
 	{
 		mSkeletalMeshInstance = std::make_unique<SkeletalMeshInstance>();
-		//mAnimationController = std::make_unique<AnimationController>();
 	}
 
 	SkeletalMeshComponent::~SkeletalMeshComponent() = default;
@@ -185,43 +186,161 @@ mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBo
 	}
 
 
-	void SkeletalMeshComponent::SetPlane(float scale)
+	void SkeletalMeshComponent::SetPlane(float scale, float level, std::string const& texture)
 	{
 		Vertex v1 = {};
-		v1.position = Vec4f(scale, 0.0f, scale, 1.0f);
+		v1.position = Vec4f(scale, level, scale, 1.0f);
 		v1.texCoord =Vec3f(0.0f, 0.0f, 0.0f);
-		v1.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v1.position[0], v1.position[1], v1.position[2]);
 		Vertex v2 = {};
-		v2.position = Vec4f(-scale, 0.0f, scale, 1.0f);
+		v2.position = Vec4f(-scale, level, scale, 1.0f);
 		v2.texCoord = Vec3f(0.0f, 1.0f, 0.0f);
-		v2.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v2.position[0], v2.position[1], v2.position[2]);
 		Vertex v3 = {};
-		v3.position = Vec4f(-scale, 0.0f, -scale, 1.0f);
+		v3.position = Vec4f(-scale, level, -scale, 1.0f);
 		v3.texCoord = Vec3f(1.0f, 1.0f, 0.0f);
-		v3.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v3.position[0], v3.position[1], v3.position[2]);
 		Vertex v4 = {};
-		v4.position = Vec4f(scale, 0.0f, -scale, 1.0f);
+		v4.position = Vec4f(scale, level, -scale, 1.0f);
 		v4.texCoord = Vec3f(1.0f, 0.0f, 0.0f);
-		v4.normal = Vec3f(100.0f, 80.0f, 500.0f) - Vec3f(v4.position[0], v4.position[1], v4.position[2]);
-
 
 		std::vector<Vertex> planeVertices = { v1, v2, v3, v4 };
 		std::vector<uint32_t> planeIndices = { 0,2,1,2,0,3 };
+
+		ComputeNormals(planeVertices, planeIndices);
 
 		auto plane = std::make_shared<SkeletalMesh>();
 		plane->mSubMeshes.resize(1);
 		plane->mSubMeshes[0].vertices = planeVertices;
 		plane->mSubMeshes[0].indices = planeIndices;
-		plane->mSubMeshes[0].texturePath = "StandAloneResource\\T_Ground.jpg";
+		plane->mSubMeshes[0].texturePath = "StandAloneResource/T_Ground.jpg";
 		plane->mSubMeshes[0].shaderPath = 
 		{ 
-			"EngineResource\\shader\\spv\\vertex.spv",
-			"EngineResource\\shader\\spv\\highlight1.spv" 
+			"EngineResource/shader/spv/vertex.spv",
+			"EngineResource/shader/spv/highlight1.spv" 
 		};
 		plane->mSkeleton = std::make_shared<Skeleton>();
 		mSkeletalMeshInstance->mSkeletalMesh = plane;
 
+		mSkeletalMeshInstance->InitializeRenderObjects();
+	}
 
+	void SkeletalMeshComponent::StartAddCube()
+	{
+		mSkeletalMeshInstance->mSkeletalMesh = std::make_shared<SkeletalMesh>();
+		mSkeletalMeshInstance->mSkeletalMesh->mSkeleton = std::make_shared<Skeleton>();
+	}
+
+
+	void ComputeNormals(std::vector<Vertex>& vertices, std::vector<uint32_t> const& indices)
+	{
+		for (int i = 0; i < indices.size(); i += 3)
+		{
+			// Get the face normal
+			auto vector1 = vertices[indices[i + 1]].position - vertices[indices[i]].position;
+			auto vector2 = vertices[indices[i + 2]].position - vertices[indices[i]].position;
+			auto faceNormal = CrossProduct(vector1, vector2);
+			faceNormal = NormalizeVec(faceNormal);
+
+			// Add the face normal to the 3 vertices normal touching this face
+			vertices[indices[i]].normal += faceNormal;
+			vertices[indices[i + 1]].normal += faceNormal;
+			vertices[indices[i + 2]].normal += faceNormal;
+		}
+
+		// Normalize vertices normal
+		for (auto& v : vertices) v.normal = NormalizeVec(v.normal);
+	}
+
+
+	SubMesh CananicalCube(float x, float y, float z)
+	{
+		Vertex v0 = {};
+		v0.position = Vec4f(0.0f, y / 2.0f, -z / 2.0f, 1.0f);
+		v0.texCoord = Vec3f(0.0f, 1.0f, 0.0f);
+		v0.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v0.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		Vertex v1 = {};
+		v1.position = Vec4f(0.0f, y / 2.0f, z / 2.0f, 1.0f);
+		v1.texCoord = Vec3f(1.0f, 1.0f, 0.0f);
+		v1.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v1.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		Vertex v2 = {};
+		v2.position = Vec4f(0.0f, -y / 2.0f, z / 2.0f, 1.0f);
+		v2.texCoord = Vec3f(1.0f, 0.0f, 0.0f);
+		v2.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v2.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		Vertex v3 = {};
+		v3.position = Vec4f(0.0f, -y / 2.0f, -z / 2.0f, 1.0f);
+		v3.texCoord = Vec3f(0.0f, 0.0f, 0.0f);
+		v3.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v3.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		Vertex v4 = {};
+		v4.position = Vec4f(x, y / 2.0f, -z / 2.0f, 1.0f);
+		v4.texCoord = Vec3f(0.0f, 1.0f, 0.0f);
+		v4.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v4.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		Vertex v5 = {};
+		v5.position = Vec4f(x, y / 2.0f, z / 2.0f, 1.0f);
+		v5.texCoord = Vec3f(1.0f, 1.0f, 0.0f);
+		v5.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v5.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		Vertex v6 = {};
+		v6.position = Vec4f(x, -y / 2.0f, z / 2.0f, 1.0f);
+		v6.texCoord = Vec3f(1.0f, 0.0f, 0.0f);
+		v6.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v6.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		Vertex v7 = {};
+		v7.position = Vec4f(x, -y / 2.0f, -z / 2.0f, 1.0f);
+		v7.texCoord = Vec3f(0.0f, 0.0f, 0.0f);
+		v7.affectedBonesID = Vec4ui(0 + AnimPoseOffsetInUBuffer, 0, 0, 0);
+		v7.boneWeights = Vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+
+
+
+		std::vector<Vertex> cubeVertices = { v0, v1, v2, v3, v4,v5,v6,v7 };
+		std::vector<uint32_t> cubeIndices = { 3,2,1,1,0,3,0,1,5,5,4,0,1,2,6,6,5,1,0,4,7,7,3,0,6,2,3,3,7,6,4,5,6,6,7,4 };
+		
+		//assign normals
+		ComputeNormals(cubeVertices, cubeIndices);
+
+		SubMesh c;
+		c.vertices = cubeVertices;
+		c.indices = cubeIndices;
+		return c;
+	}
+
+	int SkeletalMeshComponent::AddCube(float x, float y, float z, Vec3f const& offset, int parent, std::string const& texture)
+	{
+		
+		int cubeID = mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.size();
+		SubMesh cube = CananicalCube(x, y, z);
+		for (auto& v : cube.vertices)
+		{
+			v.affectedBonesID[0] += cubeID;
+			v.position += Vec4f(offset, 0.0f);
+		}
+
+		cube.texturePath = texture;
+		cube.shaderPath =
+		{
+			"EngineResource/shader/spv/vertex.spv",
+			"EngineResource/shader/spv/fragment.spv"
+		};
+
+		mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.push_back(cube);
+
+		Skeleton::Bone bone;
+		bone.ID = cubeID;
+		bone.parentID = parent;
+		bone.bindPose = Translate(offset);
+		bone.bindPoseInv = Translate(-offset);
+		bone.lclRefPose = bone.bindPose;
+		mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones.push_back(bone);
+		
+		return cubeID;
+		
+	}
+
+	void SkeletalMeshComponent::FinishAddCube()
+	{
 		mSkeletalMeshInstance->InitializeRenderObjects();
 	}
 

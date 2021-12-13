@@ -98,7 +98,8 @@ namespace inceptionengine
 					}
 				}
 
-				mRenderer.get().UpdateUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer, uBufferMat, nullptr);
+				Light light = { {100.0f,100.0f,100.0f,2.0f} };
+				mRenderer.get().UpdateUniformBuffer(component.mSkeletalMeshInstance->mUniformBuffer, uBufferMat, &light);
 			}
 		}
 

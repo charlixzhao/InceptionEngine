@@ -5,6 +5,10 @@
 
 #include "AnimBlender.h"
 
+namespace inceptionengine::dynamics
+{
+	struct KinematicsTree;
+}
 
 namespace inceptionengine
 {
@@ -19,6 +23,7 @@ namespace inceptionengine
 	struct AnimNotify;
 	class MotionMatchingController;
 
+	
 
 	class AnimationController
 	{
@@ -36,6 +41,8 @@ namespace inceptionengine
 		void PlayEventAnimation(EventAnimPlaySetting const& setting);
 
 		void StopAnimation();
+
+		void FlipFlopStopAnimation();
 
 		bool IsPlayingEventAnimation() const;
 
@@ -88,6 +95,10 @@ namespace inceptionengine
 
 		void SetInputControl(Vec3f const& input);
 
+		void SetKinematicsTree();
+
+		void ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time);
+
 	private:
 		friend class IkController;
 
@@ -126,5 +137,16 @@ namespace inceptionengine
 		float mFeatureQueryTimer = 0.0f;
 		float const mFeatureQueryInterval = 5.0f/30.0f;
 
+	private:
+
+		struct TimerEvent
+		{
+			float remainingTime = 0.0f;
+			std::function<void()> End = []() {; };
+		};
+
+		std::unique_ptr<dynamics::KinematicsTree> mKinematicsTree = nullptr;
+		std::list<TimerEvent> mTimerEvents;
+		std::vector<dynamics::SpatialForce> mExtForces;
 	};
 }

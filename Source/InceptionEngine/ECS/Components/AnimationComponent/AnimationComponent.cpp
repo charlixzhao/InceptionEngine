@@ -45,6 +45,7 @@ namespace inceptionengine
 
 
 
+
 	void AnimationComponent::PlayEventAnimation(EventAnimPlaySetting const& setting)
 	{
 		auto pAnimation = gResourceMgr.GetResource<Animation>(setting.animFilePath);
@@ -96,6 +97,11 @@ namespace inceptionengine
 		mAnimationController->StopAnimation();
 	}
 
+	void AnimationComponent::FlipFlopStopAnimation()
+	{
+		mAnimationController->FlipFlopStopAnimation();
+	}
+
 	void AnimationComponent::TestAimAxis()
 	{
 		mAnimationController->TestAimAxis();
@@ -109,6 +115,16 @@ namespace inceptionengine
 	void AnimationComponent::SetInputControl(Vec3f const& input)
 	{
 		mAnimationController->SetInputControl(input);
+	}
+
+	void AnimationComponent::SetKinematicsTree()
+	{
+		mAnimationController->SetKinematicsTree();
+	}
+
+	void AnimationComponent::ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time)
+	{
+		mAnimationController->ApplyExtForce(bodyID, force, location, time);
 	}
 
 	void AnimationComponent::SetAimIkChain(std::vector<std::string> const& chainBoneNames,

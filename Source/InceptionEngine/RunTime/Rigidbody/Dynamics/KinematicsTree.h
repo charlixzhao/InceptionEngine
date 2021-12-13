@@ -9,17 +9,9 @@ namespace inceptionengine::dynamics
 {
 	struct KinematicsTree
 	{
-		KinematicsTree(int n, int m)
-		{
-			N = n;
-			Geoms.resize(n);
-			Bodies.resize(n);
-			Io.resize(n, SpatialInertia::Identity());
-			Parents.resize(n, -1);
+		KinematicsTree(int n, int m);
 
-			Joints.resize(m);
-			Bodies[0].a = (SpatialAccel() << 0.0f, 0.0f, 0.0f, 0.0, 9.81f, 0.0f).finished();
-		}
+		~KinematicsTree();
 
 		void ForwardDynamics(std::vector<Vec3d> const& jointTorques, std::vector<SpatialForce> const& ext);
 

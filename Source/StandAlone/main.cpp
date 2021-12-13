@@ -1,4 +1,142 @@
 
+//Scene 4, rigidbody dynamics
+
+#include "InceptionEngine.h"
+using namespace inceptionengine;
+
+class PendulumScript : public NativeScript
+{
+
+public:
+	PendulumScript(EntityID entityID, std::reference_wrapper<World> world)
+		:NativeScript(entityID, world)
+	{
+		BindKeyInputCallback(KeyInputTypes::Keyboard_Space, std::bind(&PendulumScript::On_Space, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Keyboard_3, std::bind(&PendulumScript::OnKey_3, this, std::placeholders::_1));
+	}
+
+private:
+	void On_Space(bool press)
+	{
+		if (press)
+		{
+			GetEntity().GetComponent<AnimationComponent>().FlipFlopStopAnimation();
+		}
+	}
+
+	void OnKey_3(bool press)
+	{
+		if (press)
+		{
+			GetEntity().GetComponent<AnimationComponent>().ApplyExtForce(1, { 0.0f,0.0f,-20.0f }, { 1.0f,0.0f,0.0f }, 0.5f);
+		}
+	}
+
+};
+
+class CameraScript : public NativeScript
+{
+public:
+	CameraScript(EntityID entityID, std::reference_wrapper<World> world)
+		:NativeScript(entityID, world)
+	{
+		BindKeyInputCallback(KeyInputTypes::Keyboard_2, std::bind(&CameraScript::OnKey_2, this, std::placeholders::_1));
+		BindKeyInputCallback(KeyInputTypes::Mouse_Scroll, std::bind(&CameraScript::OnMouse_Scroll, this, std::placeholders::_1));
+		
+	}
+
+
+private:
+
+
+	virtual void OnMouseDeltaPos(MouseDeltaPos mouseDeltaPos) override
+	{
+		if (mUseMouseToControlCamera)
+		{
+			GetEntity().GetComponent<CameraComponent>().RotateVertical(-mouseDeltaPos.deltaXPos * mCameraRotateVerticalSpeed);
+			GetEntity().GetComponent<CameraComponent>().RotateHorizontal(-mouseDeltaPos.deltaYPos * mCameraRotateHoritonzallSpeed);
+		}
+
+	}
+
+	void OnKey_2(bool press)
+	{
+		if (press)
+		{
+			mUseMouseToControlCamera = !mUseMouseToControlCamera;
+			InceptionEngine::GetInstance().SetMouseVisibility(!mUseMouseToControlCamera);
+		}
+	}
+
+
+
+	void OnMouse_Scroll(bool scrollUp)
+	{
+		if (scrollUp)
+		{
+			GetEntity().GetComponent<CameraComponent>().MoveForward(20.0f);
+		}
+		else
+		{
+			GetEntity().GetComponent<CameraComponent>().MoveForward(-20.0f);
+		}
+	}
+
+
+private:
+	bool mUseMouseToControlCamera = false;
+	float const mCameraRotateVerticalSpeed = 0.03f;
+	float const mCameraRotateHoritonzallSpeed = 0.03f;
+
+};
+
+int main()
+{
+	auto& engine = InceptionEngine::GetInstance();
+
+
+	World* world = engine.CreateWorld();
+
+	std::array<std::string, 6> skyboxTexturePath =
+	{
+		"StandAloneResource\\skybox\\front.png",
+		"StandAloneResource\\skybox\\back.png",
+		"StandAloneResource\\skybox\\top.png",
+		"StandAloneResource\\skybox\\bottom.png",
+		"StandAloneResource\\skybox\\right.png",
+		"StandAloneResource\\skybox\\left.png"
+	};
+
+
+	world->SetSkybox(skyboxTexturePath);
+
+	
+	Entity const& camera = world->CreateEntity();
+	//camera.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 200.0f, 200.0f), Vec3f(0.0f, 145.0f, 0.0f));
+	camera.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, -50.0f, 300.0f), Vec3f(0.0f, -50.0f, 0.0f));
+	world->SetGameCamera(camera.GetComponent<CameraComponent>());
+	camera.AddComponent<NativeScriptComponent>().SetScript<CameraScript>();
+
+	Entity const& pendulum = world->CreateEntity();
+	pendulum.AddComponent<SkeletalMeshComponent>().StartAddCube();
+	pendulum.GetComponent<SkeletalMeshComponent>().AddCube(100.0f, 25.0f, 25.0f, { 0.0f,0.0f,0.0f }, -1, "StandAloneResource/T_Ground.jpg");
+	//pendulum.GetComponent<SkeletalMeshComponent>().AddCube(100.0f, 25.0f, 25.0f, { 100.0f,0.0f,0.0f }, 0, "EngineResource/texture/DefaultTexture.png");
+	pendulum.GetComponent<SkeletalMeshComponent>().FinishAddCube();
+
+	pendulum.AddComponent<AnimationComponent>().SetKinematicsTree();
+	pendulum.GetComponent<AnimationComponent>().StopAnimation();
+	pendulum.AddComponent<NativeScriptComponent>().SetScript<PendulumScript>();
+
+	Entity const& plane = world->CreateEntity();
+	plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f, -100.0f);
+
+	engine.PlayGame();
+
+	return 0;
+
+}
+
+/*
 
 #include "InceptionEngine.h"
 
@@ -204,7 +342,7 @@ int main()
 
 	return 0;
 
-}
+}*/
 
 /*
 //Scene two: sice locomotion and attack

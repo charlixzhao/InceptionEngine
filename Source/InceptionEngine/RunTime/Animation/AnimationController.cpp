@@ -13,6 +13,7 @@
 #include "EventAnimController.h"
 #include "IkController.h"
 #include "MotionMatching/MotionMatchingController.h"
+#include "RunTime/Rigidbody/Dynamics/KinematicsTree.h"
 
 
 namespace inceptionengine
@@ -37,7 +38,8 @@ namespace inceptionengine
 	}
 
 
-#define USE_MOTIONMATCHING 1
+#define USE_MOTIONMATCHING 0
+#define USE_RIGIDBODY 1
 
 	bool AnimationController::Update(float deltaTime)
 	{
@@ -78,6 +80,45 @@ namespace inceptionengine
 			mBoneVelocities = mMotionMatchingController->GetCurrentBoneVelocities();
 		}
 
+		return true;
+
+#elif USE_RIGIDBODY
+		for (auto& e : mTimerEvents)
+		{
+			e.remainingTime -= deltaTime;
+			if (e.remainingTime <= 0.0f) e.End();
+		}
+		for (auto it = mTimerEvents.begin(); it != mTimerEvents.end();)
+		{
+			if (it->remainingTime <= 0.0f) it = mTimerEvents.erase(it);
+			else it++;
+		}
+		mKinematicsTree->ForwardDynamics({}, mExtForces);
+		mKinematicsTree->Step(deltaTime, 1e-10f);
+		for (int i = 1; i < mKinematicsTree->Joints.size(); i++)
+		{
+			Matrix4x4f rot(1.0f);
+			Matrix4x4f translate(1.0f);
+			auto R = mKinematicsTree->Joints[i].R();
+			auto T = 100.0f * mKinematicsTree->Geoms[i].second;
+			{
+				rot[0][0] = R.col(0)[0];
+				rot[0][1] = R.col(0)[1];
+				rot[0][2] = R.col(0)[2];
+				rot[1][0] = R.col(1)[0];
+				rot[1][1] = R.col(1)[1];
+				rot[1][2] = R.col(1)[2];
+				rot[2][0] = R.col(2)[0];
+				rot[2][1] = R.col(2)[1];
+				rot[2][2] = R.col(2)[2];
+				translate[3][0] = T[0];
+				translate[3][1] = T[1];
+				translate[3][2] = T[2];
+			}
+
+
+			mFinalPose.boneLclTransforms[i - 1] = translate * rot;
+		}
 		return true;
 #else
 		if (mBlender.IsBlending())
@@ -163,6 +204,11 @@ namespace inceptionengine
 	void AnimationController::StopAnimation()
 	{
 		mStopAnim = true;
+	}
+
+	void AnimationController::FlipFlopStopAnimation()
+	{
+		mStopAnim = !mStopAnim;
 	}
 
 	bool AnimationController::IsPlayingEventAnimation() const
@@ -327,6 +373,60 @@ namespace inceptionengine
 	void AnimationController::SetInputControl(Vec3f const& input)
 	{
 		mMotionMatchingController->SetInputControl(input);
+	}
+
+	void AnimationController::SetKinematicsTree()
+	{
+		
+		mKinematicsTree = std::make_unique<dynamics::KinematicsTree>(2, 2);
+		auto& kt = *mKinematicsTree;
+		kt.Bodies[1] = dynamics::ConstructCuboid(1.0f, 0.1f, 0.1f);
+		kt.Joints[0].SetType(dynamics::JointType::Fixed);
+		kt.Joints[1].SetType(dynamics::JointType::Sperical);
+
+		float theta = -std::numbers::pi / 8;
+		kt.Joints[1].q[0] = std::cos(theta);
+		kt.Joints[1].q[3] = std::sin(theta);
+
+		kt.Parents = { -1, 0};
+		kt.Geoms[1] = { dynamics::Mat3x3d::Identity(), (dynamics::Vec3d() << 0.0f,0.0f,0.0f).finished() };
+		kt.Io[1] = dynamics::ParallelInertia(kt.Bodies[1].Ic, (dynamics::Vec3d() << 0.5f, 0.0f, 0.0f).finished(), kt.Bodies[1].m);
+		mExtForces.resize(2, dynamics::SpatialForce::Zero());
+
+		
+		/*
+		mKinematicsTree = std::make_unique<dynamics::KinematicsTree>(3, 3);
+		auto& kt = *mKinematicsTree;
+		kt.Bodies[1] = dynamics::ConstructCuboid(1.0f, 0.25f, 0.25f);
+		kt.Bodies[2] = dynamics::ConstructCuboid(1.0f, 0.25f, 0.25f, 20.0f);
+		kt.Joints[0].SetType(dynamics::JointType::Fixed);
+		kt.Joints[1].SetType(dynamics::JointType::Sperical);
+		kt.Joints[2].SetType(dynamics::JointType::Sperical);
+		kt.Joints[2].qd[1] = 1.0f;
+		//kt.Joints[1].qd[0] = 1.0f;
+		kt.Parents = { -1, 0, 1 };
+		kt.Geoms[1] = { dynamics::Mat3x3d::Identity(), (dynamics::Vec3d() << 0.0f,0.0f,0.0f).finished() };
+		kt.Geoms[2] = { dynamics::Mat3x3d::Identity(), (dynamics::Vec3d() << 1.0f,0.0f,0.0f).finished() };
+		kt.Io[1] = dynamics::ParallelInertia(kt.Bodies[1].Ic, (dynamics::Vec3d() << 0.5f, 0.0f, 0.0f).finished(), kt.Bodies[1].m);
+		kt.Io[2] = dynamics::ParallelInertia(kt.Bodies[2].Ic, (dynamics::Vec3d() << 0.5f, 0.0f, 0.0f).finished(), kt.Bodies[2].m);
+		mExtForces.resize(3, dynamics::SpatialForce::Zero());
+		*/
+	}
+
+	void AnimationController::ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time)
+	{
+		Vec3f n = CrossProduct(location, force);
+		dynamics::SpatialForce f = (dynamics::SpatialForce() << n[0], n[1], n[2], force[0], force[1], force[2]).finished();
+		mExtForces[bodyID] = f;
+		TimerEvent e;
+		e.remainingTime = time;
+
+		e.End = [this, bodyID]()
+		{
+			mExtForces[bodyID] = dynamics::SpatialForce::Zero();
+		};
+		mTimerEvents.push_back(e);
+
 	}
 
 

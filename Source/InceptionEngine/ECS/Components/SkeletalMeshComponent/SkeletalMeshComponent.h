@@ -35,7 +35,13 @@ namespace inceptionengine
 
 		void SetMesh(std::string const& filePath);
 
-		void SetPlane(float scale);
+		void SetPlane(float scale, float level = 0.0f, std::string const& texture = "StandAloneResource/T_Ground.jpg");
+
+		void StartAddCube();
+
+		int AddCube(float x, float y, float z, Vec3f const& offset, int parent, std::string const& texture);
+
+		void FinishAddCube();
 
 		void SetTriangle();
 

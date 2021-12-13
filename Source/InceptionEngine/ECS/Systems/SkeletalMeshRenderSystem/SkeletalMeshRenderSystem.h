@@ -32,5 +32,7 @@ namespace inceptionengine
 
 		std::reference_wrapper<TransformSystem const> mTransformSystem;
 
+		
+
 	};
 }
