@@ -10,6 +10,7 @@ namespace inceptionengine::dynamics
 {
 	Joint::Joint(JointType type)
 	{
+		Type = type;
 		switch (type)
 		{
 		case JointType::Fixed: break;
@@ -18,12 +19,12 @@ namespace inceptionengine::dynamics
 			S.resize(6, 3);
 			S << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
-			q.resize(4);
-			q << 1.0, 0.0, 0.0, 0.0;
-			qd.resize(3);
-			qd << 0.0, 0.0, 0.0;
-			qdd.resize(3);
-			qdd << 0.0, 0.0, 0.0;
+			//q.resize(4);
+			//q << 1.0, 0.0, 0.0, 0.0;
+			//qd.resize(3);
+			//qd << 0.0, 0.0, 0.0;
+			//qdd.resize(3);
+			//qdd << 0.0, 0.0, 0.0;
 			break;
 		}
 			
@@ -42,13 +43,13 @@ namespace inceptionengine::dynamics
 		{
 			S.resize(6, 3);
 			S << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-
-			q.resize(4);
-			q << 1.0, 0.0, 0.0, 0.0;
-			qd.resize(3);
-			qd << 0.0, 0.0, 0.0;
-			qdd.resize(3);
-			qdd << 0.0, 0.0, 0.0;
+			ST = S.transpose();
+			//q.resize(4);
+			//q << 1.0, 0.0, 0.0, 0.0;
+			//qd.resize(3);
+			//qd << 0.0, 0.0, 0.0;
+			//qdd.resize(3);
+			//qdd << 0.0, 0.0, 0.0;
 			break;
 		}
 
@@ -56,6 +57,24 @@ namespace inceptionengine::dynamics
 		}
 	}
 
+	Mat3x3d dynamics::Joint::E(Vec4d const& p, JointType type)
+	{
+		switch (type)
+		{
+		case JointType::Fixed: return Mat3x3d::Identity();
+
+		case JointType::Sperical:
+			return  2.0f * (Mat3x3d() <<
+							(p[0] * p[0] + p[1] * p[1] - 0.5f), (p[1] * p[2] + p[0] * p[3]), (p[1] * p[3] - p[0] * p[2]),
+							(p[1] * p[2] - p[0] * p[3]), (p[0] * p[0] + p[2] * p[2] - 0.5f), (p[2] * p[3] + p[0] * p[1]),
+							(p[1] * p[3] + p[0] * p[2]), (p[2] * p[3] - p[0] * p[1]), (p[0] * p[0] + p[3] * p[3] - 0.5f)).finished();
+
+		default:
+			throw std::runtime_error("");
+		}
+	}
+
+	/*
 	Mat3x3d Joint::E()
 	{
 		switch (Type)
@@ -71,7 +90,7 @@ namespace inceptionengine::dynamics
 		default:
 			throw std::runtime_error("");
 		}
-	}
+	}*/
 
 	Vec3d Joint::r()
 	{
@@ -87,7 +106,7 @@ namespace inceptionengine::dynamics
 
 	void Joint::Step(float dt, float threadshold)
 	{
-
+		/*
 		switch (Type)
 		{
 		case JointType::Fixed: break; 
@@ -114,7 +133,7 @@ namespace inceptionengine::dynamics
 
 		default: throw std::runtime_error("");
 
-		}
+		}*/
 	}
 
 }

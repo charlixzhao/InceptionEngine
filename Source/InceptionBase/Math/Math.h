@@ -31,6 +31,7 @@ positive-y is to the up, and positive-z goes out of the screen.
 #include <algorithm>
 #include <numeric>
 #include <cmath>
+#include <functional>
 
 namespace inceptionengine
 {
@@ -423,5 +424,15 @@ namespace inceptionengine
 	inline Vec4f AppendZero(Vec3f const& v)
 	{
 		return { v.x, v.y, v.z, 0.0f };
+	}
+
+	template<typename X, typename ODE, typename Normalize>
+	X RK4(X const& x, ODE ode, Normalize n, float dt)
+	{
+		X k1 = ode(x) * dt;
+		X k2 = ode(n(x + 0.5f * k1)) * dt;
+		X k3 = ode(n(x + 0.5f * k2)) * dt;
+		X k4 = ode(n(x + k3)) * dt;
+		return x + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0f;
 	}
 }

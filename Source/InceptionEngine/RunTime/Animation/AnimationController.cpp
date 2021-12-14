@@ -36,6 +36,10 @@ namespace inceptionengine
 	{
 		mSkeleton = skeleton;
 		mFinalPose.boneLclTransforms = skeleton->GetLocalRefPose();
+		mKtState = dynamics::Vec::Zero(mKinematicsTree->N * 7);
+		for (int i = 0; i < mKinematicsTree->N; i++) mKtState[4 * i] = 1.0f;
+
+		mKinematicsTree->InitializeComputationBuffer();
 	}
 
 
@@ -94,13 +98,25 @@ namespace inceptionengine
 			if (it->remainingTime <= 0.0f) it = mTimerEvents.erase(it);
 			else it++;
 		}
-		mKinematicsTree->ForwardDynamics({}, mExtForces);
-		mKinematicsTree->Step(deltaTime, 1e-8f);
+
+		/*
+		dynamics::Vec k1 = mKinematicsTree->f(mKtState, {}, mExtForces) * deltaTime;
+		dynamics::Vec k2 = mKinematicsTree->f((mKtState + 0.5f*k1), {}, mExtForces) * deltaTime;
+		dynamics::Vec k3 = mKinematicsTree->f((mKtState+0.5f*k2), {}, mExtForces) * deltaTime;
+		dynamics::Vec k4 = mKinematicsTree->f((mKtState+k3), {}, mExtForces) * deltaTime;
+
+		mKtState += (k1 + 2 * k2 + 2 * k3 + k4) / 6.0f;*/
+
+		mKtState += mKinematicsTree->f(mKtState, {}, mExtForces) * deltaTime;
+
+		NormalizeKtState();
+
+
 		for (int i = 1; i < mKinematicsTree->Joints.size(); i++)
 		{
 			Matrix4x4f rot(1.0f);
 			Matrix4x4f translate(1.0f);
-			auto R = mKinematicsTree->Joints[i].R();
+			auto R = dynamics::Joint::E(mKtState.block<4, 1>(i * 4, 0), mKinematicsTree->Joints[i].Type).transpose();
 			auto T = 100.0f * mKinematicsTree->Geoms[i].second;
 			{
 				rot[0][0] = R.col(0)[0];
@@ -376,46 +392,8 @@ namespace inceptionengine
 		mMotionMatchingController->SetInputControl(input);
 	}
 
-
-	//deprecated
-	void AnimationController::SetKinematicsTree()
-	{
-		
-		mKinematicsTree = std::make_unique<dynamics::KinematicsTree>(2, 2);
-		auto& kt = *mKinematicsTree;
-		kt.Bodies[1] = dynamics::ConstructCuboid(1.0f, 0.1f, 0.1f);
-		kt.Joints[0].SetType(dynamics::JointType::Fixed);
-		kt.Joints[1].SetType(dynamics::JointType::Sperical);
-
-		float theta = -std::numbers::pi / 8;
-		kt.Joints[1].q[0] = std::cos(theta);
-		kt.Joints[1].q[3] = std::sin(theta);
-
-		kt.Parents = { -1, 0};
-		kt.Geoms[1] = { dynamics::Mat3x3d::Identity(), (dynamics::Vec3d() << 0.0f,0.0f,0.0f).finished() };
-		kt.Io[1] = dynamics::ParallelInertia(kt.Bodies[1].Ic, (dynamics::Vec3d() << 0.5f, 0.0f, 0.0f).finished(), kt.Bodies[1].m);
-		mExtForces.resize(2, dynamics::SpatialForce::Zero());
-
-		
-		/*
-		mKinematicsTree = std::make_unique<dynamics::KinematicsTree>(3, 3);
-		auto& kt = *mKinematicsTree;
-		kt.Bodies[1] = dynamics::ConstructCuboid(1.0f, 0.25f, 0.25f);
-		kt.Bodies[2] = dynamics::ConstructCuboid(1.0f, 0.25f, 0.25f, 20.0f);
-		kt.Joints[0].SetType(dynamics::JointType::Fixed);
-		kt.Joints[1].SetType(dynamics::JointType::Sperical);
-		kt.Joints[2].SetType(dynamics::JointType::Sperical);
-		kt.Joints[2].qd[1] = 1.0f;
-		//kt.Joints[1].qd[0] = 1.0f;
-		kt.Parents = { -1, 0, 1 };
-		kt.Geoms[1] = { dynamics::Mat3x3d::Identity(), (dynamics::Vec3d() << 0.0f,0.0f,0.0f).finished() };
-		kt.Geoms[2] = { dynamics::Mat3x3d::Identity(), (dynamics::Vec3d() << 1.0f,0.0f,0.0f).finished() };
-		kt.Io[1] = dynamics::ParallelInertia(kt.Bodies[1].Ic, (dynamics::Vec3d() << 0.5f, 0.0f, 0.0f).finished(), kt.Bodies[1].m);
-		kt.Io[2] = dynamics::ParallelInertia(kt.Bodies[2].Ic, (dynamics::Vec3d() << 0.5f, 0.0f, 0.0f).finished(), kt.Bodies[2].m);
-		mExtForces.resize(3, dynamics::SpatialForce::Zero());
-		*/
-	}
-
+	
+	
 	void AnimationController::AddCuboidLink(float x, float y, float z, float r, int parent, Vec3f const& offset)
 	{
 		mKinematicsTree->AddCuboidLink(dynamics::JointType::Sperical, x / 100.0f, y / 100.0f, z / 100.0f, r / 100.0f, parent + 1, (dynamics::Vec3d() << offset[0], offset[1], offset[2]).finished() / 100.0f);
@@ -458,6 +436,26 @@ namespace inceptionengine
 	Matrix4x4f AnimationController::GetBoneGlobalTransform(Matrix4x4f const& modelTransform, std::vector<Matrix4x4f> const& lclPose, int boneID) const
 	{
 		return modelTransform * GetBoneModelTransform(lclPose, boneID);
+	}
+
+
+
+	void AnimationController::NormalizeKtState()
+	{
+		for (int i = 0; i < mKinematicsTree->N; i++)
+		{
+			mKtState.block<4, 1>(i * 4, 0).normalize();
+		}
+	}
+
+	dynamics::Vec AnimationController::NormalizeState(dynamics::Vec const& vec)
+	{
+		dynamics::Vec v = vec;
+		for (int i = 0; i < mKinematicsTree->N; i++)
+		{
+			v.block<4, 1>(i * 4, 0).normalize();
+		}
+		return v;
 	}
 
 	void AnimationController::TestAxis(IkChain const& ikChain)

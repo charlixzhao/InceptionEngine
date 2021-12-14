@@ -103,7 +103,6 @@ namespace inceptionengine
 		/*
 		* rigidbody dynamics API
 		*/
-		void SetKinematicsTree();
 		void ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time);
 
 	private:

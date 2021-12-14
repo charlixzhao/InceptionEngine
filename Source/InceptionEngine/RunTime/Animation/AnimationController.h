@@ -150,5 +150,9 @@ namespace inceptionengine
 		std::unique_ptr<dynamics::KinematicsTree> mKinematicsTree = nullptr;
 		std::list<TimerEvent> mTimerEvents;
 		std::vector<dynamics::SpatialForce> mExtForces;
+
+		void NormalizeKtState();
+		dynamics::Vec NormalizeState(dynamics::Vec const& vec);
+		dynamics::Vec mKtState;
 	};
 }

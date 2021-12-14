@@ -28,7 +28,7 @@ private:
 	{
 		if (press)
 		{
-			GetEntity().GetComponent<AnimationComponent>().ApplyExtForce(10, { 0.0f,0.0f,-10.0f }, { 1.0f + 0.05f,0.0f,0.0f }, 0.5f);
+			GetEntity().GetComponent<AnimationComponent>().ApplyExtForce(2, { 0.0f,0.0f,-10.0f }, { 1.0f + 0.05f,0.0f,0.0f }, 0.5f);
 		}
 	}
 
@@ -123,7 +123,7 @@ int main()
 	pendulum.AddComponent<AnimationComponent>();
 
 	float constexpr r = 5.0f;
-	int constexpr N = 9;
+	int constexpr N = 1;
 
 
 	pendulum.AddComponent<SkeletalMeshComponent>().StartAddCube();

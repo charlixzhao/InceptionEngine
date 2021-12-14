@@ -8,8 +8,8 @@ namespace inceptionengine::dynamics
 	{
 		float m = 0.0f;
 		Mat3x3d Ic = Mat3x3d::Identity();
-		SpatialVel V = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-		SpatialAccel a = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+		//SpatialVel V = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+		//SpatialAccel a = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 	};
 
 	

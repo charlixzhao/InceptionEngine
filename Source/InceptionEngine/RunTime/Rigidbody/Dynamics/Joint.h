@@ -20,11 +20,13 @@ namespace inceptionengine::dynamics
 
 		void SetType(JointType type);
 
+		static Mat3x3d E(Vec4d const& p, JointType type);
+
 		//transformation that transforms coordinate vectors, rathern than transform frame
-		Mat3x3d E();
+		//Mat3x3d E();
 
 		//joint relative rotation 
-		Mat3x3d R() { return E().transpose(); }
+		//Mat3x3d R() { return E().transpose(); }
 
 		//joint relative translation
 		Vec3d r();
@@ -34,9 +36,10 @@ namespace inceptionengine::dynamics
 		JointType Type = JointType::None;
 
 		Mat S;  //motion subspace
-		Vec q;
-		Vec qd;
-		Vec qdd;
+		Mat ST;
+		//Vec q;
+		//Vec qd;
+		//Vec qdd;
 
 
 	};

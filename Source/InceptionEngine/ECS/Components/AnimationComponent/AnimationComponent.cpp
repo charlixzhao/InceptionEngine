@@ -117,10 +117,6 @@ namespace inceptionengine
 		mAnimationController->SetInputControl(input);
 	}
 
-	void AnimationComponent::SetKinematicsTree()
-	{
-		mAnimationController->SetKinematicsTree();
-	}
 
 	void AnimationComponent::ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time)
 	{
