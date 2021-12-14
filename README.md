@@ -1,3 +1,10 @@
+#### Update: 12/14/2021
+Features of physically based animation is committed to branch develop/dynamics.
+Currently, the main algorithm is Featherstone's forward dynamics, which takes in joint 
+torques and external forces to compute joint accelerations, which is then used by the 
+numerical integrater (currently RK4) to compute joint parameter (which is unit quat).
+Any kinematics tree can be simulated effeciently with this algorithm. 
+
 #### Update: 8/6/2021
 Experimental features of motion matching is added to the develop/motion_matching branch.
 The motion matching functionality includes 
