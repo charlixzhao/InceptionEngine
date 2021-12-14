@@ -145,21 +145,21 @@ target_precompile_headers(InceptionEngine PRIVATE "IE_PCH.h")
 
 add_custom_command(TARGET InceptionEngine POST_BUILD 
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-        "${PROJECT_BINARY_DIR}/Source/InceptionEngine/Debug/InceptionEngine.dll"
-        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+        "${PROJECT_BINARY_DIR}/Source/InceptionEngine/${CMAKE_BUILD_TYPE}/InceptionEngine.dll"
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/${CMAKE_BUILD_TYPE}")
 
 add_custom_command(TARGET InceptionEngine POST_BUILD 
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/winx64-visualStudio/ikpFlac.dll"
-        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/${CMAKE_BUILD_TYPE}")
 
 add_custom_command(TARGET InceptionEngine POST_BUILD 
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/winx64-visualStudio/ikpMP3.dll"
-        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/${CMAKE_BUILD_TYPE}")
 
 add_custom_command(TARGET InceptionEngine POST_BUILD 
  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/irrKlang/bin/winx64-visualStudio/irrKlang.dll"
-        "${PROJECT_BINARY_DIR}/Source/StandAlone/Debug")
+        "${PROJECT_BINARY_DIR}/Source/StandAlone/${CMAKE_BUILD_TYPE}")
 

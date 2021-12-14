@@ -20,9 +20,9 @@ ${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/include)
 
 target_link_libraries(AssetImporter 
 InceptionBase 
-${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/debug/libfbxsdk.lib)
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/${CMAKE_BUILD_TYPE}/libfbxsdk.lib)
 
 add_custom_command(TARGET AssetImporter POST_BUILD 
 COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-        "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/debug/libfbxsdk.dll"
-        "${PROJECT_BINARY_DIR}/Source/AssetImporter/Debug")
+        "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/${CMAKE_BUILD_TYPE}/libfbxsdk.dll"
+        "${PROJECT_BINARY_DIR}/Source/AssetImporter/${CMAKE_BUILD_TYPE}")

@@ -38,9 +38,13 @@ namespace inceptionengine
 		mFinalPose.boneLclTransforms = skeleton->GetLocalRefPose();
 		mKtState = dynamics::Vec::Zero(mKinematicsTree->N * 7);
 		for (int i = 0; i < mKinematicsTree->N; i++) mKtState[4 * i] = 1.0f;
+
+		
 		float theta = -PI / 4.0f;
 		mKtState[4] = std::cos(theta);
 		mKtState[4 + 3] = std::sin(theta);
+		
+
 		mKinematicsTree->InitializeComputationBuffer();
 	}
 

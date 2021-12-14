@@ -32,7 +32,7 @@ private:
 	{
 		if (press)
 		{
-			GetEntity().GetComponent<AnimationComponent>().ApplyExtForce(force3, { 0.0f,0.0f,-30.0f }, { 1.0f + 0.05f,0.0f,0.0f }, 0.5f);
+			GetEntity().GetComponent<AnimationComponent>().ApplyExtForce(force3, { 0.0f,0.0f,-30.0f }, { 0.5f,0.0f,0.0f }, 0.5f);
 		}
 	}
 
@@ -86,11 +86,11 @@ private:
 	{
 		if (scrollUp)
 		{
-			GetEntity().GetComponent<CameraComponent>().MoveForward(20.0f);
+			GetEntity().GetComponent<CameraComponent>().MoveForward(50.0f);
 		}
 		else
 		{
-			GetEntity().GetComponent<CameraComponent>().MoveForward(-20.0f);
+			GetEntity().GetComponent<CameraComponent>().MoveForward(-50.0f);
 		}
 	}
 
@@ -126,6 +126,8 @@ int main()
 	
 	Entity const& camera = world->CreateEntity();
 	//camera.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 200.0f, 200.0f), Vec3f(0.0f, 145.0f, 0.0f));
+	//camera.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, -200.0f, 300.0f), Vec3f(0.0f, -200.0f, 0.0f));
+
 	camera.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, -50.0f, 300.0f), Vec3f(0.0f, -50.0f, 0.0f));
 	world->SetGameCamera(camera.GetComponent<CameraComponent>());
 	camera.AddComponent<NativeScriptComponent>().SetScript<CameraScript>();
@@ -136,9 +138,18 @@ int main()
 	pendulum.AddComponent<AnimationComponent>();
 
 	float constexpr r = 3.0f;
-	int constexpr N = 5;
+	int constexpr N = 20;
 
+	
+	/*
+	pendulum.AddComponent<SkeletalMeshComponent>().StartAddCube();
+	int fp = pendulum.GetComponent<SkeletalMeshComponent>().AddCube(80.0f, 20.0f, 20.0f, r, { 0.0f,0.0f,0.0f }, -1, "StandAloneResource/T_Ground.jpg");
+	for(;fp<N;)
+		fp = pendulum.GetComponent<SkeletalMeshComponent>().AddCube(80.0f, 20.0f, 20.0f, r, { 2 * r + 80.0f,0.0f,0.0f }, fp, "StandAloneResource/T_Ground.jpg");
+	pendulum.GetComponent<SkeletalMeshComponent>().FinishAddCube();
+	*/
 
+	
 	pendulum.AddComponent<SkeletalMeshComponent>().StartAddCube();
 	int head = pendulum.GetComponent<SkeletalMeshComponent>().AddCube(20.0f, 20.0f, 20.0f, r, { 0.0f,0.0f,0.0f }, -1, "StandAloneResource/T_Ground.jpg");
 	
@@ -177,12 +188,16 @@ int main()
 																			 { 2 * r + 40.0f,0.0f,0.0f }, rightupperleg, "StandAloneResource/T_Ground.jpg");
 	
 	pendulum.GetComponent<SkeletalMeshComponent>().FinishAddCube();
-
 	
+	
+
 	pendulum.GetComponent<AnimationComponent>().StopAnimation();
 	pendulum.AddComponent<NativeScriptComponent>().SetScript<PendulumScript>();
 	dynamic_cast<PendulumScript*>(pendulum.GetComponent<NativeScriptComponent>().GetScript())->force3 = rightforeleg;
-	dynamic_cast<PendulumScript*>(pendulum.GetComponent<NativeScriptComponent>().GetScript())->force4 = uppertorso+1;
+	dynamic_cast<PendulumScript*>(pendulum.GetComponent<NativeScriptComponent>().GetScript())->force4 = uppertorso;
+	
+	
+	
 	//Entity const& plane = world->CreateEntity();
 	//plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f, -200.0f, "StandAloneResource/T_Grass.BMP");
 
