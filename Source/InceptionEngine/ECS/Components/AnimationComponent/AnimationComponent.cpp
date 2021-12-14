@@ -120,7 +120,7 @@ namespace inceptionengine
 
 	void AnimationComponent::ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time)
 	{
-		mAnimationController->ApplyExtForce(bodyID, force, location, time);
+		mAnimationController->ApplyExtForce(bodyID + 1, force, location, time);
 	}
 
 	void AnimationComponent::SetAimIkChain(std::vector<std::string> const& chainBoneNames,

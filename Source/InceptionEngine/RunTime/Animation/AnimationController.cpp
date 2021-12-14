@@ -38,7 +38,9 @@ namespace inceptionengine
 		mFinalPose.boneLclTransforms = skeleton->GetLocalRefPose();
 		mKtState = dynamics::Vec::Zero(mKinematicsTree->N * 7);
 		for (int i = 0; i < mKinematicsTree->N; i++) mKtState[4 * i] = 1.0f;
-
+		float theta = -PI / 4.0f;
+		mKtState[4] = std::cos(theta);
+		mKtState[4 + 3] = std::sin(theta);
 		mKinematicsTree->InitializeComputationBuffer();
 	}
 
@@ -99,15 +101,28 @@ namespace inceptionengine
 			else it++;
 		}
 
-		/*
+		
+		//RK4
 		dynamics::Vec k1 = mKinematicsTree->f(mKtState, {}, mExtForces) * deltaTime;
 		dynamics::Vec k2 = mKinematicsTree->f((mKtState + 0.5f*k1), {}, mExtForces) * deltaTime;
 		dynamics::Vec k3 = mKinematicsTree->f((mKtState+0.5f*k2), {}, mExtForces) * deltaTime;
 		dynamics::Vec k4 = mKinematicsTree->f((mKtState+k3), {}, mExtForces) * deltaTime;
 
-		mKtState += (k1 + 2 * k2 + 2 * k3 + k4) / 6.0f;*/
+		dynamics::Vec ds = (k1 + 2 * k2 + 2 * k3 + k4) / 6.0f;
+		for (auto& d : ds)
+		{
+			if (std::abs(d) <= 1e-8) d = 0.0f;
+		}
 
-		mKtState += mKinematicsTree->f(mKtState, {}, mExtForces) * deltaTime;
+		mKtState += ds;
+
+
+		/*
+		//RK2
+		dynamics::Vec k1 = mKinematicsTree->f(mKtState, {}, mExtForces) * deltaTime;
+		dynamics::Vec k2 = mKinematicsTree->f((mKtState + 0.5f * k1), {}, mExtForces) * deltaTime;
+
+		mKtState += k2;*/
 
 		NormalizeKtState();
 

@@ -43,13 +43,6 @@ namespace inceptionengine::dynamics
         Geoms.push_back({ dynamics::Mat3x3d::Identity(), offset });
 
 
-        //only for test
-        if (N == 2)
-        {
-            float theta = -std::numbers::pi / 12;
-            //Joints.back().q[0] = std::cos(theta);
-            //Joints.back().q[3] = std::sin(theta);
-        }
 
     }
 
