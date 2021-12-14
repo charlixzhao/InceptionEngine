@@ -151,7 +151,7 @@ private:
 		{
 			if (!GetEntity().GetComponent<AnimationComponent>().IsPlayingAnimation())
 			{
-				GetEntity().GetComponent<AnimationComponent>().PlayAnimation("StandAloneResource\\milia\\milia_walk.ie_anim");
+				GetEntity().GetComponent<AnimationComponent>().PlayAnimation("StandAloneResource/milia/milia_walk.ie_anim");
 			}
 			else
 			{
@@ -190,11 +190,11 @@ private:
 private:
 	std::array<std::string, 5> attacks =
 	{
-		"StandAloneResource\\milia\\milia_combo_a1.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a2.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a3.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a4.ie_anim",
-		"StandAloneResource\\milia\\milia_combo_a5.ie_anim"
+		"StandAloneResource/milia/milia_combo_a1.ie_anim",
+		"StandAloneResource/milia/milia_combo_a2.ie_anim",
+		"StandAloneResource/milia/milia_combo_a3.ie_anim",
+		"StandAloneResource/milia/milia_combo_a4.ie_anim",
+		"StandAloneResource/milia/milia_combo_a5.ie_anim"
 	};
 	std::array<float, 5> attackSpeed = { 0.85, 0.85, 0.65, 0.7, 0.7 };
 

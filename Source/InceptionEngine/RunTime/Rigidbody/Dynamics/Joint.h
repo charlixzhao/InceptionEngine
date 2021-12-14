@@ -14,7 +14,7 @@ namespace inceptionengine::dynamics
 
 	struct Joint
 	{
-		Joint() { ; }
+		Joint() = default;
 
 		Joint(JointType type);
 

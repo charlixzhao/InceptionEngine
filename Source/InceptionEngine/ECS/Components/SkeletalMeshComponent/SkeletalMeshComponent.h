@@ -41,7 +41,7 @@ namespace inceptionengine
 
 		void StartAddCube();
 
-		int AddCube(float x, float y, float z, Vec3f const& offset, int parent, std::string const& texture);
+		int AddCube(float x, float y, float z, float r, Vec3f const& offset, int parent, std::string const& texture);
 
 		void FinishAddCube();
 

@@ -26,8 +26,8 @@ namespace inceptionengine
 
 		ShaderPath const mShaderPath =
 		{
-			"EngineResource\\shader\\spv\\skyboxVertex.spv",
-			"EngineResource\\shader\\spv\\skyboxFrag.spv"
+			"EngineResource/shader/spv/skyboxVertex.spv",
+			"EngineResource/shader/spv/skyboxFrag.spv"
 		};
 
 		std::array<std::string, 6> mTexturePathes;

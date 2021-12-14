@@ -11,28 +11,28 @@ public:
 	SiceASM(EntityID entityID, std::reference_wrapper<World> world, EntityID swordID)
 		:AnimStateMachine(entityID, world), mSwordID(swordID)
 	{
-		int idle = CreateState("StandAloneResource\\sice\\sice_idle.ie_anim", []() {}, 
+		int idle = CreateState("StandAloneResource/sice/sice_idle.ie_anim", []() {}, 
 							   [&]() {GetEntity().GetComponent<AnimationComponent>().DeactivateAimIk(); });
 
-		int run = CreateState("StandAloneResource\\sice\\sice_run.ie_anim");
+		int run = CreateState("StandAloneResource/sice/sice_run.ie_anim");
 	
-		int idle_battle = CreateState("StandAloneResource\\sice\\sice_idle_battle.ie_anim");
-		int run_battle = CreateState("StandAloneResource\\sice\\sice_run_battle.ie_anim");
+		int idle_battle = CreateState("StandAloneResource/sice/sice_idle_battle.ie_anim");
+		int run_battle = CreateState("StandAloneResource/sice/sice_run_battle.ie_anim");
 		
-		int idle_to_battle = CreateState("StandAloneResource\\sice\\sice_idle_to_battle.ie_anim",
+		int idle_to_battle = CreateState("StandAloneResource/sice/sice_idle_to_battle.ie_anim",
 										 [&]() 
 										 {
 											 dynamic_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript())->StartEquip();
 										 },
 										 [&]() {dynamic_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript())->EndEquip(); });
 		
-		int battle_to_idle = CreateState("StandAloneResource\\sice\\sice_battle_to_idle.ie_anim",
+		int battle_to_idle = CreateState("StandAloneResource/sice/sice_battle_to_idle.ie_anim",
 										 [&]() {dynamic_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript())->StartUnequip(); },
 										 [&]() {dynamic_cast<SiceScript*>(GetEntity().GetComponent<NativeScriptComponent>().GetScript())->EndUnequip(); });
 
-		//int idle_to_battle = CreateState("StandAloneResource\\sice\\sice_idle_to_battle.ie_anim");
+		//int idle_to_battle = CreateState("StandAloneResource/sice/sice_idle_to_battle.ie_anim");
 
-		//int battle_to_idle = CreateState("StandAloneResource\\sice\\sice_battle_to_idle.ie_anim");
+		//int battle_to_idle = CreateState("StandAloneResource/sice/sice_battle_to_idle.ie_anim");
 
 		CreateLink(idle, run, [&]() -> bool
 				   {

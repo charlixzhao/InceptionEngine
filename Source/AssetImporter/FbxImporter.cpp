@@ -228,9 +228,9 @@ namespace inceptionengine::fbximport
                 std::string skeletonFileName;
                 std::cout << "Enter a name for the skeleton file, without extension: ";
                 std::getline(std::cin, skeletonFileName);
-                Serializer::Serailize<Skeleton>(skeleton, PathHelper::GetAbsolutePath(outputFolder) + "\\" + skeletonFileName + ".ie_skeleton");
+                Serializer::Serailize<Skeleton>(skeleton, PathHelper::GetAbsolutePath(outputFolder) + "/" + skeletonFileName + ".ie_skeleton");
                 std::cout << "Import skelelton done\n";
-                std::string pathToSkeleton = outputFolder + "\\" + skeletonFileName + ".ie_skeleton";
+                std::string pathToSkeleton = outputFolder + "/" + skeletonFileName + ".ie_skeleton";
                 skmesh.mPathToSkeleton = pathToSkeleton;
                 for (auto& anim : animations) anim.mPathToSkeleton = pathToSkeleton;
             }
@@ -252,7 +252,7 @@ namespace inceptionengine::fbximport
         std::string meshFileName;
         std::cout << "Enter a name for the mesh file, without extension, empty if don't serialize it: ";
         std::getline(std::cin, meshFileName);
-        if(meshFileName != "") Serializer::Serailize<SkeletalMesh>(skmesh, PathHelper::GetAbsolutePath(outputFolder) + "\\" + meshFileName + ".ie_skmesh");
+        if(meshFileName != "") Serializer::Serailize<SkeletalMesh>(skmesh, PathHelper::GetAbsolutePath(outputFolder) + "/" + meshFileName + ".ie_skmesh");
         std::cout << "Import mesh done\n";
 
         for (int animIndex = 0; animIndex < animations.size(); animIndex++)
@@ -261,7 +261,7 @@ namespace inceptionengine::fbximport
             std::string animFileName;
             std::cout << "Enter a name for this animation file, without extension, empty if don't serialize it: ";
             std::getline(std::cin, animFileName);
-            if(animFileName != "") Serializer::Serailize<Animation>(animations[animIndex], PathHelper::GetAbsolutePath(outputFolder) + "\\" + animFileName + ".ie_anim");
+            if(animFileName != "") Serializer::Serailize<Animation>(animations[animIndex], PathHelper::GetAbsolutePath(outputFolder) + "/" + animFileName + ".ie_anim");
         }
         std::cout << "Import animation done\n";
 
@@ -584,7 +584,7 @@ namespace inceptionengine::fbximport
                     std::getline(std::cin, mesh.mSubMeshes.back().texturePath);
                     if (mesh.mSubMeshes.back().texturePath == "")
                     {
-                        mesh.mSubMeshes.back().texturePath = "EngineResource\\texture\\DefaultTexture.png";
+                        mesh.mSubMeshes.back().texturePath = "EngineResource/texture/DefaultTexture.png";
                     }
                 }
             }

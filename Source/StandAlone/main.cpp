@@ -28,7 +28,7 @@ private:
 	{
 		if (press)
 		{
-			GetEntity().GetComponent<AnimationComponent>().ApplyExtForce(1, { 0.0f,0.0f,-20.0f }, { 1.0f,0.0f,0.0f }, 0.5f);
+			GetEntity().GetComponent<AnimationComponent>().ApplyExtForce(10, { 0.0f,0.0f,-10.0f }, { 1.0f + 0.05f,0.0f,0.0f }, 0.5f);
 		}
 	}
 
@@ -99,12 +99,12 @@ int main()
 
 	std::array<std::string, 6> skyboxTexturePath =
 	{
-		"StandAloneResource\\skybox\\front.png",
-		"StandAloneResource\\skybox\\back.png",
-		"StandAloneResource\\skybox\\top.png",
-		"StandAloneResource\\skybox\\bottom.png",
-		"StandAloneResource\\skybox\\right.png",
-		"StandAloneResource\\skybox\\left.png"
+		"StandAloneResource/skybox/front.png",
+		"StandAloneResource/skybox/back.png",
+		"StandAloneResource/skybox/top.png",
+		"StandAloneResource/skybox/bottom.png",
+		"StandAloneResource/skybox/right.png",
+		"StandAloneResource/skybox/left.png"
 	};
 
 
@@ -117,22 +117,30 @@ int main()
 	world->SetGameCamera(camera.GetComponent<CameraComponent>());
 	camera.AddComponent<NativeScriptComponent>().SetScript<CameraScript>();
 
-	/*
+	
 	Entity const& pendulum = world->CreateEntity();
+	
+	pendulum.AddComponent<AnimationComponent>();
+
+	float constexpr r = 5.0f;
+	int constexpr N = 9;
+
+
 	pendulum.AddComponent<SkeletalMeshComponent>().StartAddCube();
-	pendulum.GetComponent<SkeletalMeshComponent>().AddCube(100.0f, 25.0f, 25.0f, { 0.0f,0.0f,0.0f }, -1, "StandAloneResource/T_Ground.jpg");
-	//pendulum.GetComponent<SkeletalMeshComponent>().AddCube(100.0f, 25.0f, 25.0f, { 100.0f,0.0f,0.0f }, 0, "EngineResource/texture/DefaultTexture.png");
+	int fp = pendulum.GetComponent<SkeletalMeshComponent>().AddCube(80.0f, 10.0f, 10.0f, r, { 0.0f,0.0f,0.0f }, -1, "StandAloneResource/T_Ground.jpg");
+
+	for(; fp < N; )
+		fp = pendulum.GetComponent<SkeletalMeshComponent>().AddCube(80.0f, 10.0f, 10.0f, r, { 2 * r + 80.0f,0.0f,0.0f }, fp, "StandAloneResource/T_Ground.jpg");
+
+	
 	pendulum.GetComponent<SkeletalMeshComponent>().FinishAddCube();
 
-	pendulum.AddComponent<AnimationComponent>().SetKinematicsTree();
+	
 	pendulum.GetComponent<AnimationComponent>().StopAnimation();
-	pendulum.AddComponent<NativeScriptComponent>().SetScript<PendulumScript>();*/
+	pendulum.AddComponent<NativeScriptComponent>().SetScript<PendulumScript>();
 
-	Entity const& sphere = world->CreateEntity();
-	sphere.AddComponent<SkeletalMeshComponent>().SetSphere(50.0f, "EngineResource/texture/grey.png");
-
-	Entity const& plane = world->CreateEntity();
-	plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f, -100.0f);
+	//Entity const& plane = world->CreateEntity();
+	//plane.AddComponent<SkeletalMeshComponent>().SetPlane(2000.0f, -200.0f, "StandAloneResource/T_Grass.BMP");
 
 	engine.PlayGame();
 
@@ -280,7 +288,7 @@ public:
 	HumanoidASM(EntityID entityID, std::reference_wrapper<World> world)
 		:AnimStateMachine(entityID, world)
 	{
-		CreateState("StandAloneResource\\humanoid\\obstacles1_subject1.ie_anim");
+		CreateState("StandAloneResource/humanoid/obstacles1_subject1.ie_anim");
 
 		SetEntryState(0);
 	}
@@ -298,12 +306,12 @@ int main()
 
 	std::array<std::string, 6> skyboxTexturePath =
 	{
-		"StandAloneResource\\skybox\\front.png",
-		"StandAloneResource\\skybox\\back.png",
-		"StandAloneResource\\skybox\\top.png",
-		"StandAloneResource\\skybox\\bottom.png",
-		"StandAloneResource\\skybox\\right.png",
-		"StandAloneResource\\skybox\\left.png"
+		"StandAloneResource/skybox/front.png",
+		"StandAloneResource/skybox/back.png",
+		"StandAloneResource/skybox/top.png",
+		"StandAloneResource/skybox/bottom.png",
+		"StandAloneResource/skybox/right.png",
+		"StandAloneResource/skybox/left.png"
 	};
 
 
@@ -312,16 +320,16 @@ int main()
 
 	Entity const& humanoid = world->CreateEntity();
 	EntityID humanoidID = humanoid.GetID();
-	humanoid.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\humanoid\\humanoid_mesh.ie_skmesh");
+	humanoid.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/humanoid/humanoid_mesh.ie_skmesh");
 
-	humanoid.GetComponent<SkeletalMeshComponent>().SetTexture({ "EngineResource\\texture\\brown.png",
-															  "EngineResource\\texture\\grey.png" ,
-															  "EngineResource\\texture\\brown.png" ,
-															  "EngineResource\\texture\\grey.png" ,
-															  "EngineResource\\texture\\brown.png" });
+	humanoid.GetComponent<SkeletalMeshComponent>().SetTexture({ "EngineResource/texture/brown.png",
+															  "EngineResource/texture/grey.png" ,
+															  "EngineResource/texture/brown.png" ,
+															  "EngineResource/texture/grey.png" ,
+															  "EngineResource/texture/brown.png" });
 
-	//humanoid.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource\\shader\\spv\\vertex.spv",
-	//															 "EngineResource\\shader\\spv\\highlight.spv");
+	//humanoid.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource/shader/spv/vertex.spv",
+	//															 "EngineResource/shader/spv/highlight.spv");
 
 
 	humanoid.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 200.0f, 200.0f), Vec3f(0.0f, 145.0f, 0.0f));
@@ -359,12 +367,12 @@ int main()
 
 	std::array<std::string, 6> skyboxTexturePath =
 	{
-		"StandAloneResource\\skybox\\front.png",
-		"StandAloneResource\\skybox\\back.png",
-		"StandAloneResource\\skybox\\top.png",
-		"StandAloneResource\\skybox\\bottom.png",
-		"StandAloneResource\\skybox\\right.png",
-		"StandAloneResource\\skybox\\left.png"
+		"StandAloneResource/skybox/front.png",
+		"StandAloneResource/skybox/back.png",
+		"StandAloneResource/skybox/top.png",
+		"StandAloneResource/skybox/bottom.png",
+		"StandAloneResource/skybox/right.png",
+		"StandAloneResource/skybox/left.png"
 	};
 
 
@@ -373,14 +381,14 @@ int main()
 
 	Entity const& sice = world->CreateEntity();
 	EntityID siceID = sice.GetID();
-	sice.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\sice\\sice_mesh.ie_skmesh");
+	sice.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/sice/sice_mesh.ie_skmesh");
 
-	sice.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource\\sice\\hair.BMP",
-															   "StandAloneResource\\sice\\skin.HDR" ,
-															   "StandAloneResource\\sice\\cloth.BMP" });
+	sice.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource/sice/hair.BMP",
+															   "StandAloneResource/sice/skin.HDR" ,
+															   "StandAloneResource/sice/cloth.BMP" });
 
-	sice.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource\\shader\\spv\\vertex.spv",
-															 "EngineResource\\shader\\spv\\highlight.spv");
+	sice.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource/shader/spv/vertex.spv",
+															 "EngineResource/shader/spv/highlight.spv");
 
 
 	sice.AddComponent<CameraComponent>().SetPosAndForward(Vec3f(0.0f, 200.0f, 200.0f), Vec3f(0.0f, 145.0f, 0.0f));
@@ -418,11 +426,11 @@ int main()
 
 	Entity const& sword = world->CreateEntity();
 	EntityID swordID = sword.GetID();
-	sword.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\thinsword\\thinsword_mesh.ie_skmesh");
+	sword.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/thinsword/thinsword_mesh.ie_skmesh");
 	sword.GetComponent<SkeletalMeshComponent>().SetVisibility(false);
 	sword.GetComponent<TransformComponent>().AttachToSocket(siceID, "SwordSocket");
-	sword.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource\\shader\\spv\\vertex.spv",
-															  "EngineResource\\shader\\spv\\highlight.spv");
+	sword.GetComponent<SkeletalMeshComponent>().SetShaderPath(-1, "EngineResource/shader/spv/vertex.spv",
+															  "EngineResource/shader/spv/highlight.spv");
 
 	world->GetEntity(siceID).AddComponent<NativeScriptComponent>().SetScript<SiceScript>(swordID);
 	world->GetEntity(siceID).AddComponent<AnimationComponent>().SetAnimStateMachine<SiceASM>(swordID);
@@ -437,7 +445,7 @@ int main()
 																			 Vec3f(0.0f, 150.0f * 1.8f, 0.0f),
 																			 150.0f);
 
-	shinokao.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\shinokao\\shinokao_mesh.ie_skmesh");
+	shinokao.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/shinokao/shinokao_mesh.ie_skmesh");
 
 	shinokao.AddComponent<AnimationComponent>().SetAnimStateMachine<ShinokaoASM>();
 	shinokao.AddComponent<NativeScriptComponent>().SetScript<ShinokaoScript>();
@@ -465,12 +473,12 @@ int main()
 	
 	std::array<std::string, 6> skyboxTexturePath =
 	{
-		"StandAloneResource\\skybox\\front.png",
-		"StandAloneResource\\skybox\\back.png",
-		"StandAloneResource\\skybox\\top.png",
-		"StandAloneResource\\skybox\\bottom.png",
-		"StandAloneResource\\skybox\\right.png",
-		"StandAloneResource\\skybox\\left.png"
+		"StandAloneResource/skybox/front.png",
+		"StandAloneResource/skybox/back.png",
+		"StandAloneResource/skybox/top.png",
+		"StandAloneResource/skybox/bottom.png",
+		"StandAloneResource/skybox/right.png",
+		"StandAloneResource/skybox/left.png"
 	};
 	
 
@@ -480,7 +488,7 @@ int main()
 	Entity const& entityOne = world->CreateEntity();
 	EntityID entityOneID = entityOne.GetID();
 
-	entityOne.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\milia\\milia_mesh.ie_skmesh");
+	entityOne.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/milia/milia_mesh.ie_skmesh");
 	entityOne.AddComponent<AnimationComponent>().SetAnimStateMachine<MiliaASM>();
 
 	entityOne.AddComponent<NativeScriptComponent>().SetScript<HornetScript>();
@@ -499,16 +507,16 @@ int main()
 
 	Entity const& sice = world->CreateEntity();
 	
-	sice.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\sice\\sice_mesh.ie_skmesh");
+	sice.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/sice/sice_mesh.ie_skmesh");
 	sice.AddComponent<AnimationComponent>().SetAnimStateMachine<SiceASM>();
-	sice.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource\\sice\\hair.BMP",
-															   "StandAloneResource\\sice\\skin.HDR" ,
-															   "StandAloneResource\\sice\\cloth.BMP" });
+	sice.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource/sice/hair.BMP",
+															   "StandAloneResource/sice/skin.HDR" ,
+															   "StandAloneResource/sice/cloth.BMP" });
 
 	Entity const& entityThree = world->CreateEntity();
-	entityThree.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\firesword\\firesword_mesh.ie_skmesh");
-	entityThree.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource\\firesword\\handle.BMP",
-													 "StandAloneResource\\firesword\\fireblade.jpg" });
+	entityThree.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/firesword/firesword_mesh.ie_skmesh");
+	entityThree.GetComponent<SkeletalMeshComponent>().SetTexture({ "StandAloneResource/firesword/handle.BMP",
+													 "StandAloneResource/firesword/fireblade.jpg" });
 	entityThree.GetComponent<TransformComponent>().AttachToSocket(entityOneID, "FireSword");
 
 	Entity const& entityFour = world->CreateEntity();

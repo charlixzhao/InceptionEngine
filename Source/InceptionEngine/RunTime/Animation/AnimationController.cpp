@@ -24,6 +24,7 @@ namespace inceptionengine
 		mEventAnimController = std::make_unique<EventAnimController>(*this);
 		mIkController = std::make_unique<IkController>(*this);
 		mMotionMatchingController = std::make_unique<MotionMatchingController>();
+		mKinematicsTree = std::make_unique<dynamics::KinematicsTree>();
 	}
 
 	AnimationController::~AnimationController()
@@ -94,7 +95,7 @@ namespace inceptionengine
 			else it++;
 		}
 		mKinematicsTree->ForwardDynamics({}, mExtForces);
-		mKinematicsTree->Step(deltaTime, 1e-10f);
+		mKinematicsTree->Step(deltaTime, 1e-8f);
 		for (int i = 1; i < mKinematicsTree->Joints.size(); i++)
 		{
 			Matrix4x4f rot(1.0f);
@@ -375,6 +376,8 @@ namespace inceptionengine
 		mMotionMatchingController->SetInputControl(input);
 	}
 
+
+	//deprecated
 	void AnimationController::SetKinematicsTree()
 	{
 		
@@ -411,6 +414,13 @@ namespace inceptionengine
 		kt.Io[2] = dynamics::ParallelInertia(kt.Bodies[2].Ic, (dynamics::Vec3d() << 0.5f, 0.0f, 0.0f).finished(), kt.Bodies[2].m);
 		mExtForces.resize(3, dynamics::SpatialForce::Zero());
 		*/
+	}
+
+	void AnimationController::AddCuboidLink(float x, float y, float z, float r, int parent, Vec3f const& offset)
+	{
+		mKinematicsTree->AddCuboidLink(dynamics::JointType::Sperical, x / 100.0f, y / 100.0f, z / 100.0f, r / 100.0f, parent + 1, (dynamics::Vec3d() << offset[0], offset[1], offset[2]).finished() / 100.0f);
+		if (mExtForces.size() == 0) mExtForces.push_back(dynamics::SpatialForce::Zero());
+		mExtForces.push_back(dynamics::SpatialForce::Zero());
 	}
 
 	void AnimationController::ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time)

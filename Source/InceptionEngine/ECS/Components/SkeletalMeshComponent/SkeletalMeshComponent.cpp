@@ -179,16 +179,24 @@ mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBo
 	}
 
 
-	int SkeletalMeshComponent::AddCube(float x, float y, float z, Vec3f const& offset, int parent, std::string const& texture)
+	int SkeletalMeshComponent::AddCube(float x, float y, float z, float r, Vec3f const& offset, int parent, std::string const& texture)
 	{
-		int cubeID = mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.size();
+		int cubeID = mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones.size();
 		SubMesh cube = GenerateCuboid(x, y, z, texture);
+		SubMesh sphere = GenerateSphere(r, "EngineResource/texture/grey.png");
 		for (auto& v : cube.vertices)
+		{
+			v.affectedBonesID[0] += cubeID + AnimPoseOffsetInUBuffer;
+			v.position[0] += r;
+			v.position += Vec4f(offset, 0.0f);
+		}
+		for (auto& v : sphere.vertices)
 		{
 			v.affectedBonesID[0] += cubeID + AnimPoseOffsetInUBuffer;
 			v.position += Vec4f(offset, 0.0f);
 		}
 
+		mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.push_back(sphere);
 		mSkeletalMeshInstance->mSkeletalMesh->mSubMeshes.push_back(cube);
 
 		Skeleton::Bone bone;
@@ -199,12 +207,18 @@ mSkeletalMeshInstance->mHandArmIkChain.BoneIDs.push_back(pMesh->mSkeleton->GetBo
 		bone.lclRefPose = bone.bindPose;
 		mSkeletalMeshInstance->mSkeletalMesh->mSkeleton->mBones.push_back(bone);
 		
+
+		//add to kinematics tree
+		auto& animController = mWorld.get().GetEntity(mEntityID).GetComponent<AnimationComponent>().mAnimationController;
+		animController->AddCuboidLink(x, y, z, r, parent, offset);
+
 		return cubeID;	
 	}
 
 	void SkeletalMeshComponent::FinishAddCube()
 	{
 		mSkeletalMeshInstance->InitializeRenderObjects();
+		mWorld.get().GetEntity(mEntityID).GetComponent<AnimationComponent>().mAnimationController->Initialize(mSkeletalMeshInstance->mSkeletalMesh->mSkeleton);
 	}
 
 

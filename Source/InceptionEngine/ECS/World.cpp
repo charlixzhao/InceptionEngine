@@ -226,11 +226,11 @@ namespace inceptionengine
 
     void World::WorldImpl::DrawAnimationTest()
     {
-        auto anim = gResourceMgr.GetResource<Animation>("StandAloneResource\\milia_sm\\milia_a_pose.ie_anim");
+        auto anim = gResourceMgr.GetResource<Animation>("StandAloneResource/milia_sm/milia_a_pose.ie_anim");
         for (int i = 0; i < anim->mBoneTransforms[0].size(); i++)
         {
             Entity const& ent = CreateEntity();
-            ent.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource\\cube\\cube_mesh.ie_skmesh");
+            ent.AddComponent<SkeletalMeshComponent>().SetMesh("StandAloneResource/cube/cube_mesh.ie_skmesh");
             ent.GetComponent<TransformComponent>().SetWorldTransform(GetBoneModelTransform(anim->mBoneTransforms[10], *anim->mSkeleton, i) * Scale(0.1f, 0.1f, 0.1f));
         }
         

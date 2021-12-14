@@ -9,16 +9,18 @@ namespace inceptionengine::dynamics
 {
 	struct KinematicsTree
 	{
+
+		KinematicsTree();
+
 		KinematicsTree(int n, int m);
 
 		~KinematicsTree();
 
+		void AddCuboidLink(JointType jointType, float x, float y, float z, float r, int parent, Vec3d const& offset);
+
 		void ForwardDynamics(std::vector<Vec3d> const& jointTorques, std::vector<SpatialForce> const& ext);
 
-		void Step(float dt, float threadshold = 0.0)
-		{
-			for (auto& j : Joints) j.Step(dt, threadshold);
-		}
+		void Step(float dt, float threadshold = 0.0);
 
 		int N = 0;
 	

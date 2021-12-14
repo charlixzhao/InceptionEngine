@@ -73,11 +73,11 @@ namespace inceptionengine
 			int location = -1;
 			for (size_t i = 0; i < path.length(); i++)
 			{
-				if (path[i] == '\\')
+				if (path[i] == '/')
 				{
 					for (size_t j = i + 1; j < path.length(); j++)
 					{
-						if (path[j] == '\\')
+						if (path[j] == '/')
 						{
 							std::string word = path.substr(i + 1, j - i - 1);
 							if (word == std::string("build_x64"))
@@ -96,7 +96,7 @@ namespace inceptionengine
 	private:
 		/*
 		This should be the path of the folder "Inception Engine", 
-		Examples are D:\\InceptionEngine 
+		Examples are D:/InceptionEngine 
 		*/
 		static std::string mEnginePath;  
 	};

@@ -93,7 +93,7 @@ public:
 	{
 		GetEntity().GetComponent<CameraComponent>().SetCameraControlYaw(false);
 		mSiceActionState.isEquipping = false;
-		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\uneath.wav");
+		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource/sice/uneath.wav");
 		//mInBattleMode = true;
 		GetEntity().GetWorld().GetEntity(mSwordID).GetComponent<SkeletalMeshComponent>().SetVisibility(true);
 		RestoreMovement();
@@ -135,9 +135,9 @@ public:
 
 			mCanBlockAttack = mSiceActionState.isAttacking = mSiceActionState.isEquipping = mSiceActionState.isInComboCritical = mSiceActionState.isRolling = mSiceActionState.isBlocking = false;
 			mAttackState = 0;
-			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\gethit1.wav");
+			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource/sice/gethit1.wav");
 			EventAnimPlaySetting gethit;
-			gethit.animFilePath = "StandAloneResource\\sice\\sice_hurt.ie_anim";
+			gethit.animFilePath = "StandAloneResource/sice/sice_hurt.ie_anim";
 			gethit.animStartCallback = [&]()
 			{
 				StartAction(false);
@@ -186,7 +186,7 @@ private:
 
 		float currentSecond = GetEntity().GetComponent<AnimationComponent>().GetCurrentEventAnimTime();
 		GetEntity().GetComponent<AnimationComponent>().InsertEventAnimSpeedRangeSecond(currentSecond, currentSecond + 0.03f, 0.08f);
-		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\thinsword\\sword_block3.WAV");
+		GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource/thinsword/sword_block3.WAV");
 	}
 
 	virtual void OnBegin() override
@@ -433,7 +433,7 @@ private:
 		mSiceActionState.isAttacking = true;
 
 		EventAnimPlaySetting setting;
-		setting.animFilePath = "StandAloneResource\\sice\\sice_block_attack.ie_anim";
+		setting.animFilePath = "StandAloneResource/sice/sice_block_attack.ie_anim";
 		AnimSpeedRange range1;
 		range1.startRatio = 0.0f;
 		range1.endRatio = 0.25f;
@@ -574,7 +574,7 @@ private:
 
 			mSiceActionState.isRolling = true;
 			EventAnimPlaySetting rollSetting;
-			rollSetting.animFilePath = "StandAloneResource\\sice\\sice_roll.ie_anim";
+			rollSetting.animFilePath = "StandAloneResource/sice/sice_roll.ie_anim";
 		
 			rollSetting.animStartCallback = [&]() {GetEntity().GetComponent<RigidbodyComponent>().SetVelocity({ 0.0f,0.0f, 300.0f }); };
 			
@@ -602,7 +602,7 @@ private:
 			
 			AnimNotify playSound;
 			playSound.ratio = 5.0f / 15.0f;
-			playSound.notify = [&]() {GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\sice\\roll2.wav"); };
+			playSound.notify = [&]() {GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource/sice/roll2.wav"); };
 			rollSetting.animNotifies.push_back(playSound);
 
 			rollSetting.blendOutDuration = 0.08f;
@@ -628,7 +628,7 @@ private:
 
 			mSiceActionState.isBlocking = true;
 			EventAnimPlaySetting setting;
-			setting.animFilePath = "StandAloneResource\\sice\\sice_block.ie_anim";
+			setting.animFilePath = "StandAloneResource/sice/sice_block.ie_anim";
 
 			AnimNotify startBlock;
 			startBlock.ratio = 6.0f / 17.0f;
@@ -665,17 +665,17 @@ private:
 
 	std::array<std::string, 4> const mAttackAnims =
 	{
-		"StandAloneResource\\sice\\sice_combo_a1.ie_anim",
-		"StandAloneResource\\sice\\sice_combo_a2.ie_anim",
-		"StandAloneResource\\sice\\sice_combo_a3.ie_anim",
-		"StandAloneResource\\sice\\sice_combo_a4.ie_anim",
+		"StandAloneResource/sice/sice_combo_a1.ie_anim",
+		"StandAloneResource/sice/sice_combo_a2.ie_anim",
+		"StandAloneResource/sice/sice_combo_a3.ie_anim",
+		"StandAloneResource/sice/sice_combo_a4.ie_anim",
 	};
 	std::array<std::string, 4> const mAttackReturnAnims =
 	{
-		"StandAloneResource\\sice\\sice_return_a1.ie_anim",
-		"StandAloneResource\\sice\\sice_return_a2.ie_anim",
-		"StandAloneResource\\sice\\sice_return_a3.ie_anim",
-		"StandAloneResource\\sice\\sice_return_a4.ie_anim",
+		"StandAloneResource/sice/sice_return_a1.ie_anim",
+		"StandAloneResource/sice/sice_return_a2.ie_anim",
+		"StandAloneResource/sice/sice_return_a3.ie_anim",
+		"StandAloneResource/sice/sice_return_a4.ie_anim",
 	};
 
 	std::array<float, 4> mAttackSpeed = { 0.8, 0.8, 0.85, 0.9 };

@@ -30,11 +30,11 @@ public:
 
 			if (damage > 1.1f)
 			{
-				GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\shinokao\\gethit_heavy.wav");
+				GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource/shinokao/gethit_heavy.wav");
 			}
 			else
 			{
-				GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\shinokao\\gethit_light.wav");
+				GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource/shinokao/gethit_light.wav");
 			}
 
 			GetEntity().GetComponent<TransformComponent>().RotateForwardVecToInDuration(DirectionToMainCharacter(), 0.05f);
@@ -43,7 +43,7 @@ public:
 			mMoveTimer = 0.0f;
 
 			EventAnimPlaySetting setting;
-			setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_gethit_2.ie_anim";
+			setting.animFilePath = "StandAloneResource/shinokao/shinokao_gethit_2.ie_anim";
 			setting.animStartCallback = [&]() {mCanMove = false; };
 			setting.animEndCallback = [&]() {mCanMove = true; };
 			AnimSpeedRange range;
@@ -91,7 +91,7 @@ public:
 		}
 		else
 		{
-			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource\\shinokao\\gethit_goldbody.wav");
+			GetEntity().GetComponent<AudioComponent>().PlaySound2D("StandAloneResource/shinokao/gethit_goldbody.wav");
 			HP -= 0.5f;
 		}
 
@@ -111,7 +111,7 @@ public:
 		mMoveTimer = 0.0f;
 
 		EventAnimPlaySetting setting;
-		setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_beblocked.ie_anim";
+		setting.animFilePath = "StandAloneResource/shinokao/shinokao_beblocked.ie_anim";
 		setting.blendOutDuration = 0.3f;
 
 		setting.animStartCallback = [&]() {mCanMove = false; };
@@ -290,7 +290,7 @@ private:
 	void Attack1()
 	{
 		EventAnimPlaySetting setting;
-		setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_attack_1.ie_anim";
+		setting.animFilePath = "StandAloneResource/shinokao/shinokao_attack_1.ie_anim";
 
 		AnimSpeedRange range;
 		range.startRatio = 0.0f;
@@ -312,7 +312,7 @@ private:
 	void Attack2()
 	{
 		EventAnimPlaySetting setting;
-		setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_attack_2.ie_anim";;
+		setting.animFilePath = "StandAloneResource/shinokao/shinokao_attack_2.ie_anim";;
 
 		AnimSpeedRange range;
 		range.startRatio = 0.0f;
@@ -334,7 +334,7 @@ private:
 	void Attack3()
 	{
 		EventAnimPlaySetting setting;
-		setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_attack_3.ie_anim";;
+		setting.animFilePath = "StandAloneResource/shinokao/shinokao_attack_3.ie_anim";;
 
 		AnimNotify attackDetection;
 		attackDetection.ratio = 27.0f / 60.0f;
@@ -355,7 +355,7 @@ private:
 	void Attack4()
 	{
 		EventAnimPlaySetting setting;
-		setting.animFilePath = "StandAloneResource\\shinokao\\shinokao_attack_4.ie_anim";;
+		setting.animFilePath = "StandAloneResource/shinokao/shinokao_attack_4.ie_anim";;
 
 		AnimNotify attackDetection;
 		attackDetection.ratio = 49.0f / 79.0f;

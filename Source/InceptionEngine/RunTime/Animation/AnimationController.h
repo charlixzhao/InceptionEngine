@@ -97,6 +97,8 @@ namespace inceptionengine
 
 		void SetKinematicsTree();
 
+		void AddCuboidLink(float x, float y, float z, float r, int parent, Vec3f const& offset);
+
 		void ApplyExtForce(int bodyID, Vec3f const& force, Vec3f const& location, float time);
 
 	private:
