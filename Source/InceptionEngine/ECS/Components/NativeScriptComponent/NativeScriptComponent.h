@@ -3,7 +3,9 @@
 #include "EngineGlobals/EngineApiPrefix.h"
 #include "NativeScript.h"
 #include "ECS/Entity/EntityID.h"
-
+#ifndef WIN32
+#include <memory>
+#endif
 
 namespace inceptionengine
 {

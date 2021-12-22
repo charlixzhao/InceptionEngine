@@ -10,9 +10,11 @@ set(SRC_BUILD_FILES
 "Timer.hpp"
 "PathHelper.h"
 "PathHelper.cpp")
-
+IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 add_library(InceptionBase STATIC ${SRC_BUILD_FILES})
-
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+add_library(InceptionBase SHARED ${SRC_BUILD_FILES})
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
          FILES ${SRC_BUILD_FILES})
 

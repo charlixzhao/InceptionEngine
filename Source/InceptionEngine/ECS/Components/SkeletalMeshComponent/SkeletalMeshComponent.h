@@ -56,7 +56,9 @@ namespace inceptionengine
 	private:
 		friend class SkeletalMeshRenderSystem;
 		friend class AnimationSystem;
+#ifdef WIN32
 		friend class SkeletalMeshComponent;
+#endif
 		friend class AnimationComponent;
 
 		std::unique_ptr<SkeletalMeshInstance> mSkeletalMeshInstance = nullptr;

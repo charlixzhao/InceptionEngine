@@ -7,11 +7,10 @@ set(SRC_BUILD_FILES
 )
 
 add_executable(AssetImporter ${SRC_BUILD_FILES})
-
-target_compile_options(AssetImporter PUBLIC /wd26812 /wd26451 /wd26495)
-
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
          FILES ${SRC_BUILD_FILES})
+IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+target_compile_options(AssetImporter PUBLIC /wd26812 /wd26451 /wd26495)
 
 target_include_directories(AssetImporter PUBLIC 
 ${PROJECT_SOURCE_DIR}/Source/InceptionEngine
@@ -26,3 +25,14 @@ add_custom_command(TARGET AssetImporter POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         "${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/debug/libfbxsdk.dll"
         "${PROJECT_BINARY_DIR}/Source/AssetImporter/Debug")
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+target_include_directories(AssetImporter PUBLIC
+${PROJECT_SOURCE_DIR}/Source/InceptionEngine
+${PROJECT_SOURCE_DIR}/Source/InceptionBase
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/include)
+
+target_link_libraries(AssetImporter
+InceptionBase
+/usr/lib/libxml2.so
+${PROJECT_SOURCE_DIR}/ThirdParty/ThirdPartyLibraries/fbxsdk/lib/x64/debug/libfbxsdk.so)
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")

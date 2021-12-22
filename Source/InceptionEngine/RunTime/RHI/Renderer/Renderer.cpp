@@ -122,34 +122,28 @@ namespace inceptionengine
 			std::cerr << "Fail to get next available image from the swap chain" << std::endl;
 			throw std::runtime_error("");
 		}
-
 		vkWaitForFences(m_device, 1, &m_acquireImageFence, VK_TRUE, UINT64_MAX);
-
 		vkResetFences(m_device, 1, &m_acquireImageFence);
-
-		vkWaitForFences(m_device, 1, &m_imageFinishRenderFence[m_nextRenderImgIdx], VK_TRUE, UINT64_MAX);
-
-		vkResetFences(m_device, 1, &m_imageFinishRenderFence[m_nextRenderImgIdx]);
-
-		RecordCommandBuffer(m_nextRenderImgIdx);
-
+		vkWaitForFences(m_device, 1, &m_imageFinishRenderFence[m_nextRenderImgIdx%NumOfRenderBuffers], VK_TRUE, UINT64_MAX);
+		vkResetFences(m_device, 1, &m_imageFinishRenderFence[m_nextRenderImgIdx%NumOfRenderBuffers]);
+		RecordCommandBuffer(m_nextRenderImgIdx%NumOfRenderBuffers);
 		VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &m_commandBuffers[m_nextRenderImgIdx];
+		submitInfo.pCommandBuffers = &m_commandBuffers[m_nextRenderImgIdx%NumOfRenderBuffers];
 		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &m_graphicsFinishSemaphores[m_nextRenderImgIdx];
-		vkQueueSubmit(m_queues.at(GraphicsQueue), 1, &submitInfo, m_imageFinishRenderFence[m_nextRenderImgIdx]);
+		submitInfo.pSignalSemaphores = &m_graphicsFinishSemaphores[m_nextRenderImgIdx%NumOfRenderBuffers];
+		vkQueueSubmit(m_queues.at(GraphicsQueue), 1, &submitInfo, m_imageFinishRenderFence[m_nextRenderImgIdx%NumOfRenderBuffers]);
 
 		VkPresentInfoKHR presentInfo = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &m_graphicsFinishSemaphores[m_nextRenderImgIdx];
+		presentInfo.pWaitSemaphores = &m_graphicsFinishSemaphores[m_nextRenderImgIdx%NumOfRenderBuffers];
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &mSwapchain;
+        m_nextRenderImgIdx%=NumOfRenderBuffers;
 		presentInfo.pImageIndices = &m_nextRenderImgIdx;
 		vkQueuePresentKHR(m_queues.at(PresentQueue), &presentInfo);
-
 	}
 
 
@@ -658,7 +652,7 @@ namespace inceptionengine
 		fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 		m_graphicsFinishSemaphores.resize((size_t)NumOfRenderBuffers);
 		m_imageFinishRenderFence.resize((size_t)NumOfRenderBuffers);
-
+        std::cout << "NumberOfRenderBuffers:"<<NumOfRenderBuffers<<std::endl;
 		for (size_t i = 0; i < NumOfRenderBuffers; i++)
 		{
 			vkCreateSemaphore(m_device, &createInfo, nullptr, &m_graphicsFinishSemaphores[i]);
@@ -1200,9 +1194,7 @@ namespace inceptionengine
 
 		auto transformCopy = transformations;
 
-		unsigned int writeToImageIdx = m_nextRenderImgIdx ^ 1;
-
-
+		unsigned int writeToImageIdx = (m_nextRenderImgIdx%NumOfRenderBuffers) ^ 1;
 		void* data = nullptr;
 
 		vkMapMemory(m_device, uBuffer.boneTransformMemory[writeToImageIdx], 0, sizeof(Matrix4x4f) * transformations.size(), 0, &data);
@@ -1228,7 +1220,12 @@ namespace inceptionengine
 		int cubeMapWidth, cubeMapHeight, cubeMapNChannel;
 		stbi_uc* front = stbi_load(PathHelper::GetAbsolutePath(texturePaths[0]).c_str(), &cubeMapWidth, &cubeMapHeight, &cubeMapNChannel, STBI_rgb_alpha);
 
-		if (front == nullptr) throw std::runtime_error("");
+
+		if (front == nullptr)
+        {
+            std::cerr << "Fail to load stb image" <<texturePaths[0]<< std::endl;
+            throw std::runtime_error("");
+        }
 
 
 		VkDeviceSize imageSize = static_cast<uint64_t>(cubeMapWidth) * static_cast<uint64_t>(cubeMapHeight) * 4;
@@ -1248,7 +1245,11 @@ namespace inceptionengine
 		{
 			int width, height, nChannel;
 			stbi_uc* textureImage = stbi_load(PathHelper::GetAbsolutePath(texturePaths[i]).c_str(), &width, &height, &nChannel, STBI_rgb_alpha);
-			if (textureImage == nullptr || width != cubeMapWidth || height != cubeMapHeight) throw std::runtime_error("");
+			if (textureImage == nullptr || width != cubeMapWidth || height != cubeMapHeight)
+            {
+                std::cerr << "Fail to load stb image" <<texturePaths[i]<< std::endl;
+                throw std::runtime_error("");
+            }
 
 			memcpy(static_cast<char*>(data) + i * imageSize, reinterpret_cast<const void*>(textureImage), static_cast<size_t>(imageSize));
 

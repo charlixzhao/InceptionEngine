@@ -3,6 +3,12 @@
 #include <string>
 #include <cassert>
 
+#ifdef _WIN32
+#define FILE_SEPARATOR ('\\')
+#else
+#define FILE_SEPARATOR ('/')
+#endif
+
 namespace inceptionengine
 {
 	class PathHelper
@@ -35,7 +41,12 @@ namespace inceptionengine
 
 		static bool IsAbsolutePath(std::string const& path)
 		{
+#ifdef _WIN32
 			return path.length() >= 2 && isupper(path[0]) && path[1] == ':';
+#endif
+#ifdef __linux__
+			return path[0] == '/';
+#endif
 		}
 
 		static bool IsFileExist(std::string const& path)
@@ -62,8 +73,14 @@ namespace inceptionengine
 
 		static std::string GetAbsolutePath(std::string const& path)
 		{
-			if (IsAbsolutePath(path)) return path;
+#ifndef __WIN32
+            std::string norm_path = Normalize(path);
+            if (IsAbsolutePath(norm_path)) return norm_path;
+			return mEnginePath + norm_path;
+#else
+            if (IsAbsolutePath(path)) return path;
 			return mEnginePath + path;
+#endif
 		}
 
 		static std::string GetEnginePath(std::string const& path)
@@ -71,11 +88,11 @@ namespace inceptionengine
 			int location = -1;
 			for (size_t i = 0; i < path.length(); i++)
 			{
-				if (path[i] == '\\')
+				if (path[i] == FILE_SEPARATOR)
 				{
 					for (size_t j = i + 1; j < path.length(); j++)
 					{
-						if (path[j] == '\\')
+						if (path[j] == FILE_SEPARATOR)
 						{
 							std::string word = path.substr(i + 1, j - i - 1);
 							if (word == std::string("build_x64"))
